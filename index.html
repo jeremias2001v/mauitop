@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mauitop 🍌 - El Sabor de Colombia</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800;900&family=Pacifico&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<!-- Topbar -->
+<div class="topbar">
+  <span>🍌 El sabor del plátano maduro hecho arte</span>
+  <span>📍 Domicilios disponibles &nbsp;|&nbsp; 📞 318 289 6219</span>
+</div>
+
+<!-- HERO -->
+<header>
+  <div class="hero-pattern"></div>
+  <nav>
+    <div class="logo">
+      <span class="logo-main">Mauitop</span>
+      <span class="logo-sub">Sabor Colombiano</span>
+    </div>
+    <ul class="nav-links">
+      <li><a href="#menu">Menú</a></li>
+      <li><a href="#platano">Muitop</a></li>
+      <li><a href="#nosotros">Nosotros</a></li>
+      <li><a href="#" class="cart-btn" onclick="toggleCart(); return false;">🛒 Carrito <span id="cart-count">0</span></a></li>
+    </ul>
+    <a href="#" class="cart-btn" id="mobile-cart" onclick="toggleCart(); return false;" style="font-family:'Bebas Neue';font-size:17px;text-decoration:none;background:var(--rojo);color:white;padding:10px 20px;border-radius:30px;display:flex;align-items:center;gap:8px;">
+      🛒 <span id="cart-count-2">0</span>
+    </a>
+  </nav>
+
+  <div class="hero-content">
+    <div class="hero-text">
+      <h1>El Sabor<span class="highlight">Colombiano</span>en tu mesa</h1>
+      <p>Platos únicos a base de plátano maduro, hamburguesas, perros y salchipapas. ¡Todo con el alma de Colombia! 🇨🇴</p>
+      <a href="#menu" class="hero-badge">🍌 Ver el Menú</a>
+    </div>
+  </div>
+</header>
+
+<!-- Bandera Colombia -->
+<div class="colombia-stripe">
+  <div class="s-amarillo"></div>
+  <div class="s-azul"></div>
+  <div class="s-rojo"></div>
+</div>
+
+<!-- PLATO ESTRELLA -->
+<section id="estrella" class="section">
+  <div class="estrella-inner">
+    <div class="estrella-img">
+      <span style="font-size:80px;">🌟</span>
+      <div class="estrella-badge">⭐ PLATO ESTRELLA</div>
+    </div>
+    <div class="estrella-text">
+      <h2>El Mauito</h2>
+      <p>Nuestro plato insignia. Una obra maestra hecha con plátano maduro, preparada con la receta secreta de Mauitop. Jugoso, dorado y con ese sabor que solo Colombia puede dar. ¡Tienes que probarlo!</p>
+      <div>
+        <!-- Precio y botón eliminados según solicitud -->
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Bandera Colombia -->
+<div class="colombia-stripe">
+  <div class="s-amarillo"></div>
+  <div class="s-azul"></div>
+  <div class="s-rojo"></div>
+</div>
+
+<!-- MENÚ -->
+<section id="menu" class="section">
+  <div style="max-width:1200px;margin:0 auto;">
+    <div class="section-title">Nuestro Menú</div>
+    <div class="section-subtitle">Escoge tu favorito y arma tu pedido</div>
+
+    <div class="menu-tabs" id="menu-tabs">
+      <button class="tab-btn active" onclick="filterMenu('todos', this)">🍽️ Todos</button>
+    </div>
+
+    <div class="menu-grid" id="menu-grid"></div>
+  </div>
+</section>
+
+<!-- SOBRE NOSOTROS -->
+<section id="nosotros" class="section section-bg-alt" style="background: linear-gradient(135deg,#FFF8E7 0%,#FFF3E0 100%);">
+  <div style="max-width:900px;margin:0 auto;text-align:center;">
+    <div class="section-title">¿Quiénes somos?</div>
+    <p style="font-size:18px;line-height:1.8;color:#666;margin-top:20px;font-weight:600;">
+      <strong style="color:var(--cafe)">Mauitop</strong> nació del amor por el plátano maduro y el sabor de Colombia. 🇨🇴 Somos un restaurante de comidas rápidas con corazón colombiano, donde cada plato lleva el alma de nuestra tierra. Desde nuestro legendario <strong style="color:var(--rojo)">Mauito</strong> hasta nuestras hamburguesas y perros, todo está hecho con el cariño de siempre.
+    </p>
+    <div style="display:flex;gap:20px;justify-content:center;margin-top:36px;flex-wrap:wrap;">
+      <div style="background:white;border-radius:20px;padding:24px 32px;box-shadow:0 4px 20px var(--sombra);text-align:center;min-width:140px;">
+        <div style="font-size:42px;">🍌</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--cafe);margin-top:8px;">100% Plátano</div>
+        <div style="font-size:13px;color:#888;font-weight:600;">Ingredientes frescos</div>
+      </div>
+      <div style="background:white;border-radius:20px;padding:24px 32px;box-shadow:0 4px 20px var(--sombra);text-align:center;min-width:140px;">
+        <div style="font-size:42px;">🚀</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--cafe);margin-top:8px;">Pedido Rápido</div>
+        <div style="font-size:13px;color:#888;font-weight:600;">Por WhatsApp</div>
+      </div>
+      <div style="background:white;border-radius:20px;padding:24px 32px;box-shadow:0 4px 20px var(--sombra);text-align:center;min-width:140px;">
+        <div style="font-size:42px;">🇨🇴</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--cafe);margin-top:8px;">Sabor Colombiano</div>
+        <div style="font-size:13px;color:#888;font-weight:600;">Recetas auténticas</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div>
+      <div class="footer-logo">Mauitop</div>
+      <p>El sabor del plátano maduro hecho arte. Comidas rápidas con corazón colombiano.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Menú</h4>
+      <a href="#menu">El Mauito</a>
+      <a href="#menu">Plátano Maduro</a>
+      <a href="#menu">Hamburguesas</a>
+      <a href="#menu">Perros Calientes</a>
+      <a href="#menu">Salchipapas</a>
+    </div>
+    <div class="footer-col">
+      <h4>Contáctanos</h4>
+      <p>📱 WhatsApp: 318 289 6219</p>
+      <p>🍌 Domicilios disponibles</p>
+      <p>🇨🇴 Colombia</p>
+      <a href="https://wa.me/573182896219" target="_blank" style="color:#25D366;font-weight:800;">💬 Escríbenos ahora</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="colombia-stripe" style="margin-bottom:16px;border-radius:3px;overflow:hidden;max-width:200px;margin:0 auto 16px;">
+      <div class="s-amarillo" style="height:6px;"></div>
+      <div class="s-azul" style="height:6px;"></div>
+      <div class="s-rojo" style="height:6px;"></div>
+    </div>
+    © 2025 Mauitop · Hecho con 🍌 y amor colombiano | <a href="admin.html" style="color:#5b37f3;text-decoration:none;font-weight:600;">Admin</a>
+  </div>
+</footer>
+
+<!-- Carrito flotante -->
+<button id="floating-cart-btn" class="floating-cart-btn" onclick="toggleCart()" title="Abrir carrito">
+  🛒 Tu carrito
+  <span class="floating-cart-badge" id="floating-cart-count">0</span>
+</button>
+
+<!-- WhatsApp flotante eliminado según solicitud -->
+
+<!-- Toast -->
+<div id="toast">🍌 ¡Agregado al carrito!</div>
+
+<!-- CART SIDEBAR -->
+<div class="cart-overlay" id="cart-overlay" onclick="toggleCart()"></div>
+<aside class="cart-sidebar" id="cart-sidebar">
+  <div class="cart-header">
+    <div>
+      <h2>Tu Carrito 🛒</h2>
+      <p>Revisa tu pedido antes de enviarlo</p>
+    </div>
+    <button class="close-cart" onclick="toggleCart()">✕</button>
+  </div>
+  <div class="cart-platano">🍌 MAUITOP · SABOR COLOMBIANO 🇨🇴</div>
+  <div class="cart-items" id="cart-items">
+    <div class="cart-empty">
+      <span class="emoji">🍽️</span>
+      <p>Tu carrito está vacío</p>
+      <p style="font-size:13px;color:#ccc;margin-top:6px;">¡Agrega algo rico!</p>
+    </div>
+  </div>
+  <div class="cart-footer">
+    <div class="cart-total">
+      <span>TOTAL DEL PEDIDO</span>
+      <span class="total-val" id="cart-total-val">$0</span>
+    </div>
+    <button class="pedido-btn" id="pedido-btn" onclick="openModal()" disabled>
+      💬 Hacer Pedido por WhatsApp
+    </button>
+  </div>
+</aside>
+
+<!-- MODAL FORMULARIO PEDIDO -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h2>Hacer Pedido 🍌</h2>
+      <p>Completa tus datos y te enviamos tu pedido por WhatsApp</p>
+      <button class="close-modal" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="resumen-pedido">
+        <h3>📋 Resumen del Pedido</h3>
+        <div id="modal-items-list"></div>
+      </div>
+
+      <div class="form-group">
+        <label>👤 Nombre completo *</label>
+        <input type="text" id="f-nombre" placeholder="¿Cómo te llamamos?" required>
+      </div>
+      <div class="form-group">
+        <label>📱 Número de WhatsApp *</label>
+        <input type="tel" id="f-tel" placeholder="Ej: 3001234567" required>
+      </div>
+      <div class="form-group">
+        <label>📍 Dirección de entrega *</label>
+        <input type="text" id="f-dir" placeholder="Calle, barrio, referencias..." required>
+      </div>
+      <div class="form-group">
+        <label>🏘️ Barrio</label>
+        <input type="text" id="f-barrio" placeholder="Nombre del barrio">
+      </div>
+      <div class="form-group">
+        <label>💬 Notas adicionales</label>
+        <textarea id="f-notas" placeholder="Instrucciones especiales, sin cebolla, etc..."></textarea>
+      </div>
+
+      <button class="send-btn" onclick="enviarPedido()">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.117 1.526 5.845L0 24l6.336-1.502C8.035 23.454 9.982 24 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.854 0-3.587-.5-5.083-1.37l-.363-.214-3.763.892.944-3.666-.236-.376C2.523 15.639 2 13.878 2 12 2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+        Enviar Pedido por WhatsApp
+      </button>
+    </div>
+  </div>
+</div>
+
+<script src="js/script.js"></script>
+</body>
+</html>
