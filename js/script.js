@@ -5,6 +5,7 @@ let productos = [];
 let categorias = [];
 let cart = [];
 let currentFilter = 'todos';
+let isStoreOpen = true;
 
 function fmtPrice(p) {
   return '$' + p.toLocaleString('es-CO');
@@ -36,9 +37,10 @@ function renderMenu(filter = 'todos') {
 
   grid.innerHTML = filtered.map(p => {
     const isAvailable = p.disponible !== false && p.precio > 0;
-    const buttonLabel = isAvailable ? '+' : 'No disp.';
-    const buttonDisabled = isAvailable ? '' : 'disabled';
-    const buttonTitle = isAvailable ? 'Agregar al carrito' : 'Producto no disponible';
+    const isReady = isAvailable && isStoreOpen;
+    const buttonLabel = isReady ? '+' : (isAvailable && !isStoreOpen ? 'Cerrado' : 'No disp.');
+    const buttonDisabled = isReady ? '' : 'disabled';
+    const buttonTitle = isReady ? 'Agregar al carrito' : 'Tienda cerrada o producto no disponible';
 
     const cat = categorias.find(c => c.nombre === p.categoria);
     const hasImage = p.imagen && p.imagen.trim().length > 0;
@@ -84,6 +86,10 @@ window.filterMenu = function (cat, btn) {
 
 // ====== CART ======
 window.addToCart = function (nombre, precio, imagen, categoria, disponible) {
+  if (!isStoreOpen) {
+    showToast(`🏪 La tienda está cerrada por hoy`);
+    return;
+  }
   if (precio <= 0 || disponible === false) {
     showToast(`🚫 ${nombre} no está disponible actualmente`);
     return;
@@ -242,6 +248,23 @@ async function initMenu() {
 
     const prodsSnap = await getDocs(collection(db, "productos"));
     productos = prodsSnap.docs.map(d => d.data());
+
+    // Fetch Estado Tienda
+    try {
+      const { doc, getDoc } = await import("https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js");
+      const confSnap = await getDoc(doc(db, "configuracion", "estado"));
+      if (confSnap.exists() && confSnap.data().abierta === false) {
+        isStoreOpen = false;
+      }
+    } catch (e) {
+      console.error("No se pudo obtener el estado de la tienda", e);
+    }
+
+    if (!isStoreOpen) {
+      document.getElementById('closed-banner').style.display = 'block';
+      const floatingButton = document.querySelector('.floating-cart-btn');
+      if (floatingButton) floatingButton.style.display = 'none';
+    }
 
     // Si llegara a estar 100% vacío (porque aún no han abierto el admin-panel para migrar)
     if (productos.length === 0 && categorias.length === 0) {

@@ -1,4 +1,4 @@
-import { collection, getDocs, doc, setDoc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+import { collection, getDocs, getDoc, doc, setDoc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 import { signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js";
 import { db, auth } from "./firebase-config.js";
 
@@ -241,6 +241,9 @@ let editingCatName = null;
 async function initData() {
   try {
     showAdminMessage('Cargando datos de Firebase...', 'info');
+
+    // Fetch Estado Tienda
+    checkStoreStatus();
 
     // Fetch categories
     const catsSnap = await getDocs(collection(db, "categorias"));
@@ -658,5 +661,51 @@ if (fileInput) {
     reader.readAsDataURL(file);
   });
 }
+
+// ESTADO DE LA TIENDA
+let isStoreOpen = false;
+
+async function checkStoreStatus() {
+  const toggle = document.getElementById('store-toggle');
+  const text = document.getElementById('store-status-text');
+  try {
+    const docRef = doc(db, "configuracion", "estado");
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      isStoreOpen = docSnap.data().abierta !== false; // por defecto true si no está seteado el bool "abierta: false" pero existe doc
+    } else {
+      isStoreOpen = true; // Por defecto abierto si nunca se configuró
+    }
+  } catch (error) {
+    console.error("Error fetching config:", error);
+    isStoreOpen = true;
+  }
+  
+  toggle.checked = isStoreOpen;
+  toggle.disabled = false;
+  text.textContent = isStoreOpen ? "Tienda: ABIERTA" : "Tienda: CERRADA";
+  text.style.color = isStoreOpen ? "var(--verde)" : "var(--danger)";
+}
+
+window.toggleStoreStatus = async function() {
+  const toggle = document.getElementById('store-toggle');
+  const text = document.getElementById('store-status-text');
+  
+  toggle.disabled = true;
+  const nuevoEstado = toggle.checked;
+  text.textContent = "Guardando...";
+
+  try {
+    await setDoc(doc(db, "configuracion", "estado"), {
+      abierta: nuevoEstado
+    });
+    showAdminMessage(nuevoEstado ? 'Tienda Abierta' : 'Tienda Cerrada', 'success');
+  } catch(error) {
+    console.error(error);
+    showAdminMessage('Error cambiando el estado', 'error');
+    toggle.checked = !nuevoEstado; // revert
+  }
+  checkStoreStatus();
+};
 
 initAuthObserver();
