@@ -14,11 +14,79 @@ window.switchAdminTab = function (tabName, btnElement) {
   // Mostrar/Ocultar Tabs
   document.getElementById('tab-inventario').style.display = tabName === 'inventario' ? 'block' : 'none';
   document.getElementById('tab-pedidos').style.display = tabName === 'pedidos' ? 'block' : 'none';
+  document.getElementById('tab-finanzas').style.display = tabName === 'finanzas' ? 'block' : 'none';
 
   if (tabName === 'pedidos') {
     window.loadPedidos();
   }
+  if (tabName === 'finanzas') {
+    window.loadDashboard();
+  }
 };
+
+window.loadDashboard = async function () {
+  showAdminMessage('Calculando finanzas...', 'info');
+  try {
+    const snap = await getDocs(collection(db, "pedidos"));
+    localPedidos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderDashboard();
+    showAdminMessage('Datos financieros actualizados', 'success');
+  } catch (e) {
+    console.error(e);
+    showAdminMessage('Error cargando datos financieros', 'error');
+  }
+};
+
+function renderDashboard() {
+  let ingresosHoy = 0;
+  let ingresosMes = 0;
+  let ingresosTotal = 0;
+  let conteoProductos = {};
+
+  const hoy = new Date();
+  const mesActual = hoy.getMonth();
+  const anioActual = hoy.getFullYear();
+  const diaActual = hoy.getDate();
+
+  const entregados = localPedidos.filter(p => p.estado === 'Entregado');
+
+  entregados.forEach(p => {
+    let t = Number(p.total) || 0;
+    ingresosTotal += t;
+
+    if (p.fecha && p.fecha.toDate) {
+      const fechaP = p.fecha.toDate();
+      if (fechaP.getFullYear() === anioActual && fechaP.getMonth() === mesActual) {
+        ingresosMes += t;
+        if (fechaP.getDate() === diaActual) {
+          ingresosHoy += t;
+        }
+      }
+    }
+
+    if (p.ítems) {
+      p.ítems.forEach(item => {
+        const nombre = item.nombre;
+        const qty = item.cantidad || item.qty || 1;
+        conteoProductos[nombre] = (conteoProductos[nombre] || 0) + Number(qty);
+      });
+    }
+  });
+
+  let productoEstrella = 'N/A';
+  let maxVentas = 0;
+  for (const [nombre, cantidad] of Object.entries(conteoProductos)) {
+    if (cantidad > maxVentas) {
+      maxVentas = cantidad;
+      productoEstrella = nombre;
+    }
+  }
+
+  document.getElementById('stat-hoy').textContent = '$' + ingresosHoy.toLocaleString('es-CO');
+  document.getElementById('stat-mes').textContent = '$' + ingresosMes.toLocaleString('es-CO');
+  document.getElementById('stat-total').textContent = '$' + ingresosTotal.toLocaleString('es-CO');
+  document.getElementById('stat-estrella').textContent = productoEstrella !== 'N/A' ? `${productoEstrella} (${maxVentas})` : 'N/A';
+}
 
 window.loadPedidos = async function () {
   showAdminMessage('Cargando historial de pedidos...', 'info');

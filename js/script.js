@@ -179,23 +179,19 @@ window.enviarPedido = async function () {
 
   const total = cart.reduce((s, i) => s + i.precio * i.qty, 0);
 
-  let msg = `🍌 *NUEVO PEDIDO - MAUITOP* 🍌\n`;
-  msg += `━━━━━━━━━━━━━━━━━━━━\n`;
+  let msg = `🍌 *NUEVO PEDIDO - MAUITOP* 🍌\n\n`;
   msg += `👤 *Cliente:* ${nombre}\n`;
   msg += `📱 *Teléfono:* ${tel}\n`;
   msg += `📍 *Dirección:* ${dir}\n`;
   if (barrio) msg += `🏘️ *Barrio:* ${barrio}\n`;
-  msg += `💳 *Pago:* ${pago}\n`;
-  msg += `━━━━━━━━━━━━━━━━━━━━\n`;
+  msg += `💳 *Pago:* ${pago}\n\n`;
   msg += `🛒 *Pedido:*\n`;
   cart.forEach(i => {
     msg += `  🍌 ${i.nombre} x${i.qty} — ${fmtPrice(i.precio * i.qty)}\n`;
   });
-  msg += `━━━━━━━━━━━━━━━━━━━━\n`;
-  msg += `💵 *TOTAL: ${fmtPrice(total)}*\n`;
+  msg += `\n💵 *TOTAL: ${fmtPrice(total)}*\n`;
   if (notas) msg += `📝 *Notas:* ${notas}\n`;
-  msg += `━━━━━━━━━━━━━━━━━━━━\n`;
-  msg += `¡Gracias por pedir en Mauitop! 🇨🇴`;
+  msg += `\n¡Gracias por pedir en Mauitop! 🇨🇴`;
 
   const waUrl = `https://wa.me/573182896219?text=${encodeURIComponent(msg)}`;
 

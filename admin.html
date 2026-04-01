@@ -33,6 +33,7 @@
       <div class="sidebar-nav">
         <div class="nav-item active" onclick="switchAdminTab('inventario', this)">📦 Inventario</div>
         <div class="nav-item" onclick="switchAdminTab('pedidos', this)">📝 Pedidos Live</div>
+        <div class="nav-item" onclick="switchAdminTab('finanzas', this)">💰 Finanzas</div>
       </div>
       <div class="logout-container">
         <button onclick="handleLogout()" class="logout-btn">
@@ -56,6 +57,46 @@
       </header>
 
       <div id="admin-msg"></div>
+
+      <!-- ===== TAB FINANZAS ===== -->
+      <div id="tab-finanzas" style="display:none;">
+        <section class="admin-card">
+          <div class="card-header" style="margin-bottom: 20px;">
+            <h2>📊 Resumen Financiero</h2>
+            <p style="color:#666; font-size:14px; margin-top:4px;">(Contabilizando solo pedidos Entregados ✅)</p>
+          </div>
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-icon">📈</div>
+              <div class="stat-info">
+                <h3>Ingresos Hoy</h3>
+                <p id="stat-hoy">$0</p>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon">📅</div>
+              <div class="stat-info">
+                <h3>Mes Actual</h3>
+                <p id="stat-mes">$0</p>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon">💰</div>
+              <div class="stat-info">
+                <h3>Total Histórico</h3>
+                <p id="stat-total">$0</p>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon">👑</div>
+              <div class="stat-info">
+                <h3>Estrella de Ventas</h3>
+                <p id="stat-estrella">N/A</p>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
 
       <!-- ===== TAB INVENTARIO ===== -->
       <div id="tab-inventario">
