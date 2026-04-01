@@ -1,139 +1,249 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin Mauitop - Productos</title>
-  <link rel="stylesheet" href="css/styles.css" />
+  <title>Admin Dashboard - Mauitop</title>
   <link rel="stylesheet" href="css/admin.css" />
-  <style>
-    body { background:#f6f4ec; color:#3b2a16; padding:24px; }
-    .admin-header { max-width:1200px; margin:0 auto 22px; display:flex; justify-content:space-between; align-items:center; }
-    .admin-card { background:white; border-radius:16px; box-shadow:0 4px 15px rgba(0,0,0,.1); padding:20px; max-width:1200px; margin:0 auto 20px; }
-    .admin-form { display:grid; grid-template-columns: repeat(auto-fill,minmax(200px,1fr)); gap:14px; align-items:end; margin-bottom:20px; }
-    .admin-form label { font-size:13px; color:#666; margin-bottom:6px; display:block; }
-    .admin-form input, .admin-form select, .admin-form textarea { width:100%; padding:8px 10px; border:1px solid #ccc; border-radius:8px; font-size:14px; }
-    .admin-form textarea { resize:vertical; }
-    .admin-table { width:100%; border-collapse:collapse; }
-    .admin-table th, .admin-table td { padding:10px 8px; border:1px solid #e3ddd2; text-align:left; }
-    .admin-table th { background:#f7f1e5; }
-    .admin-actions button { margin-right:6px; }
-    .small-note{font-size:12px;color:#666;margin-top:6px;}
-  </style>
 </head>
+
 <body class="admin">
-  <!-- Modal de login -->
-  <div id="login-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:9999; display:flex; align-items:center; justify-content:center;">
-    <div style="background:white; padding:30px; border-radius:16px; max-width:360px; width:90%; text-align:center; box-shadow:0 16px 40px rgba(0,0,0,0.2);">
-      <h2 style="margin-top:0; font-size:24px; color:#2c2a2e;">Acceso al Panel</h2>
-      <p style="color:#666; margin:10px 0 20px;">Ingresa la contraseña para continuar</p>
+
+  <!-- Login Modal -->
+  <div id="login-modal" class="login-wrapper">
+    <div class="login-card">
+      <h2>Mauitop Admin</h2>
+      <p>Acceso seguro al panel de gestión</p>
       <form id="login-form" onsubmit="handleLogin(event)">
-        <input type="password" id="login-password" placeholder="Contraseña" required style="width:100%; padding:12px; border:1px solid #ccc; border-radius:10px; font-size:14px; margin-bottom:16px;">
-        <button type="submit" class="hero-badge" style="width:100%; background:#5b37f3; color:white; padding:12px; border:none; border-radius:10px; font-weight:600; cursor:pointer;">Ingresar</button>
+        <input type="password" id="login-password" placeholder="Ingresa tu contraseña" required
+          style="margin-bottom: 16px;">
+        <button type="submit" class="primary-btn" style="width: 100%;">Ingresar al Panel</button>
       </form>
-      <p id="login-error" style="color:#e65364; font-size:13px; margin-top:10px; display:none;"></p>
+      <p id="login-error" style="color:var(--danger); font-size:13px; margin-top:16px; display:none;"></p>
     </div>
   </div>
 
-  <div id="admin-content" style="display:none;">
-  <div class="admin-header">
-    <h1>Panel de Administración de Productos</h1>
-    <div style="display:flex; gap:10px;">
-      <button onclick="handleLogout(); setTimeout(() => window.location.href='index.html', 200);" class="hero-badge" style="background:#e65364;">Cerrar sesión</button>
-      <a class="hero-badge" href="index.html">Volver al sitio</a>
-    </div>
+  <!-- Main Dashboard -->
+  <div id="admin-content" style="display:none;" class="dashboard-layout">
+
+    <!-- Sidebar -->
+    <nav class="sidebar">
+      <h2>🍌 Mauitop</h2>
+      <div class="sidebar-nav">
+        <div class="nav-item active" onclick="switchAdminTab('inventario', this)">📦 Inventario</div>
+        <div class="nav-item" onclick="switchAdminTab('pedidos', this)">📝 Pedidos Live</div>
+      </div>
+      <div class="logout-container">
+        <button onclick="handleLogout()" class="logout-btn">
+          <svg style="width:16px;height:16px;margin-right:6px;vertical-align:middle;" fill="none" stroke="currentColor"
+            viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+          </svg>
+          Cerrar sesión
+        </button>
+      </div>
+    </nav>
+
+    <!-- Content -->
+    <main class="main-content">
+      <header class="admin-header">
+        <h1>Dashboard</h1>
+        <div class="links">
+          <a class="secondary-link" href="index.html">↗ Volver a la Tienda</a>
+        </div>
+      </header>
+
+      <div id="admin-msg"></div>
+
+      <!-- ===== TAB INVENTARIO ===== -->
+      <div id="tab-inventario">
+        <!-- Categorías -->
+        <section class="admin-card">
+          <div class="card-header">
+            <h2>🏷️ Categorías</h2>
+            <button onclick="openCatModal()" class="primary-btn">+ Nueva Categoría</button>
+          </div>
+          <div class="table-responsive">
+            <table class="admin-table" id="cats-table">
+              <thead>
+                <tr>
+                  <th>Nombre (ID)</th>
+                  <th>Etiqueta Visual</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Productos -->
+        <section class="admin-card">
+          <div class="card-header">
+            <h2>🍔 Productos Disponibles</h2>
+            <button onclick="openProdModal()" class="primary-btn">+ Nuevo Producto</button>
+          </div>
+          <div class="table-responsive">
+            <table class="admin-table" id="products-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Imagen</th>
+                  <th>Nombre</th>
+                  <th>Categoría</th>
+                  <th>Precio</th>
+                  <th>Estado</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+      <!-- ===== TAB PEDIDOS ===== -->
+      <div id="tab-pedidos" style="display:none;">
+        <section class="admin-card">
+          <div class="card-header">
+            <h2>📝 Historial de Pedidos</h2>
+            <button onclick="loadPedidos()" class="secondary-btn">↻ Refrescar Manual</button>
+          </div>
+          <div class="table-responsive">
+            <table class="admin-table" id="pedidos-table">
+              <thead>
+                <tr>
+                  <th>Fecha</th>
+                  <th>Cliente</th>
+                  <th>Dirección</th>
+                  <th>Ítems</th>
+                  <th>Total</th>
+                  <th>Estado</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+    </main>
   </div>
 
-  <div id="admin-msg" style="max-width:1200px;margin:0 auto 16px; padding:12px 16px; border-radius:10px; display:none;"></div>
-
-  <div class="admin-card">
-    <h2>Categorías</h2>
-    <button onclick="openCatModal()" class="hero-badge" style="margin-bottom:20px;">Agregar Categoría</button>
-    <table class="admin-table" id="cats-table">
-      <thead>
-        <tr><th>Nombre</th><th>Etiqueta</th><th>Acciones</th></tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </div>
-
-  <div class="admin-card">
-    <h2>Productos actuales</h2>
-    <button onclick="openProdModal()" class="hero-badge" style="margin-bottom:20px;">Agregar Producto</button>
-    <table class="admin-table" id="products-table">
-      <thead>
-        <tr><th>ID</th><th>Nombre</th><th>Categoría</th><th>Precio</th><th>Disponible</th><th>Acciones</th></tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </div>
-
-  <!-- Modal para agregar/editar producto -->
-  <div id="prod-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
-    <div style="background:white; padding:20px; border-radius:8px; max-width:480px; width:90%;">
-      <h3>Agregar Producto</h3>
-      <form id="prod-form" onsubmit="handleProdSubmit(event)">
+  <!-- Modal Producto -->
+  <div id="prod-modal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Agregar Producto</h3>
+      </div>
+      <form id="prod-form" class="modal-form" onsubmit="handleProdSubmit(event)">
         <input type="hidden" id="p-id" />
-        <label>Nombre</label>
-        <input type="text" id="p-nombre" required />
-        <label>Categoría</label>
-        <select id="p-categoria" required></select>
-        <label>Precio</label>
-        <input type="number" id="p-precio" min="0" step="500" required />
-        <label>URL de Imagen</label>
-        <input type="url" id="p-imagen" placeholder="https://ejemplo.com/imagen.jpg" required />
-        <div id="img-preview-container" style="display:none; margin-top:8px;">
-          <span style="font-size:13px;color:#666;">Preview (solo cuando se edita):</span>
-          <img id="img-preview" src="" style="width:120px;height:120px;object-fit:cover;border-radius:8px;border:1px solid #ddd;margin-top:6px;" />
+        <div class="admin-form">
+          <div class="form-group">
+            <label>Nombre del Producto</label>
+            <input type="text" id="p-nombre" required />
+          </div>
+          <div class="form-group">
+            <label>Categoría</label>
+            <select id="p-categoria" required></select>
+          </div>
+          <div class="form-group">
+            <label>Precio ($ COP)</label>
+            <input type="number" id="p-precio" min="0" step="100" required />
+          </div>
+          <div class="form-group">
+            <label>Estado</label>
+            <select id="p-disponible">
+              <option value="true">Activo (Disponible)</option>
+              <option value="false">Pausado (Agotado)</option>
+            </select>
+          </div>
+          <div class="form-group" style="grid-column: 1 / -1;">
+            <label>Subir Imagen del Producto</label>
+            <!-- Input oculto para guardar la imagen final (Base64 o URL antigua) -->
+            <input type="hidden" id="p-imagen" required />
+            <div style="display:flex; align-items:center; gap:16px; margin-top:4px;">
+              <input type="file" id="p-file" accept="image/png, image/jpeg, image/webp"
+                style="flex:1; padding: 8px; border: 1px dashed #ccc; background:#fafafa; border-radius:6px; cursor:pointer;" />
+              <div id="img-preview-container"
+                style="display:none; width:60px; height:60px; border-radius:8px; overflow:hidden; border:1px solid #eee; flex-shrink:0;">
+                <img id="img-preview" src="" style="width:100%; height:100%; object-fit:cover;" />
+              </div>
+            </div>
+            <small style="color:var(--text-muted); display:block; margin-top:8px;">Se optimizará automáticamente para
+              que tu menú cargue rápido ⚡</small>
+          </div>
+          <div class="form-group" style="grid-column: 1 / -1;">
+            <label>Descripción corta</label>
+            <textarea id="p-desc" rows="2" required></textarea>
+          </div>
         </div>
-        <label>Descripción</label>
-        <textarea id="p-desc" rows="3" required></textarea>
-        <label>Disponible</label>
-        <select id="p-disponible">
-          <option value="true">Sí</option>
-          <option value="false">No</option>
-        </select>
         <div class="modal-actions">
-          <button type="button" onclick="closeProdModal()">Cancelar</button>
-          <button type="submit" class="hero-badge" id="submit-btn" style="min-width:140px;">Agregar producto</button>
+          <button type="button" class="secondary-btn" onclick="closeProdModal()">Cancelar</button>
+          <button type="submit" class="primary-btn" id="submit-btn">Guardar Producto</button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- Modal para agregar categoría -->
-  <div id="cat-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
-    <div style="background:white; padding:20px; border-radius:8px; max-width:400px; width:90%;">
-      <h3>Agregar Categoría</h3>
-      <form id="cat-form" onsubmit="handleCatSubmit(event)">
-        <label>Nombre (clave única)</label>
-        <input type="text" id="c-nombre" required />
-        <label>Etiqueta (display)</label>
-        <input type="text" id="c-label" required />
-        <label>Emoji</label>
-        <input type="text" id="c-emoji" maxlength="2" required />
-        <label>Color (CSS gradient)</label>
-        <input type="text" id="c-color" placeholder="linear-gradient(135deg,#FFD100,#FF6B00)" required />
+  <!-- Modal Categoría -->
+  <div id="cat-modal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Nueva Categoría</h3>
+      </div>
+      <form id="cat-form" class="modal-form" onsubmit="handleCatSubmit(event)">
+        <div class="form-group">
+          <label>Identificador Único (sin espacios)</label>
+          <input type="text" id="c-nombre" placeholder="ej: postres" required />
+        </div>
+        <div class="form-group" style="margin-top:10px;">
+          <label>Nombre para clientes</label>
+          <input type="text" id="c-label" placeholder="Postres Caseros" required />
+        </div>
+        <div class="form-group" style="margin-top:10px;">
+          <label>Emoji Icono</label>
+          <input type="text" id="c-emoji" maxlength="2" placeholder="🍰" required />
+        </div>
+        <div class="form-group" style="margin-top:10px;">
+          <label>Color Temático</label>
+          <select id="c-color" required>
+            <option value="linear-gradient(135deg,#FFD100,#FF6B00)">🍌 Plátano (Amarillo-Naranja)</option>
+            <option value="linear-gradient(135deg,#CE1126,#FF6B00)">🔥 Fuego (Rojo-Naranja)</option>
+            <option value="linear-gradient(135deg,#003087,#CE1126)">🇨🇴 Tríptico (Azul-Rojo)</option>
+            <option value="linear-gradient(135deg,#2E7D32,#00C853)">🌿 Botánico (Verdes)</option>
+            <option value="linear-gradient(135deg,#5b37f3,#9d72ff)">🌌 Estelar (Morados)</option>
+            <option value="linear-gradient(135deg,#4A00E0,#8E2DE2)">🍇 Uva (Púrpuras)</option>
+            <option value="linear-gradient(135deg,#FF4B2B,#FF416C)">🍒 Cereza (Carmesí)</option>
+            <option value="linear-gradient(135deg,#1CB5E0,#000046)">🌊 Atlántico (Azul Profundo)</option>
+            <option value="linear-gradient(135deg,#2b2b2b,#444444)">🌑 Nocturno (Grises oscuros)</option>
+          </select>
+        </div>
         <div class="modal-actions">
-          <button type="submit" class="hero-badge">Agregar</button>
-          <button type="button" onclick="closeCatModal()">Cancelar</button>
+          <button type="button" class="secondary-btn" onclick="closeCatModal()">Cancelar</button>
+          <button type="submit" class="primary-btn">Guardar</button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- Modal de confirmación (reutilizable) -->
-  <div id="confirm-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.4); z-index:1100; align-items:center; justify-content:center;">
-    <div style="background:white; padding:18px 20px; border-radius:12px; max-width:360px; width:90%; text-align:center;">
-      <p id="confirm-text" style="margin:0 0 14px; line-height:1.4; color:#222; font-weight:600;"></p>
-      <div style="display:flex; justify-content:center; gap:10px;">
-        <button type="button" class="hero-badge" style="background:#e65364;" onclick="cancelConfirm()">Cancelar</button>
-        <button type="button" class="hero-badge" id="confirm-yes-btn" onclick="executeConfirm()">Confirmar</button>
+  <!-- Modal Confirmación -->
+  <div id="confirm-modal" class="modal-overlay">
+    <div class="modal-content" style="max-width: 380px; text-align:center;">
+      <h3 style="margin-top:0; color:var(--danger);">¿Estás seguro?</h3>
+      <p id="confirm-text" style="color:var(--text-muted); margin-bottom: 24px; line-height: 1.5;"></p>
+      <div style="display:flex; justify-content:center; gap:12px;">
+        <button type="button" class="secondary-btn" onclick="cancelConfirm()">Cancelar</button>
+        <button type="button" class="primary-btn" style="background:var(--danger);" onclick="executeConfirm()">Sí,
+          Eliminar</button>
       </div>
     </div>
   </div>
-  </div><!-- Cierre de admin-content -->
 
-  <script src="js/admin.js"></script>
+  <script type="module" src="js/admin.js"></script>
 </body>
+
 </html>

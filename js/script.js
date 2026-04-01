@@ -1,35 +1,8 @@
-// =================== MENÚ DATA ===================
-const defaultProductos = [];
+import { collection, getDocs, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+import { db } from "./firebase-config.js";
 
-const STORAGE_KEY = 'mauitop_productos';
-const STORAGE_KEY_CATS = 'mauitop_categorias';
-
-function loadProductos() {
-  try {
-    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
-    if (Array.isArray(saved)) return saved;
-  } catch (error) {
-    console.warn('No se pudo cargar productos desde localStorage:', error);
-  }
-  return defaultProductos;
-}
-
-function saveProductos(data) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-}
-
-function loadCats() {
-  try {
-    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY_CATS));
-    if (Array.isArray(saved)) return saved;
-  } catch (error) {
-    console.warn('No se pudo cargar categorías:', error);
-  }
-  return [];
-}
-
-let productos = loadProductos();
-
+let productos = [];
+let categorias = [];
 let cart = [];
 let currentFilter = 'todos';
 
@@ -40,10 +13,9 @@ function fmtPrice(p) {
 // ====== RENDER TABS ======
 function renderTabs() {
   const tabsContainer = document.getElementById('menu-tabs');
-  const cats = loadCats();
-  const categorias = ['todos', ...cats.map(c => c.nombre)];
-  tabsContainer.innerHTML = categorias.map(cat => {
-    const catData = cats.find(c => c.nombre === cat);
+  const catNames = ['todos', ...categorias.map(c => c.nombre)];
+  tabsContainer.innerHTML = catNames.map(cat => {
+    const catData = categorias.find(c => c.nombre === cat);
     const emoji = cat === 'todos' ? '🍽️' : (catData ? catData.emoji : '🍽️');
     const label = cat === 'todos' ? 'Todos' : (catData ? catData.label : cat.charAt(0).toUpperCase() + cat.slice(1));
     const activeClass = cat === currentFilter ? 'active' : '';
@@ -56,14 +28,19 @@ function renderMenu(filter = 'todos') {
   renderTabs();
   const grid = document.getElementById('menu-grid');
   const filtered = filter === 'todos' ? productos : productos.filter(p => p.categoria === filter);
+
+  if (filtered.length === 0) {
+    grid.innerHTML = '<p style="text-align:center;width:100%;grid-column:1/-1;color:#666;">No hay productos en esta categoría.</p>';
+    return;
+  }
+
   grid.innerHTML = filtered.map(p => {
     const isAvailable = p.disponible !== false && p.precio > 0;
     const buttonLabel = isAvailable ? '+' : 'No disp.';
     const buttonDisabled = isAvailable ? '' : 'disabled';
     const buttonTitle = isAvailable ? 'Agregar al carrito' : 'Producto no disponible';
 
-    const cats = loadCats();
-    const cat = cats.find(c => c.nombre === p.categoria);
+    const cat = categorias.find(c => c.nombre === p.categoria);
     const hasImage = p.imagen && p.imagen.trim().length > 0;
     const contentHtml = hasImage ?
       `<img src="${p.imagen}" style="width:100%;height:100%;object-fit:cover;" alt="${p.nombre}" />` :
@@ -89,26 +66,24 @@ function renderMenu(filter = 'todos') {
 }
 
 function catColor(c) {
-  const cats = loadCats();
-  const cat = cats.find(cat => cat.nombre === c);
+  const cat = categorias.find(cat => cat.nombre === c);
   return cat ? cat.color : 'linear-gradient(135deg,#FFD100,#FF6B00)';
 }
 
 function catLabel(c) {
-  const cats = loadCats();
-  const cat = cats.find(cat => cat.nombre === c);
+  const cat = categorias.find(cat => cat.nombre === c);
   return cat ? cat.label : c.charAt(0).toUpperCase() + c.slice(1);
 }
 
-function filterMenu(cat, btn) {
+window.filterMenu = function (cat, btn) {
   currentFilter = cat;
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
+  if (btn) btn.classList.add('active');
   renderMenu(cat);
-}
+};
 
 // ====== CART ======
-function addToCart(nombre, precio, imagen, categoria, disponible) {
+window.addToCart = function (nombre, precio, imagen, categoria, disponible) {
   if (precio <= 0 || disponible === false) {
     showToast(`🚫 ${nombre} no está disponible actualmente`);
     return;
@@ -119,8 +94,7 @@ function addToCart(nombre, precio, imagen, categoria, disponible) {
   else cart.push({ nombre, precio, imagen, qty: 1 });
   renderCart();
   showToast('🍌 ' + nombre + ' agregado!');
-  // No abrir carrito automáticamente. Queda solo al clickar el botón.
-}
+};
 
 function renderCart() {
   const container = document.getElementById('cart-items');
@@ -155,28 +129,28 @@ function renderCart() {
   `).join('');
 }
 
-function changeQty(idx, delta) {
+window.changeQty = function (idx, delta) {
   cart[idx].qty += delta;
   if (cart[idx].qty <= 0) cart.splice(idx, 1);
   renderCart();
-}
+};
 
-function removeItem(idx) {
+window.removeItem = function (idx) {
   cart.splice(idx, 1);
   renderCart();
-}
+};
 
-function toggleCart() {
+window.toggleCart = function () {
   const sidebar = document.getElementById('cart-sidebar');
   const overlay = document.getElementById('cart-overlay');
   sidebar.classList.toggle('open');
   overlay.classList.toggle('open');
-}
+};
 
 // ====== MODAL ======
-function openModal() {
+window.openModal = function () {
   if (cart.length === 0) return;
-  toggleCart();
+  window.toggleCart();
   // Render summary in modal
   const total = cart.reduce((s, i) => s + i.precio * i.qty, 0);
   const list = document.getElementById('modal-items-list');
@@ -184,17 +158,18 @@ function openModal() {
     <div class="resumen-item"><span>🍌 ${i.nombre} x${i.qty}</span><span>${fmtPrice(i.precio * i.qty)}</span></div>
   `).join('') + `<div class="resumen-item"><span>💵 TOTAL</span><span>${fmtPrice(total)}</span></div>`;
   document.getElementById('modal-overlay').classList.add('open');
-}
+};
 
-function closeModal() {
+window.closeModal = function () {
   document.getElementById('modal-overlay').classList.remove('open');
-}
+};
 
-function enviarPedido() {
+window.enviarPedido = async function () {
   const nombre = document.getElementById('f-nombre').value.trim();
   const tel = document.getElementById('f-tel').value.trim();
   const dir = document.getElementById('f-dir').value.trim();
   const barrio = document.getElementById('f-barrio').value.trim();
+  const pago = document.getElementById('f-pago').value;
   const notas = document.getElementById('f-notas').value.trim();
 
   if (!nombre || !tel || !dir) {
@@ -210,6 +185,7 @@ function enviarPedido() {
   msg += `📱 *Teléfono:* ${tel}\n`;
   msg += `📍 *Dirección:* ${dir}\n`;
   if (barrio) msg += `🏘️ *Barrio:* ${barrio}\n`;
+  msg += `💳 *Pago:* ${pago}\n`;
   msg += `━━━━━━━━━━━━━━━━━━━━\n`;
   msg += `🛒 *Pedido:*\n`;
   cart.forEach(i => {
@@ -221,20 +197,35 @@ function enviarPedido() {
   msg += `━━━━━━━━━━━━━━━━━━━━\n`;
   msg += `¡Gracias por pedir en Mauitop! 🇨🇴`;
 
+  // --- NUEVO: GUARDAR EN LA NUBE ---
+  try {
+    await addDoc(collection(db, "pedidos"), {
+      cliente: { nombre, telefono: tel, direccion: dir, barrio, metodoPago: pago },
+      ítems: cart.map(i => ({ nombre: i.nombre, precio: i.precio, cantidad: i.qty })),
+      total: total,
+      notas: notas,
+      estado: 'Pendiente',
+      fecha: serverTimestamp()
+    });
+  } catch (error) {
+    console.error("No se pudo guardar la orden en la nube. Enviando a WhatsApp de todos modos...", error);
+  }
+  // ---------------------------------
+
   const waUrl = `https://wa.me/573182896219?text=${encodeURIComponent(msg)}`;
   window.open(waUrl, '_blank');
 
   // Reset
   cart = [];
   renderCart();
-  closeModal();
+  window.closeModal();
   document.getElementById('f-nombre').value = '';
   document.getElementById('f-tel').value = '';
   document.getElementById('f-dir').value = '';
   document.getElementById('f-barrio').value = '';
   document.getElementById('f-notas').value = '';
   showToast('✅ ¡Pedido enviado por WhatsApp!');
-}
+};
 
 // ====== TOAST ======
 function showToast(msg) {
@@ -244,5 +235,29 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove('show'), 2500);
 }
 
-// ====== INIT ======
-renderMenu();
+// ====== INIT CON FIREBASE ======
+async function initMenu() {
+  document.getElementById('menu-grid').innerHTML = '<p style="text-align:center;width:100%;grid-column:1/-1;font-size:18px;font-weight:bold;color:var(--cafe);">Cargando menú delicioso... 🍌</p>';
+  try {
+    const catsSnap = await getDocs(collection(db, "categorias"));
+    categorias = catsSnap.docs.map(d => d.data());
+
+    // Sort o algo si se quiere. Por ahora como viene.
+
+    const prodsSnap = await getDocs(collection(db, "productos"));
+    productos = prodsSnap.docs.map(d => d.data());
+
+    // Si llegara a estar 100% vacío (porque aún no han abierto el admin-panel para migrar)
+    if (productos.length === 0 && categorias.length === 0) {
+      document.getElementById('menu-grid').innerHTML = '<p style="text-align:center;width:100%;grid-column:1/-1;color:#666;">No hay productos disponibles por ahora. Ingresa al panel de administración para agregarlos.</p>';
+      return;
+    }
+
+    renderMenu();
+  } catch (err) {
+    console.error("Error cargando desde Firebase:", err);
+    document.getElementById('menu-grid').innerHTML = '<p style="text-align:center;width:100%;grid-column:1/-1;color:red;">Error al cargar el menú. Asegúrate de tener conexión a Internet.</p>';
+  }
+}
+
+initMenu();

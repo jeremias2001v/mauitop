@@ -497,7 +497,8 @@
     position: fixed;
     top: 0; right: 0;
     width: 420px;
-    height: 100vh;
+    height: 100%; /* Fallback */
+    height: 100dvh; /* Soporte moderno Safari Mobile */
     background: white;
     z-index: 1000;
     transform: translateX(100%);
@@ -649,7 +650,10 @@
 
   .cart-footer {
     padding: 20px 24px;
+    padding-bottom: max(20px, env(safe-area-inset-bottom)); /* Corrección iPhone Notch/Safari */
     border-top: 2px dashed #e8dcc8;
+    background: white; /* Asegurar fondo sólido */
+    flex-shrink: 0; /* Evita que safari encoja el footer */
   }
 
   .cart-total {
@@ -956,9 +960,24 @@
 
   .menu-tabs {
     display: flex;
-    gap: 10px;
+    gap: 12px;
     margin-bottom: 36px;
-    flex-wrap: wrap;
+    overflow-x: auto; /* Permite scroll horizontal */
+    padding-bottom: 12px; /* Espacio para respirar */
+    -webkit-overflow-scrolling: touch; /* Suavidad en iPhone */
+    scroll-snap-type: x mandatory; /* Para que el scroll se pegue a los botones */
+  }
+
+  /* Personalizar la barra de scroll pequeña */
+  .menu-tabs::-webkit-scrollbar {
+    height: 6px;
+  }
+  .menu-tabs::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .menu-tabs::-webkit-scrollbar-thumb {
+    background: #e0d4be;
+    border-radius: 10px;
   }
 
   .tab-btn {
@@ -972,12 +991,25 @@
     color: var(--cafe);
     cursor: pointer;
     transition: all .2s;
+    white-space: nowrap; /* Evita que el texto de un botón se rompa en dos líneas */
+    flex-shrink: 0; /* Evita que los botones se aplasten */
+    scroll-snap-align: start;
   }
 
   .tab-btn.active, .tab-btn:hover {
     background: var(--amarillo);
     border-color: var(--amarillo);
     box-shadow: 2px 2px 0 var(--cafe);
+  }
+
+  /* Para ordenadores: mostrar todas las pestañas envueltas en bloque */
+  @media (min-width: 768px) {
+    .menu-tabs {
+      flex-wrap: wrap;
+      justify-content: center;
+      overflow-x: visible;
+      padding-bottom: 0;
+    }
   }
 
   .floating-cart-btn {

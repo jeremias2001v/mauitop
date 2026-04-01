@@ -1,15 +1,122 @@
-// Variables de localStorage
-const STORAGE_KEY = 'mauitop_productos';
-const STORAGE_KEY_CATS = 'mauitop_categorias';
+import { collection, getDocs, doc, setDoc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+import { db } from "./firebase-config.js";
+
 const ADMIN_PASSWORD = 'PedroMP.';
-const defaultProductos = [];
-const defaultCats = [
-  { nombre: 'platano', label: 'Plátano', emoji: '🍌', color: 'linear-gradient(135deg,#FFD100,#FF6B00)' },
-  { nombre: 'burgers', label: 'Hamburguesa', emoji: '🍔', color: 'linear-gradient(135deg,#CE1126,#FF6B00)' },
-  { nombre: 'perros', label: 'Perro Caliente', emoji: '🌭', color: 'linear-gradient(135deg,#003087,#CE1126)' },
-  { nombre: 'salchipapa', label: 'Salchipapa', emoji: '🍟', color: 'linear-gradient(135deg,#FF6B00,#FFD100)' },
-  { nombre: 'bebidas', label: 'Bebida', emoji: '🥤', color: 'linear-gradient(135deg,#2E7D32,#00C853)' }
-];
+
+let localProductos = [];
+let localCategorias = [];
+let localPedidos = [];
+
+window.switchAdminTab = function (tabName, btnElement) {
+  // Manejo de UI
+  document.querySelectorAll('.sidebar-nav .nav-item').forEach(el => el.classList.remove('active'));
+  if (btnElement) btnElement.classList.add('active');
+
+  // Mostrar/Ocultar Tabs
+  document.getElementById('tab-inventario').style.display = tabName === 'inventario' ? 'block' : 'none';
+  document.getElementById('tab-pedidos').style.display = tabName === 'pedidos' ? 'block' : 'none';
+
+  if (tabName === 'pedidos') {
+    window.loadPedidos();
+  }
+};
+
+window.loadPedidos = async function () {
+  showAdminMessage('Cargando historial de pedidos...', 'info');
+  try {
+    const snap = await getDocs(collection(db, "pedidos"));
+    localPedidos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    // Ordenar descendente por fecha (los más nuevos en Firebase FireStore van primero si comparamos)
+    localPedidos.sort((a, b) => {
+      const ta = a.fecha?.toMillis ? a.fecha.toMillis() : 0;
+      const tb = b.fecha?.toMillis ? b.fecha.toMillis() : 0;
+      return tb - ta;
+    });
+    renderPedidos();
+    showAdminMessage('Pedidos cargados', 'success');
+  } catch (e) {
+    console.error(e);
+    showAdminMessage('Error cargando pedidos', 'error');
+  }
+};
+
+function renderPedidos() {
+  const tbody = document.querySelector('#pedidos-table tbody');
+  if (localPedidos.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#888;">No hay pedidos registrados en la nube.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = localPedidos.map(p => {
+    let dateStr = 'Fecha desconocida';
+    if (p.fecha && p.fecha.toDate) {
+      dateStr = p.fecha.toDate().toLocaleString('es-CO', {
+        month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+      });
+    }
+
+    const itemsStr = (p.ítems || []).map(i => `${i.cantidad}x ${i.nombre}`).join('<br>');
+    const badge = p.estado === 'Entregado'
+      ? '<span class="status-badge yes">Entregado ✅</span>'
+      : '<span class="status-badge no" style="background:#FFA000;color:white;">Pendiente ⏳</span>';
+
+    const actionBtn = p.estado === 'Pendiente'
+      ? `<button class="action-btn edit" onclick="marcarEntregado('${p.id}')">Marcar Entregado</button>`
+      : `<button class="action-btn" style="background:#eee;color:#aaa;cursor:not-allowed;" disabled>Entregado</button>`;
+
+    const deleteBtn = `<button class="action-btn delete" onclick="eliminarPedido('${p.id}')" style="margin-top:4px;">Eliminar</button>`;
+
+    return `
+      <tr>
+        <td style="color:#777;font-size:13px;">${dateStr}</td>
+        <td>
+          <strong style="color:var(--text-main);">${Number(p.cliente?.telefono || 0)}</strong><br>
+          <span style="font-size:13px;color:#888;">${p.cliente?.nombre || 'Anónimo'}</span><br>
+          <small style="color:var(--azul);">💳 ${p.cliente?.metodoPago || 'No definido'}</small>
+        </td>
+        <td style="font-size:13px;color:#555;">${p.cliente?.direccion || 'N/A'}<br><small>${p.cliente?.barrio || ''}</small></td>
+        <td style="font-size:13px;line-height:1.4;">${itemsStr}</td>
+        <td style="font-weight:700;color:var(--success);">$${Number(p.total).toLocaleString('es-CO')}</td>
+        <td>${badge}</td>
+        <td>${actionBtn}${deleteBtn}</td>
+      </tr>
+    `;
+  }).join('');
+}
+
+window.marcarEntregado = async function (id) {
+  openConfirmDialog('¿Estás seguro de que deseas marcar este pedido como ENTREGADO?', async () => {
+    try {
+      showAdminMessage('Actualizando estado...', 'info');
+      await updateDoc(doc(db, "pedidos", id), {
+        estado: 'Entregado'
+      });
+      // Actualizar copia local
+      const pd = localPedidos.find(p => p.id === id);
+      if (pd) pd.estado = 'Entregado';
+      renderPedidos();
+      showAdminMessage('Pedido marcado como entregado 🎉', 'success');
+    } catch (e) {
+      console.error(e);
+      showAdminMessage('Error al actualizar pedido', 'error');
+    }
+  });
+};
+
+window.eliminarPedido = async function (id) {
+  openConfirmDialog('¿Estás completamente seguro de que quieres BORRAR este pedido del historial? (No se puede deshacer)', async () => {
+    try {
+      showAdminMessage('Eliminando pedido...', 'info');
+      await deleteDoc(doc(db, "pedidos", id));
+      localPedidos = localPedidos.filter(p => p.id !== id);
+      renderPedidos();
+      showAdminMessage('Pedido eliminado permanentemente', 'success');
+    } catch (e) {
+      console.error(e);
+      showAdminMessage('Error al eliminar pedido', 'error');
+    }
+  });
+};
 
 // Funciones de autenticación
 function checkAuth() {
@@ -17,22 +124,22 @@ function checkAuth() {
   if (isAuth) {
     document.getElementById('login-modal').style.display = 'none';
     document.getElementById('admin-content').style.display = 'block';
+    initData();
   }
 }
 
-window.handleLogin = function(event) {
+window.handleLogin = function (event) {
   event.preventDefault();
   const password = document.getElementById('login-password').value;
   const errorMsg = document.getElementById('login-error');
-  
+
   if (password === ADMIN_PASSWORD) {
     sessionStorage.setItem('admin_auth', 'true');
     document.getElementById('login-modal').style.display = 'none';
     document.getElementById('admin-content').style.display = 'block';
     document.getElementById('login-password').value = '';
     errorMsg.style.display = 'none';
-    renderCats();
-    renderProducts();
+    initData();
   } else {
     errorMsg.textContent = 'Contraseña incorrecta';
     errorMsg.style.display = 'block';
@@ -40,13 +147,12 @@ window.handleLogin = function(event) {
   }
 };
 
-window.handleLogout = function() {
+window.handleLogout = function () {
   sessionStorage.removeItem('admin_auth');
   document.getElementById('admin-content').style.display = 'none';
   document.getElementById('login-modal').style.display = 'flex';
   document.getElementById('login-password').value = '';
 };
-
 
 const prodForm = document.getElementById('prod-form');
 const catForm = document.getElementById('cat-form');
@@ -57,54 +163,68 @@ const submitBtn = document.getElementById('submit-btn');
 let editingId = null;
 let editingCatName = null;
 
-function loadProductos() {
+// FIREBASE FETCH Y MIGRACIÓN AUTÓMATICA
+async function initData() {
   try {
-    const stored = JSON.parse(localStorage.getItem(STORAGE_KEY));
-    if (Array.isArray(stored)) return stored;
+    showAdminMessage('Cargando datos de Firebase...', 'info');
+
+    // Fetch categories
+    const catsSnap = await getDocs(collection(db, "categorias"));
+    if (catsSnap.empty) {
+      // Migrar desde localStorage
+      const stored = JSON.parse(localStorage.getItem('mauitop_categorias'));
+      if (Array.isArray(stored) && stored.length > 0) {
+        showAdminMessage('Migrando categorías locales...', 'info');
+        for (let c of stored) {
+          await setDoc(doc(db, "categorias", c.nombre), c);
+          localCategorias.push(c);
+        }
+      }
+    } else {
+      localCategorias = catsSnap.docs.map(d => d.data());
+    }
+
+    // Fetch products
+    const prodsSnap = await getDocs(collection(db, "productos"));
+    if (prodsSnap.empty) {
+      // Migrar desde localStorage
+      const stored = JSON.parse(localStorage.getItem('mauitop_productos'));
+      if (Array.isArray(stored) && stored.length > 0) {
+        showAdminMessage('Migrando productos locales...', 'info');
+        for (let p of stored) {
+          await setDoc(doc(db, "productos", p.id.toString()), p);
+          localProductos.push(p);
+        }
+      }
+    } else {
+      localProductos = prodsSnap.docs.map(d => d.data());
+    }
+
+    renderCats();
+    renderProducts();
+    showAdminMessage('Datos actualizados', 'success');
   } catch (err) {
-    console.warn('Error al leer localStorage', err);
+    console.error("Error fetching data:", err);
+    showAdminMessage('Error al cargar datos revisa la consola', 'error');
   }
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultProductos));
-  return [...defaultProductos];
-}
-
-function saveProductos(productos) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(productos));
-}
-
-function loadCats() {
-  try {
-    const stored = JSON.parse(localStorage.getItem(STORAGE_KEY_CATS));
-    if (Array.isArray(stored)) return stored;
-  } catch (err) {
-    console.warn('Error al leer localStorage cats', err);
-  }
-  localStorage.setItem(STORAGE_KEY_CATS, JSON.stringify(defaultCats));
-  return [...defaultCats];
-}
-
-function saveCats(cats) {
-  localStorage.setItem(STORAGE_KEY_CATS, JSON.stringify(cats));
 }
 
 function renderCats() {
-  const cats = loadCats();
-  catsTableBody.innerHTML = cats.map(c => `
+  catsTableBody.innerHTML = localCategorias.map(c => `
     <tr>
-      <td>${c.nombre}</td>
-      <td>${c.label}</td>
-      <td class="admin-actions">
-        <button onclick="editCat('${c.nombre}')">Editar</button>
-        <button onclick="removeCat('${c.nombre}')">Eliminar</button>
+      <td style="font-weight:500; font-family:monospace; color:var(--text-muted);">${c.nombre}</td>
+      <td><span class="cat-badge" style="background:${c.color}; color:white; border:none; text-shadow:0 1px 2px rgba(0,0,0,0.2);">${c.emoji} ${c.label}</span></td>
+      <td>
+        <button class="action-btn edit" onclick="editCat('${c.nombre}')">Editar</button>
+        <button class="action-btn delete" onclick="removeCat('${c.nombre}')">Eliminar</button>
       </td>
     </tr>
   `).join('');
   renderCatSelect();
 }
 
-window.editCat = function(nombre) {
-  const cats = loadCats();
-  const cat = cats.find(c => c.nombre === nombre);
+window.editCat = function (nombre) {
+  const cat = localCategorias.find(c => c.nombre === nombre);
   if (!cat) return;
   editingCatName = nombre;
   document.getElementById('c-nombre').value = cat.nombre;
@@ -117,32 +237,36 @@ window.editCat = function(nombre) {
 };
 
 function renderCatSelect() {
-  const cats = loadCats();
   const select = document.getElementById('p-categoria');
-  select.innerHTML = cats.map(c => `<option value="${c.nombre}">${c.label}</option>`).join('');
+  select.innerHTML = localCategorias.map(c => `<option value="${c.nombre}">${c.label}</option>`).join('');
 }
 
 function renderProducts() {
-  const productos = loadProductos();
-  tableBody.innerHTML = productos.map(p => {
-    const cat = loadCats().find(c => c.nombre === p.categoria);
+  tableBody.innerHTML = localProductos.map(p => {
+    const cat = localCategorias.find(c => c.nombre === p.categoria);
+    const badgeHtml = p.disponible !== false
+      ? '<span class="status-badge yes">Disponible</span>'
+      : '<span class="status-badge no">Agotado</span>';
+    const imgHtml = p.imagen ? `<img src="${p.imagen}" class="img-cell" alt="${p.nombre}" />` : `<div style="width:40px;height:40px;border-radius:6px;background:#eee;display:flex;align-items:center;justify-content:center;font-size:11px;color:#aaa;">N/A</div>`;
+
     return `
       <tr>
-        <td>${p.id}</td>
-        <td>${p.nombre}</td>
-        <td>${cat ? cat.label : p.categoria}</td>
-        <td>${p.precio}</td>
-        <td>${p.disponible === false ? 'No' : 'Sí'}</td>
-        <td class="admin-actions">
-          <button onclick="editProduct(${p.id})">Editar</button>
-          <button onclick="removeProduct(${p.id})">Eliminar</button>
+        <td style="color:var(--text-muted);">#${p.id}</td>
+        <td>${imgHtml}</td>
+        <td style="font-weight:500; color:var(--text-main);">${p.nombre}</td>
+        <td><span class="cat-badge">${cat ? cat.emoji + ' ' + cat.label : p.categoria}</span></td>
+        <td style="font-weight:500;">$${Number(p.precio).toLocaleString('es-CO')}</td>
+        <td>${badgeHtml}</td>
+        <td>
+          <button class="action-btn edit" onclick="editProduct(${p.id})">Editar</button>
+          <button class="action-btn delete" onclick="removeProduct(${p.id})">Eliminar</button>
         </td>
       </tr>
     `;
   }).join('');
 }
 
-window.openProdModal = function() {
+window.openProdModal = function () {
   editingId = null;
   document.getElementById('prod-modal').style.display = 'flex';
   document.querySelector('#prod-modal h3').textContent = 'Agregar Producto';
@@ -150,14 +274,13 @@ window.openProdModal = function() {
   resetProdForm();
 };
 
-window.closeProdModal = function() {
+window.closeProdModal = function () {
   document.getElementById('prod-modal').style.display = 'none';
   resetProdForm();
 };
 
-window.editProduct = function(id) {
-  const productos = loadProductos();
-  const prod = productos.find(p => p.id === id);
+window.editProduct = function (id) {
+  const prod = localProductos.find(p => p.id === id);
   if (!prod) return;
 
   document.getElementById('p-id').value = prod.id;
@@ -176,6 +299,7 @@ window.editProduct = function(id) {
   editingId = id;
 };
 
+// Modales Confirm
 let pendingConfirmAction = null;
 
 function openConfirmDialog(text, action) {
@@ -193,12 +317,12 @@ function closeConfirmDialog() {
   pendingConfirmAction = null;
 }
 
-window.cancelConfirm = function() {
+window.cancelConfirm = function () {
   closeConfirmDialog();
   showAdminMessage('Acción cancelada.', 'info');
 };
 
-window.executeConfirm = function() {
+window.executeConfirm = function () {
   if (typeof pendingConfirmAction === 'function') {
     pendingConfirmAction();
   }
@@ -217,36 +341,43 @@ function showAdminMessage(msg, type = 'info') {
   }, 4200);
 }
 
-window.removeProduct = function(id) {
-  const productos = loadProductos();
-  const prod = productos.find(p => p.id === id);
+window.removeProduct = async function (id) {
+  const prod = localProductos.find(p => p.id === id);
   if (!prod) {
     showAdminMessage('No se encontró el producto para eliminar.', 'error');
     return;
   }
 
-  openConfirmDialog(`¿Estás seguro de que quieres eliminar el producto '${prod.nombre}'?`, () => {
-    const restantes = productos.filter(p => p.id !== id);
-    saveProductos(restantes);
-    renderProducts();
-    showAdminMessage(`Producto '${prod.nombre}' eliminado. Refresca el sitio principal para ver el cambio.`, 'success');
+  openConfirmDialog(`¿Estás seguro de que quieres eliminar el producto '${prod.nombre}'?`, async () => {
+    try {
+      await deleteDoc(doc(db, "productos", id.toString()));
+      localProductos = localProductos.filter(p => p.id !== id);
+      renderProducts();
+      showAdminMessage(`Producto '${prod.nombre}' eliminado.`, 'success');
+    } catch (err) {
+      console.error(err);
+      showAdminMessage('Error al eliminar producto', 'error');
+    }
   });
 };
 
-window.removeCat = function(nombre) {
-  const productos = loadProductos();
-  const usados = productos.filter(p => p.categoria === nombre);
+window.removeCat = async function (nombre) {
+  const usados = localProductos.filter(p => p.categoria === nombre);
   if (usados.length > 0) {
     const listaNombres = usados.map(p => `- ${p.nombre}`).join('\n');
     showAdminMessage(`No puedes eliminar la categoría '${nombre}' porque tiene productos asociados:\n${listaNombres}`, 'error');
     return;
   }
-  openConfirmDialog(`¿Estás seguro de que quieres eliminar la categoría '${nombre}'? Esta acción también puede afectar productos existentes.`, () => {
-    let cats = loadCats();
-    cats = cats.filter(c => c.nombre !== nombre);
-    saveCats(cats);
-    renderCats();
-    showAdminMessage(`Categoría '${nombre}' eliminada. Refresca el sitio principal para ver el cambio.`, 'success');
+  openConfirmDialog(`¿Estás seguro de que quieres eliminar la categoría '${nombre}'?`, async () => {
+    try {
+      await deleteDoc(doc(db, "categorias", nombre));
+      localCategorias = localCategorias.filter(c => c.nombre !== nombre);
+      renderCats();
+      showAdminMessage(`Categoría '${nombre}' eliminada.`, 'success');
+    } catch (err) {
+      console.error(err);
+      showAdminMessage('Error al eliminar categoría', 'error');
+    }
   });
 };
 
@@ -257,6 +388,8 @@ function resetProdForm() {
   document.getElementById('p-categoria').value = '';
   document.getElementById('p-precio').value = '';
   document.getElementById('p-imagen').value = '';
+  const fileInp = document.getElementById('p-file');
+  if (fileInp) fileInp.value = '';
   document.getElementById('img-preview').src = '';
   document.getElementById('img-preview-container').style.display = 'none';
   document.getElementById('p-desc').value = '';
@@ -264,9 +397,8 @@ function resetProdForm() {
   submitBtn.textContent = 'Agregar producto';
 }
 
-function handleProdSubmit(event) {
+window.handleProdSubmit = async function (event) {
   event.preventDefault();
-  const productos = loadProductos();
   const nombre = document.getElementById('p-nombre').value.trim();
   const categoria = document.getElementById('p-categoria').value;
   const precio = Number(document.getElementById('p-precio').value);
@@ -275,39 +407,48 @@ function handleProdSubmit(event) {
   const disponible = document.getElementById('p-disponible').value === 'true';
 
   if (!nombre || Number.isNaN(precio) || !imagen || !desc) {
-    alert('Por favor completa todos los campos.' );
+    alert('Por favor completa todos los campos.');
     return;
   }
 
-  if (editingId !== null) {
-    const idx = productos.findIndex(p => p.id === editingId);
-    if (idx >= 0) {
-      productos[idx] = { id: editingId, nombre, categoria, precio, imagen, desc, disponible };
-      saveProductos(productos);
-      renderProducts();
-      closeProdModal();
-      alert('Producto actualizado. Refresca el sitio principal para verlo.');
-      return;
-    }
-  }
+  showAdminMessage('Guardando...', 'info');
 
-  const nextId = productos.reduce((max, p) => Math.max(max, p.id), 0) + 1;
-  productos.push({ id: nextId, nombre, categoria, precio, imagen, desc, disponible });
-  saveProductos(productos);
-  renderProducts();
-  closeProdModal();
-  alert('Producto agregado. Refresca el sitio principal para verlo.');
+  try {
+    if (editingId !== null) {
+      const idx = localProductos.findIndex(p => p.id === editingId);
+      if (idx >= 0) {
+        const pMod = { id: editingId, nombre, categoria, precio, imagen, desc, disponible };
+        await setDoc(doc(db, "productos", editingId.toString()), pMod);
+        localProductos[idx] = pMod;
+        renderProducts();
+        closeProdModal();
+        showAdminMessage('Producto actualizado en Firebase.', 'success');
+        return;
+      }
+    }
+
+    const nextId = localProductos.reduce((max, p) => Math.max(max, p.id || 0), 0) + 1;
+    const pNew = { id: nextId, nombre, categoria, precio, imagen, desc, disponible };
+    await setDoc(doc(db, "productos", nextId.toString()), pNew);
+    localProductos.push(pNew);
+    renderProducts();
+    closeProdModal();
+    showAdminMessage('Producto agregado a Firebase.', 'success');
+  } catch (err) {
+    console.error(err);
+    alert('Error al guardar producto');
+  }
 }
 
 // Funciones para categorías
-window.openCatModal = function() {
+window.openCatModal = function () {
   editingCatName = null;
   document.querySelector('#cat-modal h3').textContent = 'Agregar Categoría';
   document.querySelector('#cat-form button[type="submit"]').textContent = 'Agregar';
   document.getElementById('cat-modal').style.display = 'flex';
 };
 
-window.closeCatModal = function() {
+window.closeCatModal = function () {
   editingCatName = null;
   document.getElementById('cat-modal').style.display = 'none';
   document.getElementById('c-nombre').value = '';
@@ -316,9 +457,8 @@ window.closeCatModal = function() {
   document.getElementById('c-color').value = '';
 };
 
-function handleCatSubmit(event) {
+window.handleCatSubmit = async function (event) {
   event.preventDefault();
-  const cats = loadCats();
   const nombre = document.getElementById('c-nombre').value.trim();
   const label = document.getElementById('c-label').value.trim();
   const emoji = document.getElementById('c-emoji').value.trim();
@@ -329,70 +469,120 @@ function handleCatSubmit(event) {
     return;
   }
 
-  // Si estamos editando y mantenemos el mismo nombre, se guarda
-  if (editingCatName) {
-    const idx = cats.findIndex(c => c.nombre === editingCatName);
-    if (idx < 0) {
-      alert('Categoría no encontrada para editar.');
+  showAdminMessage('Guardando...', 'info');
+
+  try {
+    if (editingCatName) {
+      const idx = localCategorias.findIndex(c => c.nombre === editingCatName);
+      if (idx < 0) {
+        alert('Categoría no encontrada para editar.');
+        return;
+      }
+
+      if (nombre !== editingCatName && localCategorias.some(c => c.nombre === nombre)) {
+        alert('Ya existe una categoría con ese nombre.');
+        return;
+      }
+
+      const newCat = { nombre, label, emoji, color };
+
+      if (nombre !== editingCatName) {
+        // Create new and delete old
+        await setDoc(doc(db, "categorias", nombre), newCat);
+        await deleteDoc(doc(db, "categorias", editingCatName));
+
+        // Update references in products
+        const afectados = localProductos.filter(p => p.categoria === editingCatName);
+        for (let p of afectados) {
+          p.categoria = nombre;
+          await setDoc(doc(db, "productos", p.id.toString()), p);
+        }
+      } else {
+        await setDoc(doc(db, "categorias", nombre), newCat);
+      }
+
+      localCategorias[idx] = newCat;
+      editingCatName = null;
+      renderCats();
+      renderProducts();
+      closeCatModal();
+      showAdminMessage('Categoría actualizada en Firebase.', 'success');
       return;
     }
 
-    if (nombre !== editingCatName && cats.some(c => c.nombre === nombre)) {
-      alert('Ya existe una categoría con ese nombre.');
+    if (localCategorias.find(c => c.nombre === nombre)) {
+      alert('Nombre de categoría ya existe.');
       return;
     }
 
-    cats[idx] = { nombre, label, emoji, color };
-    saveCats(cats);
-
-    // Actualizar referenciales de productos que usaban la categoría antigua
-    const productos = loadProductos();
-    const productosActualizados = productos.map(p => p.categoria === editingCatName ? { ...p, categoria: nombre } : p);
-    saveProductos(productosActualizados);
-
-    editingCatName = null;
+    const newCat = { nombre, label, emoji, color };
+    await setDoc(doc(db, "categorias", nombre), newCat);
+    localCategorias.push(newCat);
     renderCats();
-    renderProducts();
     closeCatModal();
-    alert('Categoría actualizada. Refresca el sitio principal para ver el cambio.');
-    return;
-  }
+    showAdminMessage('Categoría agregada a Firebase.', 'success');
 
-  if (cats.find(c => c.nombre === nombre)) {
-    alert('Nombre de categoría ya existe.');
-    return;
+  } catch (err) {
+    console.error(err);
+    alert("Error al guardar categoría");
   }
-
-  cats.push({ nombre, label, emoji, color });
-  saveCats(cats);
-  renderCats();
-  closeCatModal();
-  alert('Categoría agregada.');
 }
 
-window.removeCat = function(nombre) {
-  const productos = loadProductos();
-  const usados = productos.filter(p => p.categoria === nombre);
-  if (usados.length > 0) {
-    const listaNombres = usados.map(p => `- ${p.nombre}`).join('\n');
-    alert(`No puedes eliminar la categoría '${nombre}' porque tiene productos asociados:\n${listaNombres}`);
-    return;
-  }
-  let cats = loadCats();
-  cats = cats.filter(c => c.nombre !== nombre);
-  saveCats(cats);
-  renderCats();
-  alert('Categoría eliminada.');
-};
+// Modales vinculados directamente en el HTML con onsubmit="..."
 
-if (prodForm) prodForm.addEventListener('submit', handleProdSubmit);
-if (catForm) catForm.addEventListener('submit', handleCatSubmit);
+// Compresor automático de imagen a Base64
+const fileInput = document.getElementById('p-file');
+if (fileInput) {
+  fileInput.addEventListener('change', function (e) {
+    const file = e.target.files[0];
+    if (!file) return;
 
-if (sessionStorage.getItem('admin_auth') === 'true') {
-  if (tableBody && catsTableBody) {
-    renderCats();
-    renderProducts();
-  }
+    if (!file.type.match('image.*')) {
+      showAdminMessage('Por favor selecciona una imagen válida (JPG, PNG, WebP).', 'error');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function (event) {
+      const img = new Image();
+      img.onload = function () {
+        const canvas = document.createElement('canvas');
+        const MAX_WIDTH = 600;
+        const MAX_HEIGHT = 600;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > MAX_WIDTH) {
+            height = Math.round(height * MAX_WIDTH / width);
+            width = MAX_WIDTH;
+          }
+        } else {
+          if (height > MAX_HEIGHT) {
+            width = Math.round(width * MAX_HEIGHT / height);
+            height = MAX_HEIGHT;
+          }
+        }
+        canvas.width = width;
+        canvas.height = height;
+
+        const ctx = canvas.getContext('2d');
+        // Fondo blanco para jpegs si la original era PNG transparente
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(0, 0, width, height);
+        ctx.drawImage(img, 0, 0, width, height);
+
+        // Comprimir a 75% calidad de JPEG (Súper ligero y rápido de cargar)
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.75);
+
+        document.getElementById('p-imagen').value = dataUrl;
+        document.getElementById('img-preview').src = dataUrl;
+        document.getElementById('img-preview-container').style.display = 'block';
+      };
+      img.src = event.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
 }
 
 checkAuth();
