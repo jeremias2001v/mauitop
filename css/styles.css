@@ -485,7 +485,9 @@
   /* ===== CART SIDEBAR ===== */
   .cart-overlay {
     position: fixed; inset: 0;
-    background: rgba(0,0,0,0.5);
+    background: rgba(0,0,0,0.35);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
     z-index: 900;
     opacity: 0; pointer-events: none;
     transition: opacity .3s;
@@ -708,10 +710,11 @@
     transform: none;
   }
 
-  /* ===== MODAL PEDIDO ===== */
   .modal-overlay {
     position: fixed; inset: 0;
-    background: rgba(0,0,0,0.65);
+    background: rgba(0,0,0,0.4);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     z-index: 2000;
     display: flex;
     align-items: center;
