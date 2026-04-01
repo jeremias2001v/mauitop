@@ -199,31 +199,21 @@ window.enviarPedido = async function () {
 
   const waUrl = `https://wa.me/573182896219?text=${encodeURIComponent(msg)}`;
 
-  // [TRUCO SAFARI]: Abrimos pestaña _blank SÍNCRONAMENTE antes de ir a la nube para que no la bloquee.
-  const waWindow = window.open('about:blank', '_blank');
-
-  // --- NUEVO: GUARDAR EN LA NUBE ---
-  try {
-    await addDoc(collection(db, "pedidos"), {
-      cliente: { nombre, telefono: tel, direccion: dir, barrio, metodoPago: pago },
-      ítems: cart.map(i => ({ nombre: i.nombre, precio: i.precio, cantidad: i.qty })),
-      total: total,
-      notas: notas,
-      estado: 'Pendiente',
-      fecha: serverTimestamp()
-    });
-  } catch (error) {
-    console.error("No se pudo guardar la orden en la nube. Enviando a WhatsApp de todos modos...", error);
-  }
+  // --- NUEVO: GUARDAR EN LA NUBE (En segundo plano para evitar bloqueos) ---
+  addDoc(collection(db, "pedidos"), {
+    cliente: { nombre, telefono: tel, direccion: dir, barrio, metodoPago: pago },
+    ítems: cart.map(i => ({ nombre: i.nombre, precio: i.precio, cantidad: i.qty })),
+    total: total,
+    notas: notas,
+    estado: 'Pendiente',
+    fecha: serverTimestamp()
+  }).catch(error => {
+    console.error("Error guardando orden en la nube:", error);
+  });
   // ---------------------------------
 
-  // Asignamos la URL real a la ventana que abrimos
-  if(waWindow) {
-    waWindow.location.href = waUrl;
-  } else {
-    // Fallback por si acaso
-    window.location.href = waUrl;
-  }
+  // Abrir WhatsApp directamente (¡Ahora Safari no molesta porque se abre instantáneamente al dar click!)
+  window.open(waUrl, '_blank');
 
   // Reset
   cart = [];
