@@ -280,18 +280,19 @@
 
   .estrella-inner {
     display: flex;
-    gap: 60px;
+    flex-direction: row-reverse;
+    gap: 40px;
     align-items: center;
-    max-width: 1100px;
+    max-width: 1000px;
     margin: 0 auto;
   }
 
   .estrella-img {
-    width: 320px;
-    height: 280px;
+    width: 240px;
+    height: 240px;
     background: rgba(255,255,255,0.08);
     border: 3px solid rgba(255,209,0,0.4);
-    border-radius: 24px;
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -299,6 +300,7 @@
     flex-shrink: 0;
     overflow: hidden;
     position: relative;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.4);
   }
 
   .estrella-img img {
@@ -982,9 +984,10 @@
     .hero-image-box { width: 100%; max-width: 320px; height: 220px; margin-top: 24px; }
     .section { padding: 50px 20px; }
     .section-title { font-size: 40px; }
-    .estrella-inner { flex-direction: column; }
-    .estrella-img { width: 100%; }
-    .estrella-text h2 { font-size: 44px; }
+    .estrella-inner { flex-direction: row-reverse; gap: 20px; align-items: center; }
+    .estrella-img { width: 120px; height: 120px; flex-shrink: 0; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+    .estrella-text h2 { font-size: 32px; margin-bottom: 8px; }
+    .estrella-text p { font-size: 14px; line-height: 1.5; }
     .cart-sidebar { width: 100%; }
     .footer-inner { grid-template-columns: 1fr; gap: 24px; }
     .topbar { display: none; }

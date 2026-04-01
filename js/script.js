@@ -266,9 +266,22 @@ async function initMenu() {
     const prodsSnap = await getDocs(collection(db, "productos"));
     productos = prodsSnap.docs.map(d => d.data());
 
-    // Fetch Estado Tienda
+    // Fetch Configs Adicionales (Estado, Imagen Estrella)
     try {
       const { doc, getDoc } = await import("https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js");
+      
+      // Plato Estrella
+      const estSnap = await getDoc(doc(db, "configuracion", "estrella"));
+      if (estSnap.exists() && estSnap.data().imagen) {
+        const imgEl = document.getElementById('plato-estrella-img');
+        if (imgEl) {
+          imgEl.src = estSnap.data().imagen;
+          imgEl.style.display = 'block';
+          document.getElementById('plato-estrella-emoji').style.display = 'none';
+        }
+      }
+      
+      // Estado Tienda
       const confSnap = await getDoc(doc(db, "configuracion", "estado"));
       if (confSnap.exists() && confSnap.data().abierta === false) {
         isStoreOpen = false;

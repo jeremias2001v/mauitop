@@ -376,6 +376,16 @@ async function initData() {
     // Fetch Estado Tienda
     checkStoreStatus();
 
+    // Fetch Estrella Img
+    try {
+      const estSnap = await getDoc(doc(db, "configuracion", "estrella"));
+      if (estSnap.exists() && estSnap.data().imagen) {
+        document.getElementById('estrella-preview').src = estSnap.data().imagen;
+        document.getElementById('estrella-preview-container').style.display = 'block';
+        document.getElementById('estrella-imagen').value = estSnap.data().imagen;
+      }
+    } catch(e) { console.error(e); }
+
     // Fetch categories
     const catsSnap = await getDocs(collection(db, "categorias"));
     if (catsSnap.empty) {
@@ -792,6 +802,56 @@ if (fileInput) {
     reader.readAsDataURL(file);
   });
 }
+
+// Compresor automático Plato Estrella
+const starFileInput = document.getElementById('estrella-file');
+if (starFileInput) {
+  starFileInput.addEventListener('change', function (e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (!file.type.match('image.*')) {
+      showAdminMessage('Elige una imagen válida (JPG, PNG, WebP).', 'error');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = function(event) {
+      const img = new Image();
+      img.onload = function() {
+        const canvas = document.createElement('canvas');
+        const MAXSize = 800;
+        let w = img.width, h = img.height;
+        if (w > h && w > MAXSize) { h = Math.round(h * MAXSize / w); w = MAXSize; }
+        else if (h > MAXSize) { w = Math.round(w * MAXSize / h); h = MAXSize; }
+        canvas.width = w; canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#FFFFFF'; ctx.fillRect(0,0,w,h);
+        ctx.drawImage(img,0,0,w,h);
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+        document.getElementById('estrella-imagen').value = dataUrl;
+        document.getElementById('estrella-preview').src = dataUrl;
+        document.getElementById('estrella-preview-container').style.display = 'block';
+      };
+      img.src = event.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+window.guardarEstrella = async function() {
+  const imgStr = document.getElementById('estrella-imagen').value;
+  if (!imgStr) {
+    alert('Sube una imagen primero');
+    return;
+  }
+  showAdminMessage('Guardando imagen...', 'info');
+  try {
+    await setDoc(doc(db, "configuracion", "estrella"), { imagen: imgStr });
+    showAdminMessage('Imagen actualizada exitosamente 🌟', 'success');
+  } catch(e) {
+    showAdminMessage('Error al guardar', 'error');
+    console.error(e);
+  }
+};
 
 // ESTADO DE LA TIENDA
 let isStoreOpen = false;
