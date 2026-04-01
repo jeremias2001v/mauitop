@@ -213,7 +213,7 @@ window.enviarPedido = async function () {
   // ---------------------------------
 
   const waUrl = `https://wa.me/573182896219?text=${encodeURIComponent(msg)}`;
-  window.open(waUrl, '_blank');
+  window.location.href = waUrl;
 
   // Reset
   cart = [];

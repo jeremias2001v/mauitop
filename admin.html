@@ -16,9 +16,9 @@
       <h2>Mauitop Admin</h2>
       <p>Acceso seguro al panel de gestión</p>
       <form id="login-form" onsubmit="handleLogin(event)">
-        <input type="password" id="login-password" placeholder="Ingresa tu contraseña" required
-          style="margin-bottom: 16px;">
-        <button type="submit" class="primary-btn" style="width: 100%;">Ingresar al Panel</button>
+        <input type="email" id="login-email" placeholder="Correo electrónico" required style="margin-bottom: 12px; width: 100%; box-sizing: border-box; padding: 12px; border: 1px solid #ddd; border-radius: 8px;">
+        <input type="password" id="login-password" placeholder="Contraseña" required style="margin-bottom: 16px; width: 100%; box-sizing: border-box; padding: 12px; border: 1px solid #ddd; border-radius: 8px;">
+        <button type="submit" class="primary-btn" style="width: 100%; padding: 12px;">Ingresar al Panel</button>
       </form>
       <p id="login-error" style="color:var(--danger); font-size:13px; margin-top:16px; display:none;"></p>
     </div>

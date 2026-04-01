@@ -1,7 +1,6 @@
 import { collection, getDocs, doc, setDoc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
-import { db } from "./firebase-config.js";
-
-const ADMIN_PASSWORD = 'PedroMP.';
+import { signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js";
+import { db, auth } from "./firebase-config.js";
 
 let localProductos = [];
 let localCategorias = [];
@@ -118,40 +117,47 @@ window.eliminarPedido = async function (id) {
   });
 };
 
-// Funciones de autenticación
-function checkAuth() {
-  const isAuth = sessionStorage.getItem('admin_auth') === 'true';
-  if (isAuth) {
-    document.getElementById('login-modal').style.display = 'none';
-    document.getElementById('admin-content').style.display = 'block';
-    initData();
-  }
+// Funciones de autenticación Firebase
+function initAuthObserver() {
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      document.getElementById('login-modal').style.display = 'none';
+      document.getElementById('admin-content').style.display = 'block';
+      initData();
+    } else {
+      document.getElementById('admin-content').style.display = 'none';
+      document.getElementById('login-modal').style.display = 'flex';
+      document.getElementById('login-password').value = '';
+    }
+  });
 }
 
-window.handleLogin = function (event) {
+window.handleLogin = async function (event) {
   event.preventDefault();
+  const email = document.getElementById('login-email').value.trim();
   const password = document.getElementById('login-password').value;
   const errorMsg = document.getElementById('login-error');
+  const btn = document.querySelector('#login-form button');
 
-  if (password === ADMIN_PASSWORD) {
-    sessionStorage.setItem('admin_auth', 'true');
-    document.getElementById('login-modal').style.display = 'none';
-    document.getElementById('admin-content').style.display = 'block';
-    document.getElementById('login-password').value = '';
+  try {
     errorMsg.style.display = 'none';
-    initData();
-  } else {
-    errorMsg.textContent = 'Contraseña incorrecta';
+    btn.textContent = 'Autenticando...';
+    btn.disabled = true;
+    
+    await signInWithEmailAndPassword(auth, email, password);
+    // El onAuthStateChanged se encargará de mostrar el panel
+  } catch (error) {
+    console.error("Auth error:", error);
+    errorMsg.textContent = 'Correo o contraseña incorrectos';
     errorMsg.style.display = 'block';
-    document.getElementById('login-password').value = '';
+  } finally {
+    btn.textContent = 'Ingresar al Panel';
+    btn.disabled = false;
   }
 };
 
 window.handleLogout = function () {
-  sessionStorage.removeItem('admin_auth');
-  document.getElementById('admin-content').style.display = 'none';
-  document.getElementById('login-modal').style.display = 'flex';
-  document.getElementById('login-password').value = '';
+  signOut(auth).catch(err => console.error(err));
 };
 
 const prodForm = document.getElementById('prod-form');
@@ -585,4 +591,4 @@ if (fileInput) {
   });
 }
 
-checkAuth();
+initAuthObserver();
