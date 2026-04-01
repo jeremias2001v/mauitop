@@ -3,11 +3,19 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#FFF8E7">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>Mauitop 🍌 - El Sabor de Colombia</title>
+  <meta name="description"
+    content="Mauitop: El sabor del plátano maduro hecho arte. Comidas rápidas, perros, hamburguesas y nuestro plato estrella, El Mauito. ¡Domicilios disponibles!">
+  <meta property="og:title" content="Mauitop 🍌 - El Sabor de Colombia">
+  <meta property="og:description"
+    content="Platos únicos a base de plátano maduro, elaborados con el alma de Colombia. Pide tu plato hoy.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://mauitop.com/logo-og.jpg">
   <link
     href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800;900&family=Pacifico&display=swap"
     rel="stylesheet">
@@ -16,7 +24,8 @@
 
 <body>
   <!-- Banner de Tienda Cerrada (Oculto por defecto) -->
-  <div id="closed-banner" style="display:none; background: #CE1126; color: white; padding: 12px 20px; font-weight: 800; font-size: 14.5px; text-align: center; letter-spacing: 0.5px; z-index: 9999; position: sticky; top: 0; box-shadow: 0 4px 12px rgba(206,17,38,0.3);">
+  <div id="closed-banner"
+    style="display:none; background: #CE1126; color: white; padding: 12px 20px; font-weight: 800; font-size: 14.5px; text-align: center; letter-spacing: 0.5px; z-index: 9999; position: sticky; top: 0; box-shadow: 0 4px 12px rgba(206,17,38,0.3);">
     ⚠️ ¡ESTAMOS CERRADOS POR HOY! Puedes explorar el menú 🍌, ¡Te esperamos mañana para pedir!
   </div>
 
@@ -160,7 +169,7 @@
             </svg>
           </a>
           <!-- Instagram -->
-          <a href="https://instagram.com/mauitop" target="_blank"
+          <a href="https://instagram.com/mauitop2025" target="_blank"
             style="color:var(--text-color); transition:color 0.2s;" onmouseover="this.style.color='#E1306C'"
             onmouseout="this.style.color='var(--text-color)'">
             <svg width="28" height="28" fill="currentColor" viewBox="0 0 24 24">
@@ -201,7 +210,10 @@
   <!-- WhatsApp flotante eliminado según solicitud -->
 
   <!-- Toast -->
-  <div id="toast">🍌 ¡Agregado al carrito!</div>
+  <div id="toast">
+    <div class="toast-icon">✅</div>
+    <div class="toast-text" id="toast-msg">¡Agregado al carrito!</div>
+  </div>
 
   <!-- CART SIDEBAR -->
   <div class="cart-overlay" id="cart-overlay" onclick="toggleCart()"></div>

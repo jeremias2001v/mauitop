@@ -34,6 +34,7 @@
         <div class="nav-item active" onclick="switchAdminTab('inventario', this)">📦 Inventario</div>
         <div class="nav-item" onclick="switchAdminTab('pedidos', this)">📝 Pedidos Live</div>
         <div class="nav-item" onclick="switchAdminTab('finanzas', this)">💰 Finanzas</div>
+        <div class="nav-item" onclick="switchAdminTab('estadisticas', this)">📈 Estadísticas</div>
       </div>
       <div class="logout-container">
         <button onclick="handleLogout()" class="logout-btn">
@@ -165,9 +166,17 @@
       <!-- ===== TAB PEDIDOS ===== -->
       <div id="tab-pedidos" style="display:none;">
         <section class="admin-card">
-          <div class="card-header">
+          <div class="card-header" style="flex-wrap: wrap; gap: 16px;">
             <h2>📝 Historial de Pedidos</h2>
-            <button onclick="loadPedidos()" class="secondary-btn">↻ Refrescar Manual</button>
+            <div style="display:flex; gap:12px; align-items:center;">
+              <select id="pedidos-date-filter" onchange="renderPedidos()" style="padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 8px; font-weight: 500; font-family: inherit; cursor: pointer; background: var(--surface); color: var(--text-main);">
+                <option value="today">Hoy</option>
+                <option value="week" selected>Últimos 7 días</option>
+                <option value="month">Este Mes</option>
+                <option value="all">Histórico (Límite 200)</option>
+              </select>
+              <button onclick="loadPedidos()" class="secondary-btn" title="Refrescar">↻</button>
+            </div>
           </div>
           <div class="table-responsive">
             <table class="admin-table" id="pedidos-table">
@@ -184,6 +193,50 @@
               </thead>
               <tbody></tbody>
             </table>
+          </div>
+        </section>
+      </div>
+
+      <!-- ===== TAB ESTADÍSTICAS ===== -->
+      <div id="tab-estadisticas" style="display:none;">
+        <section class="admin-card">
+          <div class="card-header" style="margin-bottom: 20px; flex-wrap: wrap; gap: 16px;">
+            <div>
+              <h2>📈 Estadísticas Clave</h2>
+              <p style="color:#666; font-size:14px; margin-top:4px;">(Datos basados en pedidos entregados ✅)</p>
+            </div>
+            <select id="stats-date-filter" onchange="renderEstadisticas()" style="padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 8px; font-weight: 500; font-family: inherit; cursor: pointer; background: var(--surface); color: var(--text-main);">
+              <option value="all">Historico (Todo)</option>
+              <option value="today">Hoy</option>
+              <option value="week">Últimos 7 días</option>
+              <option value="month">Este Mes</option>
+            </select>
+          </div>
+          <div class="stats-grid" style="grid-template-columns: repeat(2, 1fr); margin-bottom: 24px;">
+            <div class="stat-card">
+              <div class="stat-icon">💵</div>
+              <div class="stat-info">
+                <h3>Ticket Promedio</h3>
+                <p id="stat-ticket-promedio">$0</p>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon">🛍️</div>
+              <div class="stat-info">
+                <h3>Pedidos Entregados</h3>
+                <p id="stat-total-pedidos">0</p>
+              </div>
+            </div>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
+            <div class="admin-card" style="margin-bottom:0; padding:20px; box-shadow:none; border: 1px solid var(--border-color);">
+              <h3 style="margin-top:0; margin-bottom:16px; font-size:16px;">🔥 Top 5 Productos</h3>
+              <div id="top-productos-container" class="simple-bar-container"></div>
+            </div>
+            <div class="admin-card" style="margin-bottom:0; padding:20px; box-shadow:none; border: 1px solid var(--border-color);">
+              <h3 style="margin-top:0; margin-bottom:16px; font-size:16px;">💳 Métodos de Pago</h3>
+              <div id="metodos-pago-container" class="simple-bar-container"></div>
+            </div>
           </div>
         </section>
       </div>

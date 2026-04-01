@@ -603,3 +603,44 @@ body.admin {
     gap: 16px;
   }
 }
+
+/* --- Simple CSS Bar Charts --- */
+.simple-bar-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.bar-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.bar-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-main);
+  font-family: 'Inter', sans-serif;
+}
+
+.bar-header span.bar-value {
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+.bar-track {
+  width: 100%;
+  height: 8px;
+  background: var(--bg-color);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}

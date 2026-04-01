@@ -922,22 +922,55 @@
     position: fixed;
     bottom: 30px;
     left: 50%;
-    transform: translateX(-50%) translateY(80px);
-    background: var(--cafe);
-    color: white;
-    padding: 14px 28px;
+    transform: translateX(-50%) translateY(100px);
+    background: white;
+    color: var(--cafe);
+    padding: 16px 24px;
     border-radius: 50px;
     font-weight: 800;
     font-size: 15px;
-    z-index: 9999;
-    transition: transform .3s;
+    z-index: 3000;
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     pointer-events: none;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border: 2px solid var(--verde);
     white-space: nowrap;
-    border-left: 5px solid var(--amarillo);
+  }
+  #toast.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
+  .toast-icon {
+    background: var(--verde);
+    color: white;
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
   }
 
-  #toast.show { transform: translateX(-50%) translateY(0); }
+  /* ===== SKELETON LOADERS ===== */
+  .skeleton-card { border: none !important; box-shadow: 0 4px 15px rgba(0,0,0,0.05) !important; cursor: default; }
+  .shimmer {
+    background: #f6f7f8;
+    background-image: linear-gradient(to right, #f6f7f8 0%, #edeef1 20%, #f6f7f8 40%, #f6f7f8 100%);
+    background-repeat: no-repeat;
+    background-size: 800px 100%;
+    animation: placeholderShimmer 1.5s linear infinite backwards;
+  }
+  @keyframes placeholderShimmer {
+    0% { background-position: -468px 0; }
+    100% { background-position: 468px 0; }
+  }
+  .skeleton-img { width: 100%; height: 180px; }
+  .skeleton-title { height: 26px; border-radius: 4px; margin-bottom: 12px; width: 80%; }
+  .skeleton-text { height: 14px; border-radius: 4px; margin-bottom: 8px; width: 100%; }
+  .skeleton-price { height: 24px; border-radius: 4px; width: 40px; }
+  .skeleton-btn { height: 40px; width: 40px; border-radius: 50%; border: none !important; }
 
   /* ===== RESPONSIVE ===== */
   @media (max-width: 768px) {

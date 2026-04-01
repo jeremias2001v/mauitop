@@ -232,14 +232,31 @@ window.enviarPedido = async function () {
 // ====== TOAST ======
 function showToast(msg) {
   const t = document.getElementById('toast');
-  t.textContent = msg;
+  const msgEl = document.getElementById('toast-msg');
+  if (msgEl) msgEl.textContent = msg.replace('🍌 ', '');
+  else t.textContent = msg;
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 2500);
 }
 
 // ====== INIT CON FIREBASE ======
 async function initMenu() {
-  document.getElementById('menu-grid').innerHTML = '<p style="text-align:center;width:100%;grid-column:1/-1;font-size:18px;font-weight:bold;color:var(--cafe);">Cargando menú delicioso... 🍌</p>';
+  const skeletonCards = Array(6).fill(`
+    <div class="menu-card skeleton-card">
+      <div class="skeleton-img shimmer"></div>
+      <div class="card-body">
+        <div class="skeleton-title shimmer"></div>
+        <div class="skeleton-text shimmer"></div>
+        <div class="skeleton-text shimmer" style="width:70%;"></div>
+        <div class="card-footer" style="margin-top: 15px;">
+          <div class="skeleton-price shimmer"></div>
+          <div class="skeleton-btn shimmer"></div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+  document.getElementById('menu-grid').innerHTML = skeletonCards;
+
   try {
     const catsSnap = await getDocs(collection(db, "categorias"));
     categorias = catsSnap.docs.map(d => d.data());

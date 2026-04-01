@@ -15,6 +15,7 @@ window.switchAdminTab = function (tabName, btnElement) {
   document.getElementById('tab-inventario').style.display = tabName === 'inventario' ? 'block' : 'none';
   document.getElementById('tab-pedidos').style.display = tabName === 'pedidos' ? 'block' : 'none';
   document.getElementById('tab-finanzas').style.display = tabName === 'finanzas' ? 'block' : 'none';
+  document.getElementById('tab-estadisticas').style.display = tabName === 'estadisticas' ? 'block' : 'none';
 
   if (tabName === 'pedidos') {
     window.loadPedidos();
@@ -22,7 +23,107 @@ window.switchAdminTab = function (tabName, btnElement) {
   if (tabName === 'finanzas') {
     window.loadDashboard();
   }
+  if (tabName === 'estadisticas') {
+    window.loadEstadisticas();
+  }
 };
+
+window.loadEstadisticas = async function () {
+  showAdminMessage('Calculando estadísticas...', 'info');
+  try {
+    const snap = await getDocs(collection(db, "pedidos"));
+    localPedidos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderEstadisticas();
+    showAdminMessage('Estadísticas listas', 'success');
+  } catch (e) {
+    console.error(e);
+    showAdminMessage('Error cargando estadísticas', 'error');
+  }
+};
+
+function renderEstadisticas() {
+  const filterVal = document.getElementById('stats-date-filter')?.value || 'all';
+  const now = new Date();
+
+  const entregados = localPedidos.filter(p => {
+    if (p.estado !== 'Entregado') return false;
+    if (filterVal === 'all') return true;
+    
+    // Si no tiene fecha y hay un filtro activo, no lo incluimos
+    if (!p.fecha || !p.fecha.toDate) return false;
+    
+    const pDate = p.fecha.toDate();
+
+    if (filterVal === 'today') {
+      return pDate.getDate() === now.getDate() && 
+             pDate.getMonth() === now.getMonth() && 
+             pDate.getFullYear() === now.getFullYear();
+    }
+    if (filterVal === 'week') {
+      const msInWeek = 7 * 24 * 60 * 60 * 1000;
+      return (now - pDate) <= msInWeek;
+    }
+    if (filterVal === 'month') {
+      return pDate.getMonth() === now.getMonth() && 
+             pDate.getFullYear() === now.getFullYear();
+    }
+    return true;
+  });
+
+  const totalPedidos = entregados.length;
+  let ingresosTotal = 0;
+  let conteoProductos = {};
+  let conteoPagos = {};
+
+  entregados.forEach(p => {
+    let t = Number(p.total) || 0;
+    ingresosTotal += t;
+
+    const mp = p.cliente?.metodoPago || 'Efectivo';
+    conteoPagos[mp] = (conteoPagos[mp] || 0) + 1;
+
+    if (p.ítems) {
+      p.ítems.forEach(item => {
+        const nombre = item.nombre;
+        const qty = item.cantidad || item.qty || 1;
+        conteoProductos[nombre] = (conteoProductos[nombre] || 0) + Number(qty);
+      });
+    }
+  });
+
+  const ticketPromedio = totalPedidos > 0 ? (ingresosTotal / totalPedidos) : 0;
+  document.getElementById('stat-ticket-promedio').textContent = '$' + Math.round(ticketPromedio).toLocaleString('es-CO');
+  document.getElementById('stat-total-pedidos').textContent = totalPedidos.toString();
+
+  function generarBarras(conteoObjeto, containerId, colors, prefijoValor = '') {
+    const ordenado = Object.entries(conteoObjeto).sort((a, b) => b[1] - a[1]).slice(0, 5);
+    const maxVal = ordenado.length > 0 ? ordenado[0][1] : 1;
+    
+    const html = ordenado.map(([nombre, cant], index) => {
+      const porcentaje = Math.max(5, (cant / maxVal) * 100);
+      const color = colors[index % colors.length];
+      return `
+        <div class="bar-row">
+          <div class="bar-header">
+            <span>${nombre}</span>
+            <span class="bar-value">${prefijoValor}${cant}</span>
+          </div>
+          <div class="bar-track">
+            <div class="bar-fill" style="width: ${porcentaje}%; background: ${color};"></div>
+          </div>
+        </div>
+      `;
+    }).join('');
+    
+    document.getElementById(containerId).innerHTML = html || '<p style="color:#888; font-size:13px;">No hay datos suficientes</p>';
+  }
+
+  const prodColors = ['#4f46e5', '#6366f1', '#818cf8', '#a5b4fc', '#c7d2fe'];
+  const pagoColors = ['#10b981', '#34d399', '#6ee7b7', '#a7f3d0', '#d1fae5'];
+
+  generarBarras(conteoProductos, 'top-productos-container', prodColors);
+  generarBarras(conteoPagos, 'metodos-pago-container', pagoColors);
+}
 
 window.loadDashboard = async function () {
   showAdminMessage('Calculando finanzas...', 'info');
@@ -108,13 +209,43 @@ window.loadPedidos = async function () {
 };
 
 function renderPedidos() {
+  const filterVal = document.getElementById('pedidos-date-filter')?.value || 'week';
+  const now = new Date();
+
+  const filtered = localPedidos.filter(p => {
+    if (filterVal === 'all') return true;
+    if (!p.fecha || !p.fecha.toDate) return false;
+
+    const pDate = p.fecha.toDate();
+    if (filterVal === 'today') {
+      return pDate.getDate() === now.getDate() && 
+             pDate.getMonth() === now.getMonth() && 
+             pDate.getFullYear() === now.getFullYear();
+    }
+    if (filterVal === 'week') {
+      const msInWeek = 7 * 24 * 60 * 60 * 1000;
+      return (now - pDate) <= msInWeek;
+    }
+    if (filterVal === 'month') {
+      return pDate.getMonth() === now.getMonth() && 
+             pDate.getFullYear() === now.getFullYear();
+    }
+    return true;
+  });
+
   const tbody = document.querySelector('#pedidos-table tbody');
   if (localPedidos.length === 0) {
     tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#888;">No hay pedidos registrados en la nube.</td></tr>';
     return;
   }
+  if (filtered.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#888;">No hay pedidos en la fecha seleccionada.</td></tr>';
+    return;
+  }
 
-  tbody.innerHTML = localPedidos.map(p => {
+  const displayPedidos = filtered.slice(0, 200); // Límite por rendimiento
+
+  tbody.innerHTML = displayPedidos.map(p => {
     let dateStr = 'Fecha desconocida';
     if (p.fecha && p.fecha.toDate) {
       dateStr = p.fecha.toDate().toLocaleString('es-CO', {
