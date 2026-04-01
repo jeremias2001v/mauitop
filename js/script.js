@@ -197,6 +197,11 @@ window.enviarPedido = async function () {
   msg += `━━━━━━━━━━━━━━━━━━━━\n`;
   msg += `¡Gracias por pedir en Mauitop! 🇨🇴`;
 
+  const waUrl = `https://wa.me/573182896219?text=${encodeURIComponent(msg)}`;
+
+  // [TRUCO SAFARI]: Abrimos pestaña _blank SÍNCRONAMENTE antes de ir a la nube para que no la bloquee.
+  const waWindow = window.open('about:blank', '_blank');
+
   // --- NUEVO: GUARDAR EN LA NUBE ---
   try {
     await addDoc(collection(db, "pedidos"), {
@@ -212,8 +217,13 @@ window.enviarPedido = async function () {
   }
   // ---------------------------------
 
-  const waUrl = `https://wa.me/573182896219?text=${encodeURIComponent(msg)}`;
-  window.location.href = waUrl;
+  // Asignamos la URL real a la ventana que abrimos
+  if(waWindow) {
+    waWindow.location.href = waUrl;
+  } else {
+    // Fallback por si acaso
+    window.location.href = waUrl;
+  }
 
   // Reset
   cart = [];
