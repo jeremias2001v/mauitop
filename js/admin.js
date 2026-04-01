@@ -1,10 +1,12 @@
-import { collection, getDocs, getDoc, doc, setDoc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
-import { signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js";
-import { db, auth } from "./firebase-config.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+import { collection, getDocs, getDoc, doc, setDoc, deleteDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, getAuth as getSecondaryAuth } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js";
+import { db, auth, firebaseConfig } from "./firebase-config.js";
 
 let localProductos = [];
 let localCategorias = [];
 let localPedidos = [];
+let localMeseros = [];
 
 window.switchAdminTab = function (tabName, btnElement) {
   // Manejo de UI
@@ -16,6 +18,7 @@ window.switchAdminTab = function (tabName, btnElement) {
   document.getElementById('tab-pedidos').style.display = tabName === 'pedidos' ? 'block' : 'none';
   document.getElementById('tab-finanzas').style.display = tabName === 'finanzas' ? 'block' : 'none';
   document.getElementById('tab-estadisticas').style.display = tabName === 'estadisticas' ? 'block' : 'none';
+  document.getElementById('tab-operacion').style.display = tabName === 'operacion' ? 'block' : 'none';
 
   if (tabName === 'pedidos') {
     window.loadPedidos();
@@ -189,22 +192,30 @@ function renderDashboard() {
   document.getElementById('stat-estrella').textContent = productoEstrella !== 'N/A' ? `${productoEstrella} (${maxVentas})` : 'N/A';
 }
 
-window.loadPedidos = async function () {
-  showAdminMessage('Cargando historial de pedidos...', 'info');
+let pedidosUnsubscribe = null;
+
+window.loadPedidos = function () {
+  if (pedidosUnsubscribe) return;
+  showAdminMessage('Conectando a historial de pedidos en vivo...', 'info');
   try {
-    const snap = await getDocs(collection(db, "pedidos"));
-    localPedidos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    // Ordenar descendente por fecha (los más nuevos en Firebase FireStore van primero si comparamos)
-    localPedidos.sort((a, b) => {
-      const ta = a.fecha?.toMillis ? a.fecha.toMillis() : 0;
-      const tb = b.fecha?.toMillis ? b.fecha.toMillis() : 0;
-      return tb - ta;
+    pedidosUnsubscribe = onSnapshot(collection(db, "pedidos"), (snap) => {
+      localPedidos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      localPedidos.sort((a, b) => {
+        const ta = a.fecha?.toMillis ? a.fecha.toMillis() : 0;
+        const tb = b.fecha?.toMillis ? b.fecha.toMillis() : 0;
+        return tb - ta;
+      });
+      renderPedidos();
+      // Optional: quietly refresh stats if tabs are open
+      if (document.getElementById('tab-estadisticas').style.display === 'block') renderEstadisticas();
+      if (document.getElementById('tab-finanzas').style.display === 'block') renderDashboard();
+    }, (error) => {
+      console.error(error);
+      showAdminMessage('Error cargando pedidos en vivo', 'error');
     });
-    renderPedidos();
-    showAdminMessage('Pedidos cargados', 'success');
+    showAdminMessage('Pedidos Live activados 🟢', 'success');
   } catch (e) {
     console.error(e);
-    showAdminMessage('Error cargando pedidos', 'error');
   }
 };
 
@@ -268,11 +279,13 @@ function renderPedidos() {
       <tr>
         <td style="color:#777;font-size:13px;">${dateStr}</td>
         <td>
-          <strong style="color:var(--text-main);">${Number(p.cliente?.telefono || 0)}</strong><br>
-          <span style="font-size:13px;color:#888;">${p.cliente?.nombre || 'Anónimo'}</span><br>
+          <strong style="color:var(--text-main);">${p.mesa ? '🍽️ Físico' : Number(p.cliente?.telefono || 0)}</strong><br>
+          <span style="font-size:13px;color:#888;">${p.cliente?.nombre || (p.mesero ? 'Mesero: ' + p.mesero : 'Anónimo')}</span><br>
           <small style="color:var(--azul);">💳 ${p.cliente?.metodoPago || 'No definido'}</small>
         </td>
-        <td style="font-size:13px;color:#555;">${p.cliente?.direccion || 'N/A'}<br><small>${p.cliente?.barrio || ''}</small></td>
+        <td style="font-size:13px;color:#555;">
+          ${(p.mesa || p.origen === 'mesa') ? `<span style="background:#4A2511; color:white; padding:6px 12px; border-radius:12px; font-weight:bold; font-size:14px; box-shadow:0 2px 4px rgba(0,0,0,0.2);">📍 ${p.mesa ? p.mesa.replace(/Mesa\s?/i, 'M') : 'M1'}</span>` : `${p.cliente?.direccion || 'N/A'}<br><small>${p.cliente?.barrio || ''}</small>`}
+        </td>
         <td style="font-size:13px;line-height:1.4;">${itemsStr}</td>
         <td style="font-weight:700;color:var(--success);">$${Number(p.total).toLocaleString('es-CO')}</td>
         <td>${badge}</td>
@@ -385,6 +398,16 @@ async function initData() {
         document.getElementById('estrella-imagen').value = estSnap.data().imagen;
       }
     } catch(e) { console.error(e); }
+
+    // Fetch Operacion
+    try {
+      const opSnap = await getDoc(doc(db, "configuracion", "operacion"));
+      if (opSnap.exists() && opSnap.data().mesasActivas) {
+        document.getElementById('op-mesas').value = opSnap.data().mesasActivas;
+      }
+    } catch(e) {}
+    
+    fetchMeseros();
 
     // Fetch categories
     const catsSnap = await getDocs(collection(db, "categorias"));
@@ -855,6 +878,74 @@ window.guardarEstrella = async function() {
 
 // ESTADO DE LA TIENDA
 let isStoreOpen = false;
+
+window.saveOperacion = async function() {
+  const mesas = parseInt(document.getElementById('op-mesas').value) || 0;
+  try {
+    await setDoc(doc(db, "configuracion", "operacion"), { mesasActivas: mesas }, { merge: true });
+    showAdminMessage('Configuración de mesas guardada', 'success');
+  } catch(e) {
+    console.error(e);
+  }
+};
+
+window.handleCreateWaiter = async function(e) {
+  e.preventDefault();
+  const name = document.getElementById('w-name').value;
+  const email = document.getElementById('w-email').value;
+  const pass = document.getElementById('w-pass').value;
+  const btn = document.querySelector('#waiter-form button');
+  btn.disabled = true;
+  btn.textContent = "Creando...";
+  try {
+    const app2 = initializeApp(firebaseConfig, "WaiterCreatorApp" + Date.now());
+    const auth2 = getSecondaryAuth(app2);
+    await createUserWithEmailAndPassword(auth2, email, pass);
+    await signOut(auth2); // Asegurar que cierra sesión en app secundaria
+    
+    const id = Date.now().toString();
+    await setDoc(doc(db, "meseros", id), { nombre: name, correo: email, createdAt: new Date() });
+    
+    showAdminMessage('Mesero creado con acceso oficial', 'success');
+    document.getElementById('waiter-form').reset();
+    fetchMeseros();
+  } catch(err) {
+    console.error(err);
+    alert('Error al crear mesero. Quizás el correo ya exista o clave sea muy corta.');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Crear Usuario 🔑";
+  }
+};
+
+async function fetchMeseros() {
+  try {
+    const snap = await getDocs(collection(db, "meseros"));
+    localMeseros = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    renderMeseros();
+  } catch(e){}
+}
+
+function renderMeseros() {
+  const tbody = document.querySelector('#waiters-table tbody');
+  if(!tbody) return;
+  tbody.innerHTML = localMeseros.map(m => `
+    <tr>
+      <td style="font-weight:600;">👨‍🍳 ${m.nombre}</td>
+      <td style="color:#666;">${m.correo}</td>
+      <td><button class="action-btn delete" onclick="deleteMesero('${m.id}')">Revocar</button></td>
+    </tr>
+  `).join('');
+}
+
+window.deleteMesero = async function(id) {
+  if(!confirm("¿Revocar el acceso a este perfil?")) return;
+  try {
+    await deleteDoc(doc(db, "meseros", id));
+    fetchMeseros();
+    showAdminMessage('Acceso revocado', 'success');
+  } catch(e) { console.error(e); }
+};
 
 async function checkStoreStatus() {
   const toggle = document.getElementById('store-toggle');

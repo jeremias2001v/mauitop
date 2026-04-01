@@ -1,0 +1,52 @@
+/* css/meseros.css */
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+body { background: #f3f4f6; color: #1f2937; -webkit-tap-highlight-color: transparent; }
+
+.screen { display: none; padding-bottom: 20px; }
+.active-screen { display: block; }
+#login-screen.active-screen { display: flex; }
+
+.header { background: #FFD100; color: #4A2511; padding: 18px 16px; position: sticky; top: 0; z-index: 10; font-weight: bold; font-size: 18px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);}
+.btn-icon { background: none; border: none; font-size: 24px; cursor: pointer; color: #4A2511; }
+.logout-btn { background: none; border: none; font-size: 20px; cursor: pointer; }
+
+/* Login */
+.login-container { height: 100vh; align-items: center; justify-content: center; background: #111827; padding: 20px; }
+.login-card { background: #1f2937; padding: 32px 24px; border-radius: 20px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+.login-card input { width: 100%; padding: 16px; margin-bottom: 16px; border: 1px solid #e5e7eb; border-radius: 12px; font-size: 16px; outline: none; transition: border 0.2s; }
+.login-card input:focus { border-color: #FFD100; }
+
+/* Buttons */
+.btn { width: 100%; padding: 16px; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; transition: opacity 0.2s; }
+.btn:active { opacity: 0.8; }
+.btn-primary { background: #CE1126; color: white; }
+.btn-success { background: #10b981; color: white; }
+
+/* Tables Grid */
+.tables-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.table-btn { height: 110px; border-radius: 16px; border: none; font-size: 18px; font-weight: bold; cursor: pointer; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); color: white; transition: transform 0.1s; }
+.table-btn:active { transform: scale(0.95); }
+.table-free { background: #10b981; } 
+.table-occupied { background: #ef4444; } 
+
+/* Categorias Horizontales */
+.cats-scroll { display: flex; overflow-x: auto; gap: 12px; padding: 16px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+.cats-scroll::-webkit-scrollbar { display: none; }
+.cat-chip { background: white; border: 2px solid #e5e7eb; padding: 10px 20px; border-radius: 30px; font-weight: bold; font-size: 14px; white-space: nowrap; scroll-snap-align: start; color: #4b5563; }
+.cat-chip.selected { background: #FFD100; border-color: #FFD100; color: #4A2511; }
+
+/* Productos List */
+.products-list { padding: 0 16px 120px 16px; display: flex; flex-direction: column; gap: 12px; }
+.prod-card { background: white; padding: 12px; border-radius: 16px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
+.prod-info { flex: 1; }
+.prod-name { font-weight: bold; font-size: 15px; margin-bottom: 4px; color: #1f2937; }
+.prod-price { color: #10b981; font-weight: bold; font-size: 14px; }
+
+/* Counter Stepper */
+.stepper { display: flex; align-items: center; gap: 12px; background: #f3f4f6; border-radius: 30px; padding: 4px; }
+.stepper-btn { background: white; border: none; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: bold; color: #4A2511; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+.stepper-val { font-weight: bold; font-size: 16px; width: 20px; text-align: center; }
+
+/* Cart Footer */
+.cart-footer { position: fixed; bottom: 0; left: 0; right: 0; background: #CE1126; padding: 20px; border-top-left-radius: 20px; border-top-right-radius: 20px; box-shadow: 0 -4px 15px rgba(206,17,38,0.3); transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+.cart-footer.visible { transform: translateY(0); }

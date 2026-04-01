@@ -29,12 +29,17 @@
 
     <!-- Sidebar -->
     <nav class="sidebar">
-      <h2>🍌 Mauitop</h2>
+      <div style="margin-bottom:24px; display:flex; justify-content:center;">
+        <div style="width:140px; height:48px; overflow:hidden; position:relative; display:flex; align-items:center; justify-content:center; background:white; border-radius:8px; box-shadow:0 2px 4px rgba(0,0,0,0.15);">
+          <img src="img/logo.png" alt="Mauitop" style="width:100%; height:auto; position:absolute; top:50%; transform:translateY(-50%);">
+        </div>
+      </div>
       <div class="sidebar-nav">
         <div class="nav-item active" onclick="switchAdminTab('inventario', this)">📦 Inventario</div>
         <div class="nav-item" onclick="switchAdminTab('pedidos', this)">📝 Pedidos Live</div>
         <div class="nav-item" onclick="switchAdminTab('finanzas', this)">💰 Finanzas</div>
         <div class="nav-item" onclick="switchAdminTab('estadisticas', this)">📈 Estadísticas</div>
+        <div class="nav-item" onclick="switchAdminTab('operacion', this)">👨‍🍳 Operación</div>
       </div>
       <div class="logout-container">
         <button onclick="handleLogout()" class="logout-btn">
@@ -212,6 +217,55 @@
             </table>
           </div>
         </section>
+      </div>
+
+      <!-- ===== TAB OPERACION ===== -->
+      <div id="tab-operacion" style="display:none;">
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
+          <!-- Configuración -->
+          <section class="admin-card">
+            <div class="card-header">
+              <h2>⚙️ Configuración del Restaurante</h2>
+            </div>
+            <div style="padding: 20px;">
+              <label style="display:block; font-size:14px; font-weight:600; margin-bottom:8px;">Cantidad de Mesas Activas:</label>
+              <div style="display:flex; gap:12px;">
+                <input type="number" id="op-mesas" value="10" min="1" max="100" style="padding:10px; border-radius:8px; border:1px solid var(--border-color); width:100px; font-weight:bold; background:var(--surface); color:var(--text-main);" />
+                <button class="primary-btn" onclick="saveOperacion()">Guardar</button>
+              </div>
+            </div>
+          </section>
+          
+          <!-- Meseros -->
+          <section class="admin-card" style="grid-row: span 2;">
+            <div class="card-header">
+              <h2>👨‍🍳 Personal (Meseros)</h2>
+            </div>
+            <div style="padding: 20px;">
+              <form id="waiter-form" onsubmit="handleCreateWaiter(event)" style="display:flex; flex-direction:column; gap:12px; margin-bottom: 24px; padding-bottom:24px; border-bottom:1px solid var(--border-color);">
+                <h3 style="margin-top:0; font-size:15px; color:var(--rojo);">Agregar nuevo acceso</h3>
+                <input type="text" id="w-name" placeholder="Nombre completo" required style="padding:10px; border-radius:8px; border:1px solid var(--border-color); background:var(--surface); color:var(--text-main);" />
+                <input type="email" id="w-email" placeholder="Correo electrónico" required style="padding:10px; border-radius:8px; border:1px solid var(--border-color); background:var(--surface); color:var(--text-main);" />
+                <input type="password" id="w-pass" placeholder="Contraseña (mínimo 6 caracteres)" required style="padding:10px; border-radius:8px; border:1px solid var(--border-color); background:var(--surface); color:var(--text-main);" />
+                <button type="submit" class="primary-btn">Crear Usuario 🔑</button>
+              </form>
+              
+              <h3 style="margin-top:0; font-size:15px; color:var(--cafe);">Meseros Autorizados</h3>
+              <div class="table-responsive">
+                <table class="admin-table" id="waiters-table">
+                  <thead>
+                    <tr>
+                      <th>Nombre</th>
+                      <th>Correo</th>
+                      <th>Acción</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+        </div>
       </div>
 
       <!-- ===== TAB ESTADÍSTICAS ===== -->

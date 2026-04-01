@@ -1,3 +1,30 @@
+/* =========================================
+   LOGO CONTAINER CSS
+   ========================================= */
+.brand-logo-container {
+  width: 130px;
+  height: 52px;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+}
+.brand-logo-container img {
+  width: 100%;
+  height: auto;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%) scale(1);
+}
+
+.footer-logo-container {
+  width: 160px;
+  height: 60px;
+  margin: 0 auto 16px;
+}
+
 :root {
     --amarillo: #FFD100;
     --rojo: #CE1126;
@@ -21,7 +48,7 @@
 
   /* ===== HERO ===== */
   header {
-    background: linear-gradient(135deg, var(--amarillo) 0%, var(--dorado) 40%, var(--naranja) 100%);
+    background: linear-gradient(135deg, #1A0E05 0%, #2A160A 50%, #4A2511 100%);
     position: relative;
     overflow: hidden;
     padding: 0;
@@ -93,7 +120,7 @@
   .nav-links a {
     font-family: 'Bebas Neue', sans-serif;
     font-size: 18px;
-    color: var(--cafe);
+    color: var(--crema);
     text-decoration: none;
     padding: 8px 18px;
     border-radius: 8px;
@@ -102,7 +129,8 @@
   }
 
   .nav-links a:hover {
-    background: rgba(93,46,12,0.12);
+    background: rgba(255,255,255,0.1);
+    color: var(--amarillo);
   }
 
   .cart-btn {
@@ -148,18 +176,18 @@
     font-family: 'Bebas Neue', sans-serif;
     font-size: 88px;
     line-height: 0.9;
-    color: var(--cafe);
+    color: white;
     letter-spacing: -2px;
   }
 
   .hero-text h1 .highlight {
-    color: var(--rojo);
+    color: var(--amarillo);
     display: block;
   }
 
   .hero-text p {
     font-size: 18px;
-    color: var(--cafe);
+    color: #e5e7eb;
     margin: 20px 0 30px;
     max-width: 420px;
     font-weight: 700;
@@ -179,12 +207,12 @@
     letter-spacing: 2px;
     text-decoration: none;
     transition: transform .2s, box-shadow .2s;
-    box-shadow: 4px 4px 0 var(--cafe);
+    box-shadow: 4px 4px 0 var(--dorado);
   }
 
   .hero-badge:hover {
     transform: translate(-2px,-2px);
-    box-shadow: 6px 6px 0 var(--cafe);
+    box-shadow: 6px 6px 0 var(--dorado);
   }
 
   .hero-image-box {
