@@ -16,8 +16,10 @@
       <h2>Mauitop Admin</h2>
       <p>Acceso seguro al panel de gestión</p>
       <form id="login-form" onsubmit="handleLogin(event)">
-        <input type="email" id="login-email" placeholder="Correo electrónico" required style="margin-bottom: 12px; width: 100%; box-sizing: border-box; padding: 12px; border: 1px solid #ddd; border-radius: 8px;">
-        <input type="password" id="login-password" placeholder="Contraseña" required style="margin-bottom: 16px; width: 100%; box-sizing: border-box; padding: 12px; border: 1px solid #ddd; border-radius: 8px;">
+        <input type="email" id="login-email" placeholder="Correo electrónico" required
+          style="margin-bottom: 12px; width: 100%; box-sizing: border-box; padding: 12px; border: 1px solid #ddd; border-radius: 8px;">
+        <input type="password" id="login-password" placeholder="Contraseña" required
+          style="margin-bottom: 16px; width: 100%; box-sizing: border-box; padding: 12px; border: 1px solid #ddd; border-radius: 8px;">
         <button type="submit" class="primary-btn" style="width: 100%; padding: 12px;">Ingresar al Panel</button>
       </form>
       <p id="login-error" style="color:var(--danger); font-size:13px; margin-top:16px; display:none;"></p>
@@ -30,8 +32,10 @@
     <!-- Sidebar -->
     <nav class="sidebar">
       <div style="margin-bottom:24px; display:flex; justify-content:center;">
-        <div style="width:140px; height:48px; overflow:hidden; position:relative; display:flex; align-items:center; justify-content:center; background:white; border-radius:8px; box-shadow:0 2px 4px rgba(0,0,0,0.15);">
-          <img src="img/logo.png" alt="Mauitop" style="width:100%; height:auto; position:absolute; top:50%; transform:translateY(-50%);">
+        <div
+          style="width:140px; height:48px; overflow:hidden; position:relative; display:flex; align-items:center; justify-content:center; background:transparent;">
+          <img src="img/logo.png" alt="Mauitop"
+            style="width:100%; height:auto; position:absolute; top:50%; transform:translateY(-50%);">
         </div>
       </div>
       <div class="sidebar-nav">
@@ -42,6 +46,7 @@
         <div class="nav-item" onclick="switchAdminTab('operacion', this)">👨‍🍳 Operación</div>
       </div>
       <div class="logout-container">
+        <button class="logout-btn theme-toggle" style="margin-bottom:8px;">☀️ Modo Claro</button>
         <button onclick="handleLogout()" class="logout-btn">
           <svg style="width:16px;height:16px;margin-right:6px;vertical-align:middle;" fill="none" stroke="currentColor"
             viewBox="0 0 24 24">
@@ -56,14 +61,19 @@
     <!-- Content -->
     <main class="main-content">
       <header class="admin-header">
-        <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; flex-wrap: wrap; gap: 16px;">
+        <div
+          style="display: flex; align-items: center; justify-content: space-between; width: 100%; flex-wrap: wrap; gap: 16px;">
           <h1>Dashboard</h1>
-          <div class="store-status-toggle" style="display: flex; align-items: center; gap: 10px; background: white; padding: 10px 16px; border-radius: 12px; box-shadow: var(--shadow-sm); border: 1px solid var(--border-color);">
+          <div class="store-status-toggle"
+            style="display: flex; align-items: center; gap: 10px; background: white; padding: 10px 16px; border-radius: 12px; box-shadow: var(--shadow-sm); border: 1px solid var(--border-color);">
             <span id="store-status-text" style="font-weight: 600; font-size: 14px;">Estado Tienda:</span>
             <label class="switch" style="position: relative; display: inline-block; width: 44px; height: 24px;">
-              <input type="checkbox" id="store-toggle" onchange="toggleStoreStatus()" style="opacity: 0; width: 0; height: 0;" disabled>
-              <span class="slider round" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 24px;"></span>
-              <span class="slider-knob" style="position: absolute; content: ''; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%;"></span>
+              <input type="checkbox" id="store-toggle" onchange="toggleStoreStatus()"
+                style="opacity: 0; width: 0; height: 0;" disabled>
+              <span class="slider round"
+                style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 24px;"></span>
+              <span class="slider-knob"
+                style="position: absolute; content: ''; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%;"></span>
             </label>
           </div>
           <div class="links">
@@ -71,12 +81,24 @@
           </div>
         </div>
       </header>
-      
+
       <style>
-        .switch input:checked + .slider { background-color: #2E7D32; }
-        .switch input:focus + .slider { box-shadow: 0 0 1px #2E7D32; }
-        .switch input:checked ~ .slider-knob { transform: translateX(20px); }
-        .switch input:disabled + .slider { opacity: 0.5; cursor: not-allowed; }
+        .switch input:checked+.slider {
+          background-color: #2E7D32;
+        }
+
+        .switch input:focus+.slider {
+          box-shadow: 0 0 1px #2E7D32;
+        }
+
+        .switch input:checked~.slider-knob {
+          transform: translateX(20px);
+        }
+
+        .switch input:disabled+.slider {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
       </style>
 
       <div id="admin-msg"></div>
@@ -129,11 +151,14 @@
           </div>
           <div style="padding: 24px; display:flex; align-items:flex-end; gap:20px; flex-wrap:wrap;">
             <div style="flex:1; min-width: 250px;">
-              <label style="display:block; font-size:13px; font-weight:800; color:var(--cafe); margin-bottom:8px;">Sube una foto atractiva para la portada</label>
-              <input type="file" id="estrella-file" accept="image/png, image/jpeg, image/webp" style="width:100%; padding: 10px; border: 1px dashed #ccc; background:#fafafa; border-radius:6px; cursor:pointer;" />
+              <label style="display:block; font-size:13px; font-weight:800; color:var(--cafe); margin-bottom:8px;">Sube
+                una foto atractiva para la portada</label>
+              <input type="file" id="estrella-file" accept="image/png, image/jpeg, image/webp"
+                style="width:100%; padding: 10px; border: 1px dashed #ccc; background:#fafafa; border-radius:6px; cursor:pointer;" />
               <input type="hidden" id="estrella-imagen" />
             </div>
-            <div id="estrella-preview-container" style="display:none; width:64px; height:64px; border-radius:50%; overflow:hidden; border:2px solid var(--amarillo); flex-shrink:0;">
+            <div id="estrella-preview-container"
+              style="display:none; width:64px; height:64px; border-radius:50%; overflow:hidden; border:2px solid var(--amarillo); flex-shrink:0;">
               <img id="estrella-preview" src="" style="width:100%; height:100%; object-fit:cover;" />
             </div>
             <button class="primary-btn" onclick="guardarEstrella()">Guardar Imagen</button>
@@ -191,7 +216,8 @@
           <div class="card-header" style="flex-wrap: wrap; gap: 16px;">
             <h2>📝 Historial de Pedidos</h2>
             <div style="display:flex; gap:12px; align-items:center;">
-              <select id="pedidos-date-filter" onchange="renderPedidos()" style="padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 8px; font-weight: 500; font-family: inherit; cursor: pointer; background: var(--surface); color: var(--text-main);">
+              <select id="pedidos-date-filter" onchange="renderPedidos()"
+                style="padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 8px; font-weight: 500; font-family: inherit; cursor: pointer; background: var(--surface); color: var(--text-main);">
                 <option value="today">Hoy</option>
                 <option value="week" selected>Últimos 7 días</option>
                 <option value="month">Este Mes</option>
@@ -228,28 +254,34 @@
               <h2>⚙️ Configuración del Restaurante</h2>
             </div>
             <div style="padding: 20px;">
-              <label style="display:block; font-size:14px; font-weight:600; margin-bottom:8px;">Cantidad de Mesas Activas:</label>
+              <label style="display:block; font-size:14px; font-weight:600; margin-bottom:8px;">Cantidad de Mesas
+                Activas:</label>
               <div style="display:flex; gap:12px;">
-                <input type="number" id="op-mesas" value="10" min="1" max="100" style="padding:10px; border-radius:8px; border:1px solid var(--border-color); width:100px; font-weight:bold; background:var(--surface); color:var(--text-main);" />
+                <input type="number" id="op-mesas" value="10" min="1" max="100"
+                  style="padding:10px; border-radius:8px; border:1px solid var(--border-color); width:100px; font-weight:bold; background:var(--surface); color:var(--text-main);" />
                 <button class="primary-btn" onclick="saveOperacion()">Guardar</button>
               </div>
             </div>
           </section>
-          
+
           <!-- Meseros -->
           <section class="admin-card" style="grid-row: span 2;">
             <div class="card-header">
               <h2>👨‍🍳 Personal (Meseros)</h2>
             </div>
             <div style="padding: 20px;">
-              <form id="waiter-form" onsubmit="handleCreateWaiter(event)" style="display:flex; flex-direction:column; gap:12px; margin-bottom: 24px; padding-bottom:24px; border-bottom:1px solid var(--border-color);">
+              <form id="waiter-form" onsubmit="handleCreateWaiter(event)"
+                style="display:flex; flex-direction:column; gap:12px; margin-bottom: 24px; padding-bottom:24px; border-bottom:1px solid var(--border-color);">
                 <h3 style="margin-top:0; font-size:15px; color:var(--rojo);">Agregar nuevo acceso</h3>
-                <input type="text" id="w-name" placeholder="Nombre completo" required style="padding:10px; border-radius:8px; border:1px solid var(--border-color); background:var(--surface); color:var(--text-main);" />
-                <input type="email" id="w-email" placeholder="Correo electrónico" required style="padding:10px; border-radius:8px; border:1px solid var(--border-color); background:var(--surface); color:var(--text-main);" />
-                <input type="password" id="w-pass" placeholder="Contraseña (mínimo 6 caracteres)" required style="padding:10px; border-radius:8px; border:1px solid var(--border-color); background:var(--surface); color:var(--text-main);" />
+                <input type="text" id="w-name" placeholder="Nombre completo" required
+                  style="padding:10px; border-radius:8px; border:1px solid var(--border-color); background:var(--surface); color:var(--text-main);" />
+                <input type="email" id="w-email" placeholder="Correo electrónico" required
+                  style="padding:10px; border-radius:8px; border:1px solid var(--border-color); background:var(--surface); color:var(--text-main);" />
+                <input type="password" id="w-pass" placeholder="Contraseña (mínimo 6 caracteres)" required
+                  style="padding:10px; border-radius:8px; border:1px solid var(--border-color); background:var(--surface); color:var(--text-main);" />
                 <button type="submit" class="primary-btn">Crear Usuario 🔑</button>
               </form>
-              
+
               <h3 style="margin-top:0; font-size:15px; color:var(--cafe);">Meseros Autorizados</h3>
               <div class="table-responsive">
                 <table class="admin-table" id="waiters-table">
@@ -276,7 +308,8 @@
               <h2>📈 Estadísticas Clave</h2>
               <p style="color:#666; font-size:14px; margin-top:4px;">(Datos basados en pedidos entregados ✅)</p>
             </div>
-            <select id="stats-date-filter" onchange="renderEstadisticas()" style="padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 8px; font-weight: 500; font-family: inherit; cursor: pointer; background: var(--surface); color: var(--text-main);">
+            <select id="stats-date-filter" onchange="renderEstadisticas()"
+              style="padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 8px; font-weight: 500; font-family: inherit; cursor: pointer; background: var(--surface); color: var(--text-main);">
               <option value="all">Historico (Todo)</option>
               <option value="today">Hoy</option>
               <option value="week">Últimos 7 días</option>
@@ -300,11 +333,13 @@
             </div>
           </div>
           <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
-            <div class="admin-card" style="margin-bottom:0; padding:20px; box-shadow:none; border: 1px solid var(--border-color);">
+            <div class="admin-card"
+              style="margin-bottom:0; padding:20px; box-shadow:none; border: 1px solid var(--border-color);">
               <h3 style="margin-top:0; margin-bottom:16px; font-size:16px;">🔥 Top 5 Productos</h3>
               <div id="top-productos-container" class="simple-bar-container"></div>
             </div>
-            <div class="admin-card" style="margin-bottom:0; padding:20px; box-shadow:none; border: 1px solid var(--border-color);">
+            <div class="admin-card"
+              style="margin-bottom:0; padding:20px; box-shadow:none; border: 1px solid var(--border-color);">
               <h3 style="margin-top:0; margin-bottom:16px; font-size:16px;">💳 Métodos de Pago</h3>
               <div id="metodos-pago-container" class="simple-bar-container"></div>
             </div>

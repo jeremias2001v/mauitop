@@ -1,19 +1,24 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#FFD100">
   <title>POS Meseros - Mauitop</title>
   <link rel="stylesheet" href="css/meseros.css">
 </head>
+
 <body>
 
   <!-- PANTALLA 1: LOGIN -->
   <div id="login-screen" class="screen active-screen login-container">
     <div class="login-card">
-      <div style="width:160px; height:54px; overflow:hidden; position:relative; display:flex; align-items:center; justify-content:center; margin: 0 auto 16px;">
-        <img src="img/logo.png" alt="Mauitop" style="width:100%; height:auto; position:absolute; top:50%; transform:translateY(-50%);">
+      <div
+        style="width:160px; height:54px; overflow:hidden; position:relative; display:flex; align-items:center; justify-content:center; margin: 0 auto 16px;">
+        <img src="img/logo.png" alt="Mauitop"
+          style="width:100%; height:auto; position:absolute; top:50%; transform:translateY(-50%);">
       </div>
       <h1 style="font-size:20px; margin-bottom: 8px; color:white;">Acceso Meseros</h1>
       <p style="color:#9ca3af; margin-bottom: 24px; font-size:14px;">Inicia sesión para gestionar mesas</p>
@@ -29,8 +34,11 @@
   <!-- PANTALLA 2: MESAS -->
   <div id="tables-screen" class="screen">
     <div class="header">
-      <span id="waiter-name">Cargando...</span>
-      <button class="logout-btn" id="btn-logout" title="Cerrar sesión">🚪</button>
+      <span id="waiter-name" style="font-weight:700;">Cargando...</span>
+      <div style="display:flex; gap:12px; align-items:center;">
+        <button class="btn-icon theme-toggle" title="Alternar Tema">☀️</button>
+        <button class="btn-icon" id="btn-logout" title="Cerrar sesión">🚪</button>
+      </div>
     </div>
     <div style="padding: 16px;">
       <h2 style="font-size:18px; color:#4A2511; margin-bottom:16px;">Plano del Salón</h2>
@@ -44,40 +52,50 @@
   <div id="pos-screen" class="screen">
     <div class="header">
       <button class="btn-icon" id="btn-back-tables">⬅️</button>
-      <span id="pos-table-number">Mesa X</span>
-      <span style="width:24px;"></span> <!-- Spacer -->
+      <span id="pos-table-number" style="font-weight:700;">Mesa X</span>
+      <div style="width:24px; display:flex; justify-content:flex-end;">
+        <button class="btn-icon theme-toggle" title="Alternar Tema">☀️</button>
+      </div>
     </div>
-    
+
     <!-- Info de mesa ocupada -->
-    <div id="occupied-info" style="display:none; padding:16px; background:white; margin:16px; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.05);">
-      <h3 style="color:#ef4444; margin-bottom:12px;">Mesa Ocupada ⏳</h3>
-      <div id="occupied-items" style="font-size:14px; color:#4b5563; margin-bottom:16px; line-height:1.6;"></div>
+    <div id="occupied-info" style="display:none; padding:24px; margin:20px; border-radius:24px;">
+      <h3 style="color:var(--danger); margin-bottom:16px; display:flex; align-items:center; gap:8px;"><span
+          style="font-size:24px;">⏳</span> Mesa Ocupada</h3>
+      <div id="occupied-items" style="font-size:15px; color:var(--text-muted); margin-bottom:24px; line-height:1.6;">
+      </div>
       <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:18px; margin-bottom:16px;">
         <span>Por cobrar:</span>
         <span id="occupied-total">$0</span>
       </div>
-      <button class="btn btn-success" id="btn-pay-table" style="padding:16px; font-size:18px;">💵 Cobrar y Liberar Mesa</button>
+      <button class="btn btn-success" id="btn-pay-table" style="padding:16px; font-size:18px;">💵 Cobrar y Liberar
+        Mesa</button>
     </div>
 
     <!-- Toma de Pedido Nuevo -->
     <div id="new-order-container" style="display:none;">
       <!-- Categorías -->
       <div class="cats-scroll" id="pos-cats"></div>
-      
+
       <!-- Productos -->
       <div class="products-list" id="pos-products"></div>
 
-      <!-- Footer Carrito Flotante -->
+      <!-- Footer Carrito Flotante (Glassmorphism) -->
       <div class="cart-footer" id="pos-cart-footer">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-          <span style="font-weight:bold; color:white;">Total (<span id="cart-qty">0</span> ítems)</span>
-          <span style="font-weight:bold; color:white; font-size:20px;" id="cart-total">$0</span>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+          <span style="font-weight:800; color:var(--footer-text); font-size:16px;">Mesa Actual (<span
+              id="cart-qty">0</span>)</span>
+          <span style="font-weight:900; color:var(--success); font-size:24px;" id="cart-total">$0</span>
         </div>
-        <button class="btn" style="background:white; color:#CE1126;" id="btn-send-order">Enviar a Cocina 🔔</button>
+        <button class="custom-order-btn" id="btn-send-order">
+          <span>Enviar a Cocina</span>
+          <span style="font-size:22px;">🔔</span>
+        </button>
       </div>
     </div>
   </div>
 
   <script type="module" src="js/meseros.js"></script>
 </body>
+
 </html>

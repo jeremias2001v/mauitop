@@ -246,7 +246,7 @@ body.admin {
 }
 
 .admin-table th {
-  background: #f9fafb;
+  background: var(--bg-color);
   font-weight: 600;
   color: var(--text-muted);
   font-size: 12px;
@@ -259,7 +259,7 @@ body.admin {
 }
 
 .admin-table tbody tr:hover {
-  background-color: #f9fafb;
+  background-color: var(--bg-color);
 }
 
 .admin-table tbody tr:last-child td {
@@ -295,7 +295,7 @@ body.admin {
 }
 
 .secondary-btn {
-  background: white;
+  background: var(--surface);
   color: var(--text-main);
   border: 1px solid var(--border-color);
   border-radius: 6px;
@@ -518,7 +518,7 @@ body.admin {
 }
 
 .stat-card {
-  background: white;
+  background: var(--surface);
   border-radius: 16px;
   padding: 24px;
   box-shadow: var(--shadow-sm);

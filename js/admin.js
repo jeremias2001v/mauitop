@@ -8,6 +8,21 @@ let localCategorias = [];
 let localPedidos = [];
 let localMeseros = [];
 
+// --- THEME LOGIC ---
+const savedTheme = localStorage.getItem('theme-admin');
+if (savedTheme === 'dark') document.body.classList.add('dark-theme');
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.theme-toggle').forEach(btn => {
+    btn.innerHTML = document.body.classList.contains('dark-theme') ? '🌙 Modo Oscuro' : '☀️ Modo Claro';
+    btn.addEventListener('click', () => {
+      const isDark = document.body.classList.toggle('dark-theme');
+      localStorage.setItem('theme-admin', isDark ? 'dark' : 'light');
+      document.querySelectorAll('.theme-toggle').forEach(b => b.innerHTML = isDark ? '🌙 Modo Oscuro' : '☀️ Modo Claro');
+    });
+  });
+});
+
 window.switchAdminTab = function (tabName, btnElement) {
   // Manejo de UI
   document.querySelectorAll('.sidebar-nav .nav-item').forEach(el => el.classList.remove('active'));
@@ -51,24 +66,24 @@ function renderEstadisticas() {
   const entregados = localPedidos.filter(p => {
     if (p.estado !== 'Entregado') return false;
     if (filterVal === 'all') return true;
-    
+
     // Si no tiene fecha y hay un filtro activo, no lo incluimos
     if (!p.fecha || !p.fecha.toDate) return false;
-    
+
     const pDate = p.fecha.toDate();
 
     if (filterVal === 'today') {
-      return pDate.getDate() === now.getDate() && 
-             pDate.getMonth() === now.getMonth() && 
-             pDate.getFullYear() === now.getFullYear();
+      return pDate.getDate() === now.getDate() &&
+        pDate.getMonth() === now.getMonth() &&
+        pDate.getFullYear() === now.getFullYear();
     }
     if (filterVal === 'week') {
       const msInWeek = 7 * 24 * 60 * 60 * 1000;
       return (now - pDate) <= msInWeek;
     }
     if (filterVal === 'month') {
-      return pDate.getMonth() === now.getMonth() && 
-             pDate.getFullYear() === now.getFullYear();
+      return pDate.getMonth() === now.getMonth() &&
+        pDate.getFullYear() === now.getFullYear();
     }
     return true;
   });
@@ -101,7 +116,7 @@ function renderEstadisticas() {
   function generarBarras(conteoObjeto, containerId, colors, prefijoValor = '') {
     const ordenado = Object.entries(conteoObjeto).sort((a, b) => b[1] - a[1]).slice(0, 5);
     const maxVal = ordenado.length > 0 ? ordenado[0][1] : 1;
-    
+
     const html = ordenado.map(([nombre, cant], index) => {
       const porcentaje = Math.max(5, (cant / maxVal) * 100);
       const color = colors[index % colors.length];
@@ -117,7 +132,7 @@ function renderEstadisticas() {
         </div>
       `;
     }).join('');
-    
+
     document.getElementById(containerId).innerHTML = html || '<p style="color:#888; font-size:13px;">No hay datos suficientes</p>';
   }
 
@@ -229,17 +244,17 @@ function renderPedidos() {
 
     const pDate = p.fecha.toDate();
     if (filterVal === 'today') {
-      return pDate.getDate() === now.getDate() && 
-             pDate.getMonth() === now.getMonth() && 
-             pDate.getFullYear() === now.getFullYear();
+      return pDate.getDate() === now.getDate() &&
+        pDate.getMonth() === now.getMonth() &&
+        pDate.getFullYear() === now.getFullYear();
     }
     if (filterVal === 'week') {
       const msInWeek = 7 * 24 * 60 * 60 * 1000;
       return (now - pDate) <= msInWeek;
     }
     if (filterVal === 'month') {
-      return pDate.getMonth() === now.getMonth() && 
-             pDate.getFullYear() === now.getFullYear();
+      return pDate.getMonth() === now.getMonth() &&
+        pDate.getFullYear() === now.getFullYear();
     }
     return true;
   });
@@ -355,7 +370,7 @@ window.handleLogin = async function (event) {
     errorMsg.style.display = 'none';
     btn.textContent = 'Autenticando...';
     btn.disabled = true;
-    
+
     await signInWithEmailAndPassword(auth, email, password);
     // El onAuthStateChanged se encargará de mostrar el panel
   } catch (error) {
@@ -397,7 +412,7 @@ async function initData() {
         document.getElementById('estrella-preview-container').style.display = 'block';
         document.getElementById('estrella-imagen').value = estSnap.data().imagen;
       }
-    } catch(e) { console.error(e); }
+    } catch (e) { console.error(e); }
 
     // Fetch Operacion
     try {
@@ -405,8 +420,8 @@ async function initData() {
       if (opSnap.exists() && opSnap.data().mesasActivas) {
         document.getElementById('op-mesas').value = opSnap.data().mesasActivas;
       }
-    } catch(e) {}
-    
+    } catch (e) { }
+
     fetchMeseros();
 
     // Fetch categories
@@ -837,9 +852,9 @@ if (starFileInput) {
       return;
     }
     const reader = new FileReader();
-    reader.onload = function(event) {
+    reader.onload = function (event) {
       const img = new Image();
-      img.onload = function() {
+      img.onload = function () {
         const canvas = document.createElement('canvas');
         const MAXSize = 800;
         let w = img.width, h = img.height;
@@ -847,8 +862,8 @@ if (starFileInput) {
         else if (h > MAXSize) { w = Math.round(w * MAXSize / h); h = MAXSize; }
         canvas.width = w; canvas.height = h;
         const ctx = canvas.getContext('2d');
-        ctx.fillStyle = '#FFFFFF'; ctx.fillRect(0,0,w,h);
-        ctx.drawImage(img,0,0,w,h);
+        ctx.fillStyle = '#FFFFFF'; ctx.fillRect(0, 0, w, h);
+        ctx.drawImage(img, 0, 0, w, h);
         const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
         document.getElementById('estrella-imagen').value = dataUrl;
         document.getElementById('estrella-preview').src = dataUrl;
@@ -860,7 +875,7 @@ if (starFileInput) {
   });
 }
 
-window.guardarEstrella = async function() {
+window.guardarEstrella = async function () {
   const imgStr = document.getElementById('estrella-imagen').value;
   if (!imgStr) {
     alert('Sube una imagen primero');
@@ -870,7 +885,7 @@ window.guardarEstrella = async function() {
   try {
     await setDoc(doc(db, "configuracion", "estrella"), { imagen: imgStr });
     showAdminMessage('Imagen actualizada exitosamente 🌟', 'success');
-  } catch(e) {
+  } catch (e) {
     showAdminMessage('Error al guardar', 'error');
     console.error(e);
   }
@@ -879,17 +894,17 @@ window.guardarEstrella = async function() {
 // ESTADO DE LA TIENDA
 let isStoreOpen = false;
 
-window.saveOperacion = async function() {
+window.saveOperacion = async function () {
   const mesas = parseInt(document.getElementById('op-mesas').value) || 0;
   try {
     await setDoc(doc(db, "configuracion", "operacion"), { mesasActivas: mesas }, { merge: true });
     showAdminMessage('Configuración de mesas guardada', 'success');
-  } catch(e) {
+  } catch (e) {
     console.error(e);
   }
 };
 
-window.handleCreateWaiter = async function(e) {
+window.handleCreateWaiter = async function (e) {
   e.preventDefault();
   const name = document.getElementById('w-name').value;
   const email = document.getElementById('w-email').value;
@@ -902,14 +917,14 @@ window.handleCreateWaiter = async function(e) {
     const auth2 = getSecondaryAuth(app2);
     await createUserWithEmailAndPassword(auth2, email, pass);
     await signOut(auth2); // Asegurar que cierra sesión en app secundaria
-    
+
     const id = Date.now().toString();
     await setDoc(doc(db, "meseros", id), { nombre: name, correo: email, createdAt: new Date() });
-    
+
     showAdminMessage('Mesero creado con acceso oficial', 'success');
     document.getElementById('waiter-form').reset();
     fetchMeseros();
-  } catch(err) {
+  } catch (err) {
     console.error(err);
     alert('Error al crear mesero. Quizás el correo ya exista o clave sea muy corta.');
   } finally {
@@ -923,12 +938,12 @@ async function fetchMeseros() {
     const snap = await getDocs(collection(db, "meseros"));
     localMeseros = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     renderMeseros();
-  } catch(e){}
+  } catch (e) { }
 }
 
 function renderMeseros() {
   const tbody = document.querySelector('#waiters-table tbody');
-  if(!tbody) return;
+  if (!tbody) return;
   tbody.innerHTML = localMeseros.map(m => `
     <tr>
       <td style="font-weight:600;">👨‍🍳 ${m.nombre}</td>
@@ -938,13 +953,13 @@ function renderMeseros() {
   `).join('');
 }
 
-window.deleteMesero = async function(id) {
-  if(!confirm("¿Revocar el acceso a este perfil?")) return;
+window.deleteMesero = async function (id) {
+  if (!confirm("¿Revocar el acceso a este perfil?")) return;
   try {
     await deleteDoc(doc(db, "meseros", id));
     fetchMeseros();
     showAdminMessage('Acceso revocado', 'success');
-  } catch(e) { console.error(e); }
+  } catch (e) { console.error(e); }
 };
 
 async function checkStoreStatus() {
@@ -962,17 +977,17 @@ async function checkStoreStatus() {
     console.error("Error fetching config:", error);
     isStoreOpen = true;
   }
-  
+
   toggle.checked = isStoreOpen;
   toggle.disabled = false;
   text.textContent = isStoreOpen ? "Tienda: ABIERTA" : "Tienda: CERRADA";
   text.style.color = isStoreOpen ? "var(--verde)" : "var(--danger)";
 }
 
-window.toggleStoreStatus = async function() {
+window.toggleStoreStatus = async function () {
   const toggle = document.getElementById('store-toggle');
   const text = document.getElementById('store-status-text');
-  
+
   toggle.disabled = true;
   const nuevoEstado = toggle.checked;
   text.textContent = "Guardando...";
@@ -982,7 +997,7 @@ window.toggleStoreStatus = async function() {
       abierta: nuevoEstado
     });
     showAdminMessage(nuevoEstado ? 'Tienda Abierta' : 'Tienda Cerrada', 'success');
-  } catch(error) {
+  } catch (error) {
     console.error(error);
     showAdminMessage('Error cambiando el estado', 'error');
     toggle.checked = !nuevoEstado; // revert
