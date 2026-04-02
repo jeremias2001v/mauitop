@@ -23,27 +23,21 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-window.switchAdminTab = function (tabName, btnElement) {
-  // Manejo de UI
-  document.querySelectorAll('.sidebar-nav .nav-item').forEach(el => el.classList.remove('active'));
-  if (btnElement) btnElement.classList.add('active');
+window.switchAdminTab = function (tabName) {
+  // Sync TODOS los nav items (sidebar desktop + mobile bottom)
+  document.querySelectorAll('[data-tab]').forEach(el => {
+    el.classList.toggle('active', el.dataset.tab === tabName);
+  });
 
   // Mostrar/Ocultar Tabs
-  document.getElementById('tab-inventario').style.display = tabName === 'inventario' ? 'block' : 'none';
-  document.getElementById('tab-pedidos').style.display = tabName === 'pedidos' ? 'block' : 'none';
-  document.getElementById('tab-finanzas').style.display = tabName === 'finanzas' ? 'block' : 'none';
-  document.getElementById('tab-estadisticas').style.display = tabName === 'estadisticas' ? 'block' : 'none';
-  document.getElementById('tab-operacion').style.display = tabName === 'operacion' ? 'block' : 'none';
+  ['inventario', 'pedidos', 'finanzas', 'estadisticas', 'operacion'].forEach(tab => {
+    const el = document.getElementById(`tab-${tab}`);
+    if (el) el.style.display = tab === tabName ? 'block' : 'none';
+  });
 
-  if (tabName === 'pedidos') {
-    window.loadPedidos();
-  }
-  if (tabName === 'finanzas') {
-    window.loadDashboard();
-  }
-  if (tabName === 'estadisticas') {
-    window.loadEstadisticas();
-  }
+  if (tabName === 'pedidos') window.loadPedidos();
+  if (tabName === 'finanzas') window.loadDashboard();
+  if (tabName === 'estadisticas') window.loadEstadisticas();
 };
 
 window.loadEstadisticas = async function () {
@@ -59,7 +53,8 @@ window.loadEstadisticas = async function () {
   }
 };
 
-function renderEstadisticas() {
+// NOTA: expuesta en window para que el onchange="renderEstadisticas()" del HTML funcione
+window.renderEstadisticas = function renderEstadisticas() {
   const filterVal = document.getElementById('stats-date-filter')?.value || 'all';
   const now = new Date();
 
@@ -210,7 +205,11 @@ function renderDashboard() {
 let pedidosUnsubscribe = null;
 
 window.loadPedidos = function () {
-  if (pedidosUnsubscribe) return;
+  if (pedidosUnsubscribe) {
+    // Ya suscrito: solo re-renderizar con los datos actuales
+    renderPedidos();
+    return;
+  }
   showAdminMessage('Conectando a historial de pedidos en vivo...', 'info');
   try {
     pedidosUnsubscribe = onSnapshot(collection(db, "pedidos"), (snap) => {
@@ -221,7 +220,7 @@ window.loadPedidos = function () {
         return tb - ta;
       });
       renderPedidos();
-      // Optional: quietly refresh stats if tabs are open
+      // Refrescar stats si el tab está abierto
       if (document.getElementById('tab-estadisticas').style.display === 'block') renderEstadisticas();
       if (document.getElementById('tab-finanzas').style.display === 'block') renderDashboard();
     }, (error) => {
@@ -234,79 +233,182 @@ window.loadPedidos = function () {
   }
 };
 
-function renderPedidos() {
+// ── Badge de pedidos activos — actualiza sidebar y mobile nav ────────────────
+function updateOrdersBadge() {
+  const count = localPedidos.filter(p => p.estado !== 'Entregado').length;
+  ['nav-pedidos-badge', 'mob-pedidos-badge'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = count || '';
+    el.style.display = count > 0 ? 'inline-flex' : 'none';
+  });
+}
+
+window.renderPedidos = function renderPedidos() {
   const filterVal = document.getElementById('pedidos-date-filter')?.value || 'week';
   const now = new Date();
 
-  const filtered = localPedidos.filter(p => {
+  function isMesa(p) { return !!(p.mesa || p.origen === 'mesa'); }
+
+  function matchesFilter(p) {
     if (filterVal === 'all') return true;
     if (!p.fecha || !p.fecha.toDate) return false;
-
-    const pDate = p.fecha.toDate();
+    const d = p.fecha.toDate();
     if (filterVal === 'today') {
-      return pDate.getDate() === now.getDate() &&
-        pDate.getMonth() === now.getMonth() &&
-        pDate.getFullYear() === now.getFullYear();
+      return d.getDate() === now.getDate() &&
+        d.getMonth() === now.getMonth() &&
+        d.getFullYear() === now.getFullYear();
     }
-    if (filterVal === 'week') {
-      const msInWeek = 7 * 24 * 60 * 60 * 1000;
-      return (now - pDate) <= msInWeek;
-    }
-    if (filterVal === 'month') {
-      return pDate.getMonth() === now.getMonth() &&
-        pDate.getFullYear() === now.getFullYear();
-    }
+    if (filterVal === 'week') return (now - d) <= 7 * 24 * 60 * 60 * 1000;
+    if (filterVal === 'month') return d.getMonth() === now.getMonth() &&
+      d.getFullYear() === now.getFullYear();
     return true;
-  });
-
-  const tbody = document.querySelector('#pedidos-table tbody');
-  if (localPedidos.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#888;">No hay pedidos registrados en la nube.</td></tr>';
-    return;
-  }
-  if (filtered.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#888;">No hay pedidos en la fecha seleccionada.</td></tr>';
-    return;
   }
 
-  const displayPedidos = filtered.slice(0, 200); // Límite por rendimiento
+  const enProceso = localPedidos.filter(p => p.estado !== 'Entregado');
+  const mesasCobradas = localPedidos.filter(p => p.estado === 'Entregado' && isMesa(p) && matchesFilter(p)).slice(0, 200);
+  const domiciliosEntregados = localPedidos.filter(p => p.estado === 'Entregado' && !isMesa(p) && matchesFilter(p)).slice(0, 200);
 
-  tbody.innerHTML = displayPedidos.map(p => {
-    let dateStr = 'Fecha desconocida';
-    if (p.fecha && p.fecha.toDate) {
-      dateStr = p.fecha.toDate().toLocaleString('es-CO', {
-        month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
-      });
-    }
+  renderProcesoTable(enProceso);
+  renderMesasTable(mesasCobradas);
+  renderDomiciliosTable(domiciliosEntregados);
+  updateOrdersBadge();
+};
 
-    const itemsStr = (p.ítems || []).map(i => `${i.cantidad}x ${i.nombre}`).join('<br>');
-    const badge = p.estado === 'Entregado'
-      ? '<span class="status-badge yes">Entregado ✅</span>'
-      : '<span class="status-badge no" style="background:#FFA000;color:white;">Pendiente ⏳</span>';
+// ── Helpers compartidos ──────────────────────────────────────────────────────
+function fmtDate(p, opts) {
+  if (!p.fecha || !p.fecha.toDate) return 'Fecha desconocida';
+  return p.fecha.toDate().toLocaleString('es-CO', opts);
+}
 
-    const actionBtn = p.estado === 'Pendiente'
-      ? `<button class="action-btn edit" onclick="marcarEntregado('${p.id}')">Marcar Entregado</button>`
-      : `<button class="action-btn" style="background:#eee;color:#aaa;cursor:not-allowed;" disabled>Entregado</button>`;
+function itemsStr(p) {
+  return (p.ítems || p.items || [])
+    .map(i => `${i.cantidad ?? i.qty ?? 1}× ${i.nombre}`)
+    .join('<br>');
+}
 
-    const deleteBtn = `<button class="action-btn delete" onclick="eliminarPedido('${p.id}')" style="margin-top:4px;">Eliminar</button>`;
+function deleteBtn(id) {
+  return `<button class="action-btn delete" onclick="eliminarPedido('${id}')">Eliminar</button>`;
+}
 
-    return `
-      <tr>
-        <td style="color:#777;font-size:13px;">${dateStr}</td>
-        <td>
-          <strong style="color:var(--text-main);">${p.mesa ? '🍽️ Físico' : Number(p.cliente?.telefono || 0)}</strong><br>
-          <span style="font-size:13px;color:#888;">${p.cliente?.nombre || (p.mesero ? 'Mesero: ' + p.mesero : 'Anónimo')}</span><br>
-          <small style="color:var(--azul);">💳 ${p.cliente?.metodoPago || 'No definido'}</small>
-        </td>
-        <td style="font-size:13px;color:#555;">
-          ${(p.mesa || p.origen === 'mesa') ? `<span style="background:#4A2511; color:white; padding:6px 12px; border-radius:12px; font-weight:bold; font-size:14px; box-shadow:0 2px 4px rgba(0,0,0,0.2);">📍 ${p.mesa ? p.mesa.replace(/Mesa\s?/i, 'M') : 'M1'}</span>` : `${p.cliente?.direccion || 'N/A'}<br><small>${p.cliente?.barrio || ''}</small>`}
-        </td>
-        <td style="font-size:13px;line-height:1.4;">${itemsStr}</td>
-        <td style="font-weight:700;color:var(--success);">$${Number(p.total).toLocaleString('es-CO')}</td>
-        <td>${badge}</td>
-        <td>${actionBtn}${deleteBtn}</td>
-      </tr>
-    `;
+// Extrae el número de mesa y genera un badge limpio
+function mesaBadge(mesaVal) {
+  const raw = (mesaVal || '').trim();
+  const num = raw.replace(/[^\d]/g, ''); // solo dígitos
+  return `<span class="mesa-num-badge">
+    <span class="mesa-num">${num || '?'}</span>
+    <span class="mesa-lbl">Mesa</span>
+  </span>`;
+}
+
+function emptyRow(cols, msg) {
+  return `<tr><td colspan="${cols}" style="text-align:center;color:#888;padding:24px;">${msg}</td></tr>`;
+}
+
+// ── 1. En Proceso ────────────────────────────────────────────────────────────
+function renderProcesoTable(pedidos) {
+  const tbody = document.querySelector('#pedidos-proceso-table tbody');
+  if (!tbody) return;
+
+  if (!pedidos.length) {
+    tbody.innerHTML = emptyRow(6, '✅ Sin pedidos activos ahora mismo');
+    return;
+  }
+
+  const estadoBadge = estado => {
+    const cls = estado === 'Pendiente' ? 'estado-pendiente'
+              : estado === 'En Preparación' ? 'estado-preparando'
+              : 'estado-listo';
+    const icon = estado === 'Pendiente' ? '⏳'
+               : estado === 'En Preparación' ? '🔥'
+               : '✅';
+    return `<span class="estado-badge ${cls}">${icon} ${estado}</span>`;
+  };
+
+  tbody.innerHTML = pedidos.map(p => {
+    const hora = p.fecha?.toDate
+      ? p.fecha.toDate().toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })
+      : '—';
+
+    const esMesa = !!(p.mesa || p.origen === 'mesa');
+    const origen = esMesa
+      ? `<div style="display:flex;align-items:center;gap:10px;">
+           ${mesaBadge(p.mesa)}
+           <span style="font-size:12px;color:var(--text-muted);">👨\u200d🍳 ${p.mesero || 'N/A'}</span>
+         </div>`
+      : `<span style="font-weight:700;color:var(--text-main);">${p.cliente?.nombre || 'Domicilio'}</span>
+         <div style="font-size:12px;color:var(--text-muted);">🛵 Delivery</div>`;
+
+    const accion = p.estado !== 'Entregado'
+      ? `<button class="action-btn edit" onclick="marcarEntregado('${p.id}')" style="display:block;margin-bottom:4px;">Marcar Entregado</button>`
+      : '';
+
+    return `<tr>
+      <td style="color:var(--text-muted);font-size:13px;white-space:nowrap;">${hora}</td>
+      <td>${origen}</td>
+      <td style="font-size:13px;line-height:1.7;">${itemsStr(p)}</td>
+      <td style="font-weight:700;color:var(--success);">$${Number(p.total).toLocaleString('es-CO')}</td>
+      <td>${estadoBadge(p.estado)}</td>
+      <td>${accion}${deleteBtn(p.id)}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ── 2. Mesas Cobradas ────────────────────────────────────────────────────────
+function renderMesasTable(pedidos) {
+  const tbody = document.querySelector('#pedidos-mesas-table tbody');
+  if (!tbody) return;
+
+  if (!pedidos.length) {
+    tbody.innerHTML = emptyRow(7, 'No hay mesas cobradas en el período seleccionado');
+    return;
+  }
+
+  tbody.innerHTML = pedidos.map(p => {
+    const pago = p.cliente?.metodoPago;
+    const pagoHtml = pago && pago !== 'Por definir'
+      ? `<span style="font-weight:600;">${pago}</span>`
+      : `<span style="color:#f59e0b;font-size:12px;font-weight:600;">Sin registrar</span>`;
+
+    return `<tr>
+      <td style="color:var(--text-muted);font-size:13px;">${fmtDate(p, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</td>
+      <td>${mesaBadge(p.mesa)}</td>
+      <td style="font-weight:600;color:var(--text-main);">👨\u200d🍳 ${p.mesero || 'N/A'}</td>
+      <td style="font-size:13px;line-height:1.7;">${itemsStr(p)}</td>
+      <td style="font-weight:700;color:var(--success);">$${Number(p.total).toLocaleString('es-CO')}</td>
+      <td>${pagoHtml}</td>
+      <td>${deleteBtn(p.id)}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ── 3. Domicilios Entregados ─────────────────────────────────────────────────
+function renderDomiciliosTable(pedidos) {
+  const tbody = document.querySelector('#pedidos-domicilios-table tbody');
+  if (!tbody) return;
+
+  if (!pedidos.length) {
+    tbody.innerHTML = emptyRow(7, 'No hay domicilios entregados en el período seleccionado');
+    return;
+  }
+
+  tbody.innerHTML = pedidos.map(p => {
+    const pago = p.cliente?.metodoPago || 'Efectivo';
+    return `<tr>
+      <td style="color:var(--text-muted);font-size:13px;">${fmtDate(p, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</td>
+      <td>
+        <strong style="color:var(--text-main);">${p.cliente?.nombre || 'Sin nombre'}</strong><br>
+        <small style="color:var(--text-muted);">📱 ${p.cliente?.telefono || 'N/A'}</small>
+      </td>
+      <td style="font-size:13px;color:var(--text-muted);">
+        ${p.cliente?.direccion || 'Sin dirección'}
+        ${p.cliente?.barrio ? `<br><small>${p.cliente.barrio}</small>` : ''}
+      </td>
+      <td style="font-size:13px;line-height:1.7;">${itemsStr(p)}</td>
+      <td style="font-weight:700;color:var(--success);">$${Number(p.total).toLocaleString('es-CO')}</td>
+      <td style="font-weight:600;">${pago}</td>
+      <td>${deleteBtn(p.id)}</td>
+    </tr>`;
   }).join('');
 }
 
@@ -947,7 +1049,7 @@ function renderMeseros() {
   tbody.innerHTML = localMeseros.map(m => `
     <tr>
       <td style="font-weight:600;">👨‍🍳 ${m.nombre}</td>
-      <td style="color:#666;">${m.correo}</td>
+      <td style="color:var(--text-muted);">${m.correo}</td>
       <td><button class="action-btn delete" onclick="deleteMesero('${m.id}')">Revocar</button></td>
     </tr>
   `).join('');

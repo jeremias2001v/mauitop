@@ -77,6 +77,116 @@ body.admin {
 .nav-item.active {
   background: #eef2ff;
   color: var(--primary);
+  font-weight: 600;
+}
+
+/* ── Mesa badge — columna "Mesa" en tablas de pedidos ── */
+.mesa-num-badge {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+  color: white;
+  border-radius: 12px;
+  padding: 6px 14px 5px;
+  line-height: 1;
+  min-width: 52px;
+  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.35);
+}
+
+.mesa-num {
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: -0.5px;
+}
+
+.mesa-lbl {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  opacity: 0.85;
+  margin-top: 1px;
+}
+
+/* ── Badges de estado — tabla En Proceso ── */
+.estado-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.estado-pendiente {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.estado-preparando {
+  background: #ffedd5;
+  color: #9a3412;
+}
+
+.estado-listo {
+  background: #dcfce7;
+  color: #166534;
+}
+
+/* Dark mode overrides */
+body.admin.dark-theme .estado-pendiente  { background: rgba(245,158,11,0.15);  color: #fbbf24; }
+body.admin.dark-theme .estado-preparando { background: rgba(249,115,22,0.15);  color: #fb923c; }
+body.admin.dark-theme .estado-listo      { background: rgba(16,185,129,0.15);  color: #34d399; }
+
+/* Section labels in sidebar */
+.nav-group-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text-muted);
+  padding: 16px 16px 4px;
+  opacity: 0.5;
+  user-select: none;
+}
+
+.nav-group-label:first-child {
+  padding-top: 4px;
+}
+
+/* Live badge on Pedidos nav item */
+.nav-live-badge {
+  margin-left: auto;
+  background: #ef4444;
+  color: white;
+  font-size: 11px;
+  font-weight: 800;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 9999px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  animation: badgePulse 2s infinite;
+}
+
+.nav-live-badge:not(:empty) {
+  display: inline-flex;
+}
+
+@keyframes badgePulse {
+
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.1);
+  }
 }
 
 .logout-container {
@@ -561,47 +671,133 @@ body.admin {
   font-family: 'Bebas Neue', 'Inter', sans-serif;
 }
 
-/* Media Queries */
-@media(max-width: 768px) {
+/* ── Mobile Bottom Navigation ── */
+.mobile-bottom-nav {
+  display: none;
+}
+
+@media (max-width: 768px) {
   .dashboard-layout {
     flex-direction: column;
   }
 
+  /* Slim top bar on mobile — just logo + logout */
   .sidebar {
     width: 100%;
     border-right: none;
     border-bottom: 1px solid var(--border-color);
-    padding: 16px;
+    padding: 12px 16px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
   }
 
+  /* Hide nav items — replaced by bottom nav */
   .sidebar-nav {
-    flex-direction: row;
-    flex-wrap: wrap;
+    display: none;
   }
 
   .logout-container {
-    margin-top: 16px;
-    padding-top: 16px;
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .logout-btn {
+    width: auto;
+    padding: 8px 12px;
+    font-size: 13px;
   }
 
   .main-content {
-    padding: 20px 16px;
+    padding: 20px 16px 90px;
+    /* space for bottom nav */
   }
 
   .admin-header {
     flex-direction: column;
     align-items: flex-start;
-    gap: 16px;
+    gap: 12px;
   }
 
   .admin-header .links {
     width: 100%;
+    flex-wrap: wrap;
   }
 
   .stats-grid {
-    grid-template-columns: 1fr;
-    gap: 16px;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
   }
+
+  /* Show mobile bottom nav */
+  .mobile-bottom-nav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--surface);
+    border-top: 1px solid var(--border-color);
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
+    z-index: 500;
+    padding: 6px 0 max(6px, env(safe-area-inset-bottom));
+  }
+}
+
+.mob-nav-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px 4px;
+  color: var(--text-muted);
+  font-family: inherit;
+  position: relative;
+  transition: color 0.2s;
+}
+
+.mob-nav-btn.active {
+  color: var(--primary);
+}
+
+.mob-icon {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.mob-label {
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.mob-badge {
+  position: absolute;
+  top: 4px;
+  right: calc(50% - 18px);
+  background: #ef4444;
+  color: white;
+  font-size: 10px;
+  font-weight: 800;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 9999px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+
+.mob-badge:not(:empty) {
+  display: inline-flex;
 }
 
 /* --- Simple CSS Bar Charts --- */
@@ -643,4 +839,286 @@ body.admin {
   height: 100%;
   border-radius: 4px;
   transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ══════════════════════════════════════════
+   DARK MODE — Admin Panel
+   El JS añade `.dark-theme` al body.
+   Aquí sobreescribimos variables y colores
+   hardcodeados que no las usan.
+══════════════════════════════════════════ */
+body.admin.dark-theme {
+  /* Paleta base */
+  --bg-color: #0f172a;
+  --text-main: #e2e8f0;
+  --text-muted: #94a3b8;
+  --surface: #1e293b;
+  --border-color: #334155;
+
+  /* Acciones */
+  --primary: #818cf8;
+  --primary-hover: #6366f1;
+  --danger: #f87171;
+  --danger-hover: #ef4444;
+  --success: #34d399;
+  --verde: #34d399;
+
+  /* Sombras oscuras */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+  --shadow-modal: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+}
+
+/* ── Layout ── */
+body.admin.dark-theme .sidebar {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+body.admin.dark-theme .sidebar h2 {
+  color: #e2e8f0;
+}
+
+body.admin.dark-theme .main-content {
+  background: #0f172a;
+}
+
+/* ── Navegación ── */
+body.admin.dark-theme .nav-item {
+  color: #94a3b8;
+}
+
+body.admin.dark-theme .nav-item:hover {
+  background: #0f172a;
+  color: #e2e8f0;
+}
+
+body.admin.dark-theme .nav-item.active {
+  background: rgba(129, 140, 248, 0.15);
+  color: #818cf8;
+}
+
+body.admin.dark-theme .nav-group-label {
+  color: #64748b;
+}
+
+/* Mobile bottom nav dark mode */
+body.admin.dark-theme .mobile-bottom-nav {
+  background: #1e293b;
+  border-color: #334155;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
+}
+
+body.admin.dark-theme .mob-nav-btn {
+  color: #64748b;
+}
+
+body.admin.dark-theme .mob-nav-btn.active {
+  color: #818cf8;
+}
+
+/* ── Cards ── */
+body.admin.dark-theme .admin-card {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+body.admin.dark-theme .stat-card {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+body.admin.dark-theme .stat-icon {
+  background: #0f172a;
+}
+
+/* ── Header ── */
+body.admin.dark-theme .admin-header h1 {
+  color: #e2e8f0;
+}
+
+body.admin.dark-theme .store-status-toggle {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+}
+
+body.admin.dark-theme .secondary-link {
+  background: #1e293b;
+  border-color: #334155;
+  color: #94a3b8;
+}
+
+body.admin.dark-theme .secondary-link:hover {
+  background: #0f172a;
+  color: #e2e8f0;
+}
+
+/* ── Formularios ── */
+body.admin.dark-theme .admin-form input,
+body.admin.dark-theme .admin-form select,
+body.admin.dark-theme .admin-form textarea,
+body.admin.dark-theme .modal-form input,
+body.admin.dark-theme .modal-form select,
+body.admin.dark-theme .modal-form textarea,
+body.admin.dark-theme #login-form input {
+  background: #0f172a;
+  color: #e2e8f0;
+  border-color: #334155;
+}
+
+body.admin.dark-theme .admin-form input:focus,
+body.admin.dark-theme .admin-form select:focus,
+body.admin.dark-theme .admin-form textarea:focus,
+body.admin.dark-theme .modal-form input:focus,
+body.admin.dark-theme .modal-form select:focus,
+body.admin.dark-theme .modal-form textarea:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.25);
+}
+
+body.admin.dark-theme input[type="number"],
+body.admin.dark-theme input[type="text"],
+body.admin.dark-theme input[type="email"],
+body.admin.dark-theme input[type="password"] {
+  background: #0f172a;
+  color: #e2e8f0;
+  border-color: #334155;
+}
+
+/* ── Tablas ── */
+body.admin.dark-theme .admin-table th {
+  background: #0f172a;
+  color: #64748b;
+}
+
+body.admin.dark-theme .admin-table tbody tr:hover {
+  background-color: #0f172a;
+}
+
+body.admin.dark-theme .admin-table td {
+  border-color: #334155;
+  color: #e2e8f0;
+}
+
+body.admin.dark-theme .img-cell {
+  border-color: #334155;
+}
+
+/* ── Botones ── */
+body.admin.dark-theme .secondary-btn {
+  background: #1e293b;
+  border-color: #334155;
+  color: #e2e8f0;
+}
+
+body.admin.dark-theme .secondary-btn:hover {
+  background: #0f172a;
+}
+
+body.admin.dark-theme .logout-btn {
+  color: #94a3b8;
+}
+
+body.admin.dark-theme .logout-btn:hover {
+  background: rgba(248, 113, 113, 0.1);
+  color: #f87171;
+}
+
+body.admin.dark-theme .action-btn.edit:hover {
+  background: rgba(129, 140, 248, 0.12);
+  color: #818cf8;
+}
+
+/* ── Badges ── */
+body.admin.dark-theme .status-badge.yes {
+  background: rgba(52, 211, 153, 0.15);
+  color: #34d399;
+}
+
+body.admin.dark-theme .status-badge.no {
+  background: rgba(248, 113, 113, 0.15);
+  color: #f87171;
+}
+
+body.admin.dark-theme .cat-badge {
+  background: #0f172a;
+  color: #94a3b8;
+  border-color: #334155;
+}
+
+/* ── Modales ── */
+body.admin.dark-theme .modal-overlay {
+  background: rgba(2, 6, 23, 0.7);
+}
+
+body.admin.dark-theme .modal-content {
+  background: #1e293b;
+  border: 1px solid #334155;
+}
+
+body.admin.dark-theme .modal-header h3 {
+  color: #e2e8f0;
+}
+
+body.admin.dark-theme .modal-actions {
+  border-color: #334155;
+}
+
+body.admin.dark-theme .modal-form label {
+  color: #e2e8f0;
+}
+
+/* ── Login Card ── */
+body.admin.dark-theme .login-wrapper {
+  background: #0f172a;
+}
+
+body.admin.dark-theme .login-card {
+  background: #1e293b;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+}
+
+body.admin.dark-theme .login-card h2,
+body.admin.dark-theme .login-card p {
+  color: #94a3b8;
+}
+
+/* ── Mensajes admin ── */
+body.admin.dark-theme #admin-msg.success {
+  background: rgba(52, 211, 153, 0.1);
+  color: #34d399;
+  border-color: rgba(52, 211, 153, 0.3);
+}
+
+body.admin.dark-theme #admin-msg.error {
+  background: rgba(248, 113, 113, 0.1);
+  color: #f87171;
+  border-color: rgba(248, 113, 113, 0.3);
+}
+
+body.admin.dark-theme #admin-msg.info {
+  background: rgba(129, 140, 248, 0.1);
+  color: #818cf8;
+  border-color: rgba(129, 140, 248, 0.3);
+}
+
+/* ── Barras de estadísticas ── */
+body.admin.dark-theme .bar-track {
+  background: #0f172a;
+}
+
+body.admin.dark-theme .bar-header {
+  color: #e2e8f0;
+}
+
+body.admin.dark-theme .bar-header span.bar-value {
+  color: #94a3b8;
+}
+
+/* ── Select filtros ── */
+body.admin.dark-theme select {
+  background: #1e293b;
+  color: #e2e8f0;
+  border-color: #334155;
 }

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🍳 Cocina — Mauitop</title>
+  <meta name="description" content="Pantalla de cocina en tiempo real para el restaurante Mauitop.">
+  <link rel="stylesheet" href="css/cocina.css">
+</head>
+
+<body>
+
+  <!-- PANTALLA 1: LOGIN -->
+  <div id="login-screen" class="screen active-screen">
+    <div class="login-container">
+      <div class="login-card">
+        <div style="font-size:56px; margin-bottom:16px; line-height:1;">🍳</div>
+        <h1>Pantalla de Cocina</h1>
+        <p>Inicia sesión para ver los pedidos en tiempo real</p>
+        <form id="login-form">
+          <input type="email" id="email" placeholder="Correo" required autocomplete="email">
+          <input type="password" id="password" placeholder="Contraseña" required autocomplete="current-password">
+          <button type="submit" class="login-btn" id="btn-login">Entrar a Cocina 🔥</button>
+        </form>
+        <p id="login-error" style="color:#ef4444; font-size:14px; margin-top:16px; display:none;"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANTALLA 2: COCINA -->
+  <div id="kitchen-screen" class="screen">
+
+    <header class="kitchen-header">
+      <div class="kitchen-header-left">
+        <span class="kitchen-title">🍳 Mauitop — Cocina</span>
+        <span class="order-count-badge" id="order-count">0 pedidos</span>
+      </div>
+      <div class="kitchen-clock" id="kitchen-clock">00:00:00</div>
+      <button class="header-logout" id="btn-logout">🚪 Salir</button>
+    </header>
+
+    <div id="orders-container"></div>
+
+  </div>
+
+  <script type="module" src="js/cocina.js"></script>
+</body>
+
+</html>

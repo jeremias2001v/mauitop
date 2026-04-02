@@ -7,7 +7,11 @@
     content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#FFD100">
   <title>POS Meseros - Mauitop</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/meseros.css">
+
 </head>
 
 <body>
@@ -34,28 +38,24 @@
   <!-- PANTALLA 2: MESAS -->
   <div id="tables-screen" class="screen">
     <div class="header">
-      <span id="waiter-name" style="font-weight:700;">Cargando...</span>
-      <div style="display:flex; gap:12px; align-items:center;">
+      <span id="waiter-name" class="waiter-badge">👨‍🍳 Cargando...</span>
+      <div class="header-actions">
         <button class="btn-icon theme-toggle" title="Alternar Tema">☀️</button>
         <button class="btn-icon" id="btn-logout" title="Cerrar sesión">🚪</button>
       </div>
     </div>
-    <div style="padding: 16px;">
-      <h2 style="font-size:18px; color:#4A2511; margin-bottom:16px;">Plano del Salón</h2>
-      <div id="tables-grid" class="tables-grid">
-        <!-- Tables injected here -->
-      </div>
+    <div class="tables-section">
+      <div class="section-title">Plano del Salón</div>
+      <div id="tables-grid" class="tables-grid"></div>
     </div>
   </div>
 
   <!-- PANTALLA 3: PUNTO DE VENTA (TOMA Y VISUALIZACIÓN DE PEDIDO) -->
   <div id="pos-screen" class="screen">
     <div class="header">
-      <button class="btn-icon" id="btn-back-tables">⬅️</button>
-      <span id="pos-table-number" style="font-weight:700;">Mesa X</span>
-      <div style="width:24px; display:flex; justify-content:flex-end;">
-        <button class="btn-icon theme-toggle" title="Alternar Tema">☀️</button>
-      </div>
+      <button class="btn-icon" id="btn-back-tables">←</button>
+      <span id="pos-table-number" style="font-weight:800;font-size:17px;letter-spacing:-0.3px;">Mesa X</span>
+      <button class="btn-icon theme-toggle" title="Alternar Tema">☀️</button>
     </div>
 
     <!-- Info de mesa ocupada -->
@@ -68,8 +68,13 @@
         <span>Por cobrar:</span>
         <span id="occupied-total">$0</span>
       </div>
-      <button class="btn btn-success" id="btn-pay-table" style="padding:16px; font-size:18px;">💵 Cobrar y Liberar
-        Mesa</button>
+      <!-- Acciones de mesa -->
+      <div style="display:flex; gap:10px;">
+        <button class="btn btn-transfer" onclick="openTransferModal()" style="flex:1;">
+          🔄 Cambiar Mesa
+        </button>
+        <button class="btn btn-success" id="btn-pay-table" onclick="openPayModal()" style="flex:2; padding:16px; font-size:18px;">💵 Cobrar y Liberar Mesa</button>
+      </div>
     </div>
 
     <!-- Toma de Pedido Nuevo -->
@@ -80,17 +85,68 @@
       <!-- Productos -->
       <div class="products-list" id="pos-products"></div>
 
-      <!-- Footer Carrito Flotante (Glassmorphism) -->
+      <!-- Footer Carrito Flotante -->
       <div class="cart-footer" id="pos-cart-footer">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-          <span style="font-weight:800; color:var(--footer-text); font-size:16px;">Mesa Actual (<span
-              id="cart-qty">0</span>)</span>
-          <span style="font-weight:900; color:var(--success); font-size:24px;" id="cart-total">$0</span>
+        <div class="cart-summary">
+          <div class="cart-label">Pedido actual <span id="cart-qty">0</span></div>
+          <div class="cart-total-amount" id="cart-total">$0</div>
         </div>
         <button class="custom-order-btn" id="btn-send-order">
           <span>Enviar a Cocina</span>
           <span style="font-size:22px;">🔔</span>
         </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Cobro con Método de Pago -->
+  <div id="pay-modal" class="pay-modal-overlay">
+    <div class="pay-modal-card">
+      <div class="pay-modal-header">
+        <h3>💳 Cobrar Mesa</h3>
+        <span id="pay-modal-table" style="font-size:14px; color:var(--text-muted); font-weight:600;"></span>
+      </div>
+      <div id="pay-modal-items" class="pay-modal-items"></div>
+      <div class="pay-modal-total">
+        <span>Total a cobrar</span>
+        <span id="pay-modal-total">$0</span>
+      </div>
+      <p style="font-size:13px; font-weight:700; color:var(--text-muted); margin-bottom:12px; text-transform:uppercase; letter-spacing:0.5px;">Método de pago</p>
+      <div class="pay-methods-grid">
+        <button class="pay-method-btn" id="pm-efectivo" onclick="selectPayMethod('Efectivo', this)">
+          <span style="font-size:26px;">💵</span>
+          <span>Efectivo</span>
+        </button>
+        <button class="pay-method-btn" id="pm-nequi" onclick="selectPayMethod('Nequi / Daviplata', this)">
+          <span style="font-size:26px;">📱</span>
+          <span>Nequi/Daviplata</span>
+        </button>
+        <button class="pay-method-btn" id="pm-tarjeta" onclick="selectPayMethod('Tarjeta', this)">
+          <span style="font-size:26px;">💳</span>
+          <span>Tarjeta</span>
+        </button>
+      </div>
+      <div style="display:flex; gap:12px; margin-top:20px;">
+        <button class="btn" onclick="closePayModal()" style="flex:1; background:var(--bg-input); color:var(--text-muted);">Cancelar</button>
+        <button class="btn btn-success" id="btn-confirm-pay" onclick="confirmPayTable()" disabled style="flex:1.5; font-size:16px;">✅ Confirmar Cobro</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Modal de Transferencia de Mesa ── -->
+  <div id="transfer-modal" class="pay-modal-overlay">
+    <div class="pay-modal-card">
+      <div class="pay-modal-header">
+        <h3>🔄 Cambiar Mesa</h3>
+        <span id="transfer-current-label" style="font-size:14px; color:var(--text-muted); font-weight:600;"></span>
+      </div>
+      <p style="font-size:13px; color:var(--text-muted); margin-bottom:16px;">
+        Selecciona la mesa destino. Solo se muestran las mesas libres.
+      </p>
+      <!-- Grid de mesas generado por JS -->
+      <div id="transfer-modal-grid" class="transfer-grid"></div>
+      <div style="margin-top:20px;">
+        <button class="btn" onclick="closeTransferModal()" style="width:100%; background:var(--bg-input); color:var(--text-muted);">Cancelar</button>
       </div>
     </div>
   </div>

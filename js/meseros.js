@@ -134,29 +134,60 @@ function renderTables() {
   const container = document.getElementById('tables-grid');
   let html = '';
 
+  // Icono + clase CSS según el estado real
+  function estadoData(estado) {
+    if (estado === 'En Preparación') return { icon: '🔥', cls: 'table-cooking' };
+    if (estado === 'Listo')          return { icon: '✅', cls: 'table-ready' };
+    return { icon: '⏳', cls: 'table-occupied' }; // Pendiente
+  }
+
+  // Mesas configuradas
+  const configuredMesaNames = new Set();
+  for (let i = 1; i <= numMesas; i++) {
+    configuredMesaNames.add(`M${i}`);
+    configuredMesaNames.add(`Mesa ${i}`);
+  }
+
   for (let i = 1; i <= numMesas; i++) {
     const tableName = `M${i}`;
     const legacyName = `Mesa ${i}`;
-
-    // Check if table has an active order (Pendiente/Preparando)
     const activeOrder = livePedidos.find(p => (p.mesa === tableName || p.mesa === legacyName) && p.estado !== 'Entregado');
 
     if (activeOrder) {
+      const { icon, cls } = estadoData(activeOrder.estado);
+      const total = '$' + Number(activeOrder.total).toLocaleString('es-CO');
       html += `
-        <button class="table-btn table-occupied" onclick="openTable('${activeOrder.mesa}')">
-          <span style="font-size:24px;">⏳</span>
-          ${activeOrder.mesa.replace(/Mesa\s?/i, 'M')}
-          <small style="font-size:12px;">$${Number(activeOrder.total).toLocaleString('es-CO')}</small>
-        </button>
-      `;
+        <button class="table-btn ${cls}" onclick="openTable('${activeOrder.mesa}')">
+          <div class="t-icon">${icon}</div>
+          <div class="t-num">${i}</div>
+          <div class="t-info">${total}</div>
+        </button>`;
     } else {
       html += `
         <button class="table-btn table-free" onclick="openTable('${tableName}')">
-          <span style="font-size:24px;">🍽️</span>
-          ${tableName}
-        </button>
-      `;
+          <div class="t-icon">🍽️</div>
+          <div class="t-num">${i}</div>
+          <div class="t-info">Libre</div>
+        </button>`;
     }
+  }
+
+  // ── Mesas huérfanas ──
+  const orphaned = livePedidos.filter(
+    p => p.estado !== 'Entregado' && !configuredMesaNames.has(p.mesa)
+  );
+
+  if (orphaned.length > 0) {
+    html += `<div class="orphaned-divider">⚠️ Fuera de config</div>`;
+    orphaned.forEach(order => {
+      const num = (order.mesa || '').replace(/\D/g, '') || '?';
+      html += `
+        <button class="table-btn table-orphaned" onclick="openTable('${order.mesa}')">
+          <div class="t-icon">⚠️</div>
+          <div class="t-num">${num}</div>
+          <div class="t-info">Mover →</div>
+        </button>`;
+    });
   }
 
   container.innerHTML = html;
@@ -177,7 +208,7 @@ window.openTable = function (tableName) {
     occInfo.style.display = 'block';
 
     const itemsHtml = (activeOrder.ítems || []).map(it =>
-      `<div style="display:flex; justify-content:space-between; border-bottom:1px solid #eee; padding:8px 0;">
+      `<div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border); padding:8px 0;">
         <span><b>${it.cantidad}x</b> ${it.nombre}</span>
         <span style="color:var(--text-main); font-weight:bold;">$${(it.precio * it.cantidad).toLocaleString('es-CO')}</span>
       </div>`
@@ -347,23 +378,140 @@ document.getElementById('btn-send-order').addEventListener('click', async () => 
   }
 });
 
-// Cobrar Mesa Activa
-document.getElementById('btn-pay-table').addEventListener('click', async () => {
+// ────────────────────────────────────────────────
+// MODAL DE COBRO CON MÉTODO DE PAGO
+// ────────────────────────────────────────────────
+let selectedPayMethod = null;
+
+window.openPayModal = function () {
   if (!selectedActivePedido) return;
-  const btn = document.getElementById('btn-pay-table');
+
+  // Poblar resumen de mesa
+  document.getElementById('pay-modal-table').textContent = selectedActivePedido.mesa || '';
+
+  const items = selectedActivePedido.ítems || selectedActivePedido.items || [];
+  document.getElementById('pay-modal-items').innerHTML = items.length
+    ? items.map(it => `
+        <div style="display:flex; justify-content:space-between; padding:8px 0;
+             border-bottom:1px solid var(--border); font-size:14px;">
+          <span><b>${it.cantidad}x</b> ${it.nombre}</span>
+          <span style="color:var(--success); font-weight:700;">
+            $${(Number(it.precio) * it.cantidad).toLocaleString('es-CO')}
+          </span>
+        </div>`).join('')
+    : '<p style="color:var(--text-muted); font-size:13px;">Sin ítems registrados</p>';
+
+  document.getElementById('pay-modal-total').textContent =
+    '$' + Number(selectedActivePedido.total).toLocaleString('es-CO');
+
+  // Resetear selección
+  selectedPayMethod = null;
+  document.querySelectorAll('.pay-method-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById('btn-confirm-pay').disabled = true;
+
+  document.getElementById('pay-modal').classList.add('open');
+};
+
+window.closePayModal = function () {
+  document.getElementById('pay-modal').classList.remove('open');
+};
+
+window.selectPayMethod = function (method, btn) {
+  selectedPayMethod = method;
+  document.querySelectorAll('.pay-method-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  document.getElementById('btn-confirm-pay').disabled = false;
+};
+
+window.confirmPayTable = async function () {
+  if (!selectedActivePedido || !selectedPayMethod) return;
+  const btn = document.getElementById('btn-confirm-pay');
   btn.disabled = true;
-  btn.textContent = "⏳ Liberando...";
+  btn.textContent = '⏳ Procesando...';
 
   try {
     await updateDoc(doc(db, "pedidos", selectedActivePedido.id), {
-      estado: 'Entregado' // This closes the table natively
+      estado: 'Entregado',
+      'cliente.metodoPago': selectedPayMethod,
+      fechaCobro: new Date()
     });
+    closePayModal();
     showScreen('tables-screen');
   } catch (err) {
     console.error(err);
-    alert("Error al liberar mesa");
-  } finally {
+    alert('Error al cobrar la mesa. Inténtalo de nuevo.');
     btn.disabled = false;
-    btn.textContent = "💵 Cobrar y Liberar Mesa";
+    btn.textContent = '✅ Confirmar Cobro';
   }
-});
+};
+
+// ──────────────────────────────────────────────────
+// TRANSFERENCIA DE MESA
+// ──────────────────────────────────────────────────
+window.openTransferModal = function () {
+  if (!selectedActivePedido) return;
+
+  const currentMesa = selectedActivePedido.mesa;
+
+  // Mesas que ya tienen un pedido activo (excluir la actual)
+  const occupiedMesas = new Set(
+    livePedidos
+      .filter(p => p.estado !== 'Entregado' && p.id !== selectedActivePedido.id)
+      .map(p => p.mesa)
+  );
+
+  let gridHtml = '';
+  for (let i = 1; i <= numMesas; i++) {
+    const name = `M${i}`;
+    const legacyName = `Mesa ${i}`;
+    const isCurrent  = currentMesa === name || currentMesa === legacyName;
+    const isOccupied = occupiedMesas.has(name) || occupiedMesas.has(legacyName);
+
+    if (isCurrent) {
+      gridHtml += `
+        <button class="transfer-btn transfer-current" disabled>
+          <span class="transfer-num">${i}</span>
+          <span class="transfer-lbl">Actual</span>
+        </button>`;
+    } else if (isOccupied) {
+      gridHtml += `
+        <button class="transfer-btn transfer-occupied" disabled>
+          <span class="transfer-num">${i}</span>
+          <span class="transfer-lbl">Ocupada</span>
+        </button>`;
+    } else {
+      gridHtml += `
+        <button class="transfer-btn transfer-free" onclick="transferMesa('${name}')">
+          <span class="transfer-num">${i}</span>
+          <span class="transfer-lbl">Libre</span>
+        </button>`;
+    }
+  }
+
+  document.getElementById('transfer-modal-grid').innerHTML = gridHtml;
+  document.getElementById('transfer-current-label').textContent = `Desde: ${currentMesa}`;
+  document.getElementById('transfer-modal').classList.add('open');
+};
+
+window.closeTransferModal = function () {
+  document.getElementById('transfer-modal').classList.remove('open');
+};
+
+window.transferMesa = async function (newMesa) {
+  if (!selectedActivePedido) return;
+  const oldMesa = selectedActivePedido.mesa;
+  closeTransferModal();
+
+  try {
+    await updateDoc(doc(db, "pedidos", selectedActivePedido.id), { mesa: newMesa });
+    // Actualizar estado local para que el cobro registre la mesa correcta
+    selectedActivePedido.mesa = newMesa;
+    selectedTable = newMesa;
+    document.getElementById('pos-table-number').textContent = newMesa;
+    // Volver a mesas para ver el cambio reflejado en tiempo real
+    showScreen('tables-screen');
+  } catch (err) {
+    console.error(err);
+    alert(`Error al mover el pedido de ${oldMesa} a ${newMesa}. Inténtalo de nuevo.`);
+  }
+};

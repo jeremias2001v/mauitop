@@ -39,11 +39,21 @@
         </div>
       </div>
       <div class="sidebar-nav">
-        <div class="nav-item active" onclick="switchAdminTab('inventario', this)">📦 Inventario</div>
-        <div class="nav-item" onclick="switchAdminTab('pedidos', this)">📝 Pedidos Live</div>
-        <div class="nav-item" onclick="switchAdminTab('finanzas', this)">💰 Finanzas</div>
-        <div class="nav-item" onclick="switchAdminTab('estadisticas', this)">📈 Estadísticas</div>
-        <div class="nav-item" onclick="switchAdminTab('operacion', this)">👨‍🍳 Operación</div>
+
+        <div class="nav-group-label">Gestión</div>
+        <div class="nav-item active" data-tab="inventario" onclick="switchAdminTab('inventario')">📦 Inventario</div>
+        <div class="nav-item" data-tab="operacion" onclick="switchAdminTab('operacion')">⚙️ Operación</div>
+
+        <div class="nav-group-label">En Vivo</div>
+        <div class="nav-item" data-tab="pedidos" onclick="switchAdminTab('pedidos')">
+          📝 Pedidos Live
+          <span class="nav-live-badge" id="nav-pedidos-badge"></span>
+        </div>
+
+        <div class="nav-group-label">Analytics</div>
+        <div class="nav-item" data-tab="finanzas" onclick="switchAdminTab('finanzas')">💰 Finanzas</div>
+        <div class="nav-item" data-tab="estadisticas" onclick="switchAdminTab('estadisticas')">📈 Estadísticas</div>
+
       </div>
       <div class="logout-container">
         <button class="logout-btn theme-toggle" style="margin-bottom:8px;">☀️ Modo Claro</button>
@@ -77,6 +87,7 @@
             </label>
           </div>
           <div class="links">
+            <a class="secondary-link" href="cocina.html" target="_blank">🍳 Pantalla Cocina</a>
             <a class="secondary-link" href="index.html">↗ Volver a la Tienda</a>
           </div>
         </div>
@@ -212,27 +223,23 @@
 
       <!-- ===== TAB PEDIDOS ===== -->
       <div id="tab-pedidos" style="display:none;">
+
+        <!-- 1. En Proceso -->
         <section class="admin-card">
-          <div class="card-header" style="flex-wrap: wrap; gap: 16px;">
-            <h2>📝 Historial de Pedidos</h2>
-            <div style="display:flex; gap:12px; align-items:center;">
-              <select id="pedidos-date-filter" onchange="renderPedidos()"
-                style="padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 8px; font-weight: 500; font-family: inherit; cursor: pointer; background: var(--surface); color: var(--text-main);">
-                <option value="today">Hoy</option>
-                <option value="week" selected>Últimos 7 días</option>
-                <option value="month">Este Mes</option>
-                <option value="all">Histórico (Límite 200)</option>
-              </select>
-              <button onclick="loadPedidos()" class="secondary-btn" title="Refrescar">↻</button>
+          <div class="card-header">
+            <div>
+              <h2>🔄 Pedidos en Proceso</h2>
+              <p style="color:var(--text-muted); font-size:13px; margin-top:4px;">Pendiente · En Preparación · Listo —
+                en vivo</p>
             </div>
+            <button onclick="loadPedidos()" class="secondary-btn" title="Refrescar">↻ Refrescar</button>
           </div>
           <div class="table-responsive">
-            <table class="admin-table" id="pedidos-table">
+            <table class="admin-table" id="pedidos-proceso-table">
               <thead>
                 <tr>
-                  <th>Fecha</th>
-                  <th>Cliente</th>
-                  <th>Dirección</th>
+                  <th>Hora</th>
+                  <th>Origen</th>
                   <th>Ítems</th>
                   <th>Total</th>
                   <th>Estado</th>
@@ -243,6 +250,65 @@
             </table>
           </div>
         </section>
+
+        <!-- Filtro de fecha para el historial -->
+        <div style="display:flex; justify-content:flex-end; align-items:center; gap:10px; margin:-8px 0 16px;">
+          <span style="font-size:13px; font-weight:600; color:var(--text-muted);">Filtrar historial:</span>
+          <select id="pedidos-date-filter" onchange="renderPedidos()"
+            style="padding:8px 12px; border:1px solid var(--border-color); border-radius:8px; font-weight:500; font-family:inherit; cursor:pointer; background:var(--surface); color:var(--text-main);">
+            <option value="today">Hoy</option>
+            <option value="week" selected>Últimos 7 días</option>
+            <option value="month">Este Mes</option>
+            <option value="all">Histórico (todo)</option>
+          </select>
+        </div>
+
+        <!-- 2. Mesas Cobradas -->
+        <section class="admin-card">
+          <div class="card-header">
+            <h2>🍽️ Mesas Cobradas</h2>
+          </div>
+          <div class="table-responsive">
+            <table class="admin-table" id="pedidos-mesas-table">
+              <thead>
+                <tr>
+                  <th>Fecha</th>
+                  <th>Mesa</th>
+                  <th>Mesero</th>
+                  <th>Ítems</th>
+                  <th>Total</th>
+                  <th>Pago</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- 3. Domicilios Entregados -->
+        <section class="admin-card">
+          <div class="card-header">
+            <h2>🛵 Domicilios Entregados</h2>
+          </div>
+          <div class="table-responsive">
+            <table class="admin-table" id="pedidos-domicilios-table">
+              <thead>
+                <tr>
+                  <th>Fecha</th>
+                  <th>Cliente</th>
+                  <th>Dirección</th>
+                  <th>Ítems</th>
+                  <th>Total</th>
+                  <th>Pago</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </section>
+
       </div>
 
       <!-- ===== TAB OPERACION ===== -->
@@ -348,6 +414,32 @@
       </div>
 
     </main>
+
+    <!-- ── Mobile Bottom Navigation (≤ 768px) ── -->
+    <nav class="mobile-bottom-nav" id="mobile-bottom-nav">
+      <button class="mob-nav-btn active" data-tab="inventario" onclick="switchAdminTab('inventario')">
+        <span class="mob-icon">📦</span>
+        <span class="mob-label">Inventario</span>
+      </button>
+      <button class="mob-nav-btn" data-tab="pedidos" onclick="switchAdminTab('pedidos')">
+        <span class="mob-icon">📝</span>
+        <span class="mob-label">Pedidos</span>
+        <span class="mob-badge" id="mob-pedidos-badge"></span>
+      </button>
+      <button class="mob-nav-btn" data-tab="finanzas" onclick="switchAdminTab('finanzas')">
+        <span class="mob-icon">💰</span>
+        <span class="mob-label">Finanzas</span>
+      </button>
+      <button class="mob-nav-btn" data-tab="estadisticas" onclick="switchAdminTab('estadisticas')">
+        <span class="mob-icon">📈</span>
+        <span class="mob-label">Stats</span>
+      </button>
+      <button class="mob-nav-btn" data-tab="operacion" onclick="switchAdminTab('operacion')">
+        <span class="mob-icon">⚙️</span>
+        <span class="mob-label">Operación</span>
+      </button>
+    </nav>
+
   </div>
 
   <!-- Modal Producto -->

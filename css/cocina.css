@@ -1,0 +1,367 @@
+/* css/cocina.css — Kitchen Display System */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
+
+:root {
+  --bg: #0d1117;
+  --surface: #161b22;
+  --surface2: #21262d;
+  --border: #30363d;
+  --text: #e6edf3;
+  --text-muted: #8b949e;
+  --danger: #ef4444;
+
+  --pending: #f59e0b;
+  --pending-bg: rgba(245, 158, 11, 0.12);
+  --pending-border: rgba(245, 158, 11, 0.3);
+
+  --cooking: #f97316;
+  --cooking-bg: rgba(249, 115, 22, 0.12);
+  --cooking-border: rgba(249, 115, 22, 0.3);
+
+  --ready: #10b981;
+  --ready-bg: rgba(16, 185, 129, 0.12);
+  --ready-border: rgba(16, 185, 129, 0.3);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Screens ── */
+.screen { display: none; }
+.active-screen { display: block; }
+#login-screen.active-screen {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ── Login ── */
+.login-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: radial-gradient(ellipse at center, #1a1f2e 0%, #0d1117 70%);
+}
+
+.login-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 40px 32px;
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.login-card h1 {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+
+.login-card p {
+  color: var(--text-muted);
+  font-size: 14px;
+  margin-bottom: 28px;
+}
+
+.login-card input {
+  width: 100%;
+  padding: 14px 16px;
+  margin-bottom: 14px;
+  background: var(--surface2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 15px;
+  outline: none;
+  transition: border-color 0.2s;
+  font-family: inherit;
+}
+
+.login-card input:focus { border-color: var(--cooking); }
+
+.login-btn {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, #f97316, #f59e0b);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.1s;
+  font-family: inherit;
+}
+
+.login-btn:hover { opacity: 0.9; }
+.login-btn:active { transform: scale(0.98); }
+
+/* ── Kitchen Header ── */
+.kitchen-header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.kitchen-header-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.kitchen-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.order-count-badge {
+  background: rgba(249, 115, 22, 0.15);
+  border: 1px solid rgba(249, 115, 22, 0.3);
+  color: var(--cooking);
+  font-size: 13px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 20px;
+}
+
+.kitchen-clock {
+  font-size: 26px;
+  font-weight: 900;
+  color: var(--pending);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 2px;
+}
+
+.header-logout {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+
+.header-logout:hover {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+/* ── Orders Grid ── */
+.orders-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+  padding: 24px;
+}
+
+/* ── Order Card ── */
+.order-card {
+  background: var(--surface);
+  border-radius: 16px;
+  border: 1.5px solid var(--border);
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+  animation: cardIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(20px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0)    scale(1); }
+}
+
+.order-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+}
+
+/* State variants */
+.order-card.state-pendiente {
+  border-color: var(--pending-border);
+  background: linear-gradient(180deg, var(--pending-bg) 0%, var(--surface) 50px);
+}
+.order-card.state-preparando {
+  border-color: var(--cooking-border);
+  background: linear-gradient(180deg, var(--cooking-bg) 0%, var(--surface) 50px);
+}
+.order-card.state-listo {
+  border-color: var(--ready-border);
+  background: linear-gradient(180deg, var(--ready-bg) 0%, var(--surface) 50px);
+}
+
+/* Card Header */
+.order-card-header {
+  padding: 16px 20px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.order-table {
+  font-size: 30px;
+  font-weight: 900;
+  line-height: 1;
+}
+.order-card.state-pendiente  .order-table { color: var(--pending); }
+.order-card.state-preparando .order-table { color: var(--cooking); }
+.order-card.state-listo      .order-table { color: var(--ready); }
+
+.order-meta { text-align: right; }
+.order-mesero {
+  font-size: 13px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.order-timer {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 700;
+  margin-top: 6px;
+  padding: 2px 10px;
+  border-radius: 20px;
+  font-variant-numeric: tabular-nums;
+}
+.order-card.state-pendiente  .order-timer { background: var(--pending-bg);  color: var(--pending); }
+.order-card.state-preparando .order-timer { background: var(--cooking-bg);  color: var(--cooking); }
+.order-card.state-listo      .order-timer { background: var(--ready-bg);    color: var(--ready); }
+
+/* Card Items */
+.order-items {
+  padding: 0 20px 16px;
+  border-top: 1px solid var(--border);
+  margin-top: 4px;
+}
+
+.order-item-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  font-size: 15px;
+}
+.order-item-row:last-child { border-bottom: none; }
+
+.order-qty {
+  font-size: 15px;
+  font-weight: 900;
+  min-width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.order-card.state-pendiente  .order-qty { background: var(--pending-bg);  color: var(--pending); }
+.order-card.state-preparando .order-qty { background: var(--cooking-bg);  color: var(--cooking); }
+.order-card.state-listo      .order-qty { background: var(--ready-bg);    color: var(--ready); }
+
+.order-item-name {
+  font-weight: 600;
+  color: var(--text);
+  font-size: 15px;
+}
+
+/* Card Footer */
+.order-card-footer {
+  padding: 14px 20px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.state-badge {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+.order-card.state-pendiente  .state-badge { background: var(--pending-bg);  color: var(--pending);  border: 1px solid var(--pending-border); }
+.order-card.state-preparando .state-badge { background: var(--cooking-bg);  color: var(--cooking);  border: 1px solid var(--cooking-border); }
+.order-card.state-listo      .state-badge { background: var(--ready-bg);    color: var(--ready);    border: 1px solid var(--ready-border); }
+
+.advance-btn {
+  padding: 10px 20px;
+  border-radius: 10px;
+  border: none;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: inherit;
+  white-space: nowrap;
+}
+.advance-btn:active { transform: scale(0.95); }
+.order-card.state-pendiente  .advance-btn { background: var(--pending);  color: #000; }
+.order-card.state-preparando .advance-btn { background: var(--cooking);  color: #fff; }
+.order-card.state-listo      .advance-btn { background: var(--ready);    color: #fff; }
+.advance-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+/* ── Empty State ── */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 80px);
+  gap: 16px;
+  color: var(--text-muted);
+  padding: 40px;
+  text-align: center;
+}
+.empty-icon { font-size: 84px; opacity: 0.35; margin-bottom: 8px; }
+.empty-state h2 { font-size: 26px; font-weight: 700; color: var(--text-muted); }
+.empty-state p  { font-size: 15px; opacity: 0.65; }
+
+/* ── New order flash animation ── */
+@keyframes newOrderFlash {
+  0%, 100% { background: var(--bg); }
+  30%       { background: rgba(245, 158, 11, 0.09); }
+  60%       { background: var(--bg); }
+  80%       { background: rgba(245, 158, 11, 0.09); }
+}
+body.new-order-flash {
+  animation: newOrderFlash 0.9s ease;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .orders-grid {
+    grid-template-columns: 1fr;
+    padding: 16px;
+    gap: 16px;
+  }
+  .kitchen-clock { font-size: 20px; }
+  .kitchen-title { font-size: 15px; }
+}
