@@ -1,0 +1,130 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ============================================
+    // ACCESO PÚBLICO - Lectura
+    // ============================================
+    
+    // Menú: Lectura pública (todos pueden ver categorías y productos)
+    match /categorias/{document=**} {
+      allow read: if true;
+      allow write: if request.auth != null && isAdmin();
+    }
+
+    match /productos/{document=**} {
+      allow read: if true;
+      allow write: if request.auth != null && isAdmin();
+    }
+
+    // Imagen del plato estrella: Lectura pública
+    match /config/{document=**} {
+      allow read: if true;
+      allow write: if request.auth != null && isAdmin();
+    }
+
+    // ============================================
+    // PEDIDOS - Acceso Restringido
+    // ============================================
+    
+    match /pedidos/{pedidoId} {
+      // Solo el propietario puede leer su pedido
+      allow read: if request.auth != null && (isAdmin() || resource.data.userId == request.auth.uid);
+      
+      // Los usuarios autenticados pueden crear pedidos
+      allow create: if request.auth != null && 
+                       request.resource.data.userId == request.auth.uid &&
+                       request.resource.data.timestamp == request.time;
+      
+      // Solo admin puede actualizar (cambiar estado)
+      allow update: if request.auth != null && isAdmin();
+      
+      // Solo admin puede eliminar
+      allow delete: if request.auth != null && isAdmin();
+    }
+
+    // ============================================
+    // USUARIOS - Acceso Restringido
+    // ============================================
+    
+    match /usuarios/{userId} {
+      // Solo el usuario propietario puede leer su documento
+      allow read: if request.auth != null && request.auth.uid == userId;
+      
+      // Solo admin puede escribir
+      allow write: if request.auth != null && isAdmin();
+    }
+
+    // ============================================
+    // PANEL ADMIN - Acceso Solo Admin
+    // ============================================
+    
+    match /inventario/{document=**} {
+      allow read, write: if request.auth != null && isAdmin();
+    }
+
+    match /operacion/{document=**} {
+      allow read, write: if request.auth != null && isAdmin();
+    }
+
+    match /finanzas/{document=**} {
+      allow read: if request.auth != null && isAdmin();
+      allow write: if false; // Solo lectura para admin
+    }
+
+    match /estadisticas/{document=**} {
+      allow read: if request.auth != null && isAdmin();
+      allow write: if false; // Solo lectura para admin
+    }
+
+    // ============================================
+    // MESEROS - Acceso Restringido
+    // ============================================
+    
+    match /mesas/{mesaId} {
+      allow read: if request.auth != null && isMesero();
+      allow write: if request.auth != null && isMesero();
+    }
+
+    match /meseros/{meseroId} {
+      allow read: if request.auth != null && (request.auth.uid == meseroId || isAdmin());
+      allow write: if request.auth != null && (request.auth.uid == meseroId || isAdmin());
+    }
+
+    // ============================================
+    // COCINA - Acceso Restringido
+    // ============================================
+    
+    match /pedidos_cocina/{document=**} {
+      allow read: if request.auth != null && (isCocinero() || isAdmin());
+      allow write: if request.auth != null && (isCocinero() || isAdmin());
+    }
+
+    // ============================================
+    // FUNCIONES AUXILIARES
+    // ============================================
+    
+    // Verifica si el usuario es admin
+    function isAdmin() {
+      return exists(/databases/$(database)/documents/usuarios/$(request.auth.uid)) &&
+             get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.rol == 'admin';
+    }
+
+    // Verifica si el usuario es mesero
+    function isMesero() {
+      return exists(/databases/$(database)/documents/usuarios/$(request.auth.uid)) &&
+             get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.rol == 'mesero';
+    }
+
+    // Verifica si el usuario es cocinero
+    function isCocinero() {
+      return exists(/databases/$(database)/documents/usuarios/$(request.auth.uid)) &&
+             get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.rol == 'cocinero';
+    }
+
+    // Deny all otros accesos
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
