@@ -1,0 +1,40 @@
+{
+  "name": "Mauitop - El Sabor Colombiano",
+  "short_name": "Mauitop",
+  "description": "Mauitop: El sabor del plátano maduro hecho arte. Comidas rápidas, perros, hamburguesas y nuestro plato estrella, El Mauito.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#FFF8E7",
+  "background_color": "#FFFFFF",
+  "icons": [
+    {
+      "src": "favicon.png",
+      "sizes": "1254x1254",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "favicon.png",
+      "sizes": "1254x1254",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "img/logo.png",
+      "sizes": "1254x1254",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "categories": ["food", "restaurant"],
+  "screenshots": [
+    {
+      "src": "favicon.png",
+      "sizes": "540x720",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ]
+}
