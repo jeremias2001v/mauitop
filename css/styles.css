@@ -1127,3 +1127,288 @@
     0%,100% { box-shadow: 0 4px 20px rgba(37,211,102,0.5); }
     50% { box-shadow: 0 4px 36px rgba(37,211,102,0.8); }
   }
+
+  /* ============================================
+     ANIMACIONES PRINCIPALES
+     ============================================ */
+
+  /* Fade In: Aparición gradual */
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  /* Slide In Up: Deslizamiento desde abajo */
+  @keyframes slideInUp {
+    from {
+      opacity: 0;
+      transform: translateY(60px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Slide In Down: Deslizamiento desde arriba */
+  @keyframes slideInDown {
+    from {
+      opacity: 0;
+      transform: translateY(-60px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Scale Up: Zoom entrada */
+  @keyframes scaleUp {
+    from {
+      opacity: 0;
+      transform: scale(0.9);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  /* Bounce: Efecto rebote */
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+  }
+
+  /* Float: Flotación suave */
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+
+  /* Glow: Brillo pulsante */
+  @keyframes glow {
+    0%, 100% {
+      box-shadow: 0 0 10px rgba(255, 107, 0, 0.3);
+    }
+    50% {
+      box-shadow: 0 0 30px rgba(255, 107, 0, 0.8);
+    }
+  }
+
+  /* Shake: Temblor */
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+  }
+
+  /* Rotate: Rotación suave */
+  @keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  /* Heartbeat: Latido */
+  @keyframes heartbeat {
+    0%, 100% { transform: scale(1); }
+    14% { transform: scale(1.15); }
+    28% { transform: scale(1); }
+    42% { transform: scale(1.15); }
+    70% { transform: scale(1); }
+  }
+
+  /* Pulse: Pulso suave */
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+  }
+
+  /* ============================================
+     APLICACIÓN DE ANIMACIONES
+     ============================================ */
+
+  /* Hero */
+  header {
+    animation: slideInDown 0.8s ease-out;
+  }
+
+  .hero-content {
+    animation: fadeIn 1s ease-out 0.3s both;
+  }
+
+  .hero-text h1 {
+    animation: slideInUp 0.8s ease-out 0.5s both;
+  }
+
+  .hero-text p {
+    animation: slideInUp 0.8s ease-out 0.7s both;
+  }
+
+  .hero-badge {
+    animation: slideInUp 0.8s ease-out 0.9s both, bounce 2s ease-in-out 1.8s infinite;
+  }
+
+  /* Menú */
+  .menu-grid {
+    animation: fadeIn 0.8s ease-out;
+  }
+
+  .menu-item {
+    animation: scaleUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .menu-item:hover {
+    animation: none;
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 12px 30px rgba(93, 46, 12, 0.25);
+  }
+
+  /* Secciones */
+  section {
+    animation: fadeIn 0.8s ease-out;
+  }
+
+  .section-title {
+    animation: slideInUp 0.6s ease-out;
+  }
+
+  /* Botones */
+  button, .btn, .primary-btn, .secondary-btn, .cart-btn {
+    transition: all 0.3s ease;
+    position: relative;
+  }
+
+  button:hover, .btn:hover, .primary-btn:hover, .cart-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(93, 46, 12, 0.2);
+  }
+
+  button:active, .btn:active, .primary-btn:active {
+    transform: translateY(-1px);
+  }
+
+  /* Navbar links */
+  nav ul li a {
+    transition: all 0.3s ease;
+    position: relative;
+  }
+
+  nav ul li a:hover {
+    color: var(--naranja);
+    transform: translateY(-2px);
+  }
+
+  /* Carrito flotante */
+  #floating-cart-btn {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  #floating-cart-btn:hover {
+    animation: none;
+    transform: scale(1.1);
+  }
+
+  /* Star del plato */
+  .estrella-img {
+    animation: float 4s ease-in-out infinite;
+  }
+
+  /* Badges y etiquetas */
+  .badge, .nav-live-badge {
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  /* Logo animación de entrada */
+  .brand-logo-container img {
+    animation: fadeIn 0.6s ease-out, float 3s ease-in-out 0.6s infinite;
+  }
+
+  /* Cards de características */
+  .stat-card, .admin-card, .login-card {
+    animation: slideInUp 0.6s ease-out;
+  }
+
+  /* Inputs con focus */
+  input, textarea, select {
+    transition: all 0.3s ease;
+  }
+
+  input:focus, textarea:focus, select:focus {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(93, 46, 12, 0.15);
+  }
+
+  /* Toast notifications */
+  #toast {
+    animation: slideInUp 0.4s ease-out, slideInUp 0.4s ease-in 3.6s reverse;
+  }
+
+  /* Modal */
+  .modal-overlay {
+    animation: fadeIn 0.3s ease-out;
+  }
+
+  .modal-box {
+    animation: scaleUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  /* Sidebar del carrito */
+  .cart-sidebar {
+    animation: slideInUp 0.4s ease-out;
+  }
+
+  /* Items del menú en listas */
+  .cart-items li, .modal-items-list li {
+    animation: slideInUp 0.4s ease-out;
+  }
+
+  /* Loading/Spinner */
+  .spinner {
+    animation: rotate 2s linear infinite;
+  }
+
+  /* Tabla rows */
+  table tbody tr {
+    animation: slideInUp 0.4s ease-out;
+  }
+
+  /* Links */
+  a {
+    transition: color 0.2s ease;
+  }
+
+  /* Efectos hover en elementos */
+  .highlight {
+    position: relative;
+    transition: all 0.3s ease;
+  }
+
+  .highlight:hover {
+    text-shadow: 0 0 10px rgba(255, 107, 0, 0.4);
+  }
+
+  /* Responsive para tablets */
+  @media (max-width: 768px) {
+    .hero-text h1 {
+      animation: slideInUp 0.6s ease-out 0.3s both;
+    }
+
+    .hero-text p {
+      animation: slideInUp 0.6s ease-out 0.5s both;
+    }
+
+    .menu-item {
+      animation: scaleUp 0.4s ease-out;
+    }
+  }
+
+  /* Desabilitar animaciones en devices lento */
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
