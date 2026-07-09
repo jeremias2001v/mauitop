@@ -107,9 +107,12 @@ function renderCart() {
   const total = cart.reduce((s, i) => s + i.precio * i.qty, 0);
   const count = cart.reduce((s, i) => s + i.qty, 0);
 
-  document.getElementById('cart-count').textContent = count;
-  document.getElementById('cart-count-2').textContent = count;
-  document.getElementById('floating-cart-count').textContent = count;
+  const cartCount = document.getElementById('cart-count');
+  const cartCount2 = document.getElementById('cart-count-2');
+  const floatingCartCount = document.getElementById('floating-cart-count');
+  if (cartCount) cartCount.textContent = count;
+  if (cartCount2) cartCount2.textContent = count;
+  if (floatingCartCount) floatingCartCount.textContent = count;
   document.getElementById('cart-total-val').textContent = fmtPrice(total);
   document.getElementById('pedido-btn').disabled = cart.length === 0;
 
@@ -266,25 +269,26 @@ async function initMenu() {
     const prodsSnap = await getDocs(collection(db, "productos"));
     productos = prodsSnap.docs.map(d => d.data());
 
-    // Fetch Configs Adicionales (Estado, Imagen Estrella)
+    // Fetch Configs Adicionales (Estado)
     try {
       const { doc, getDoc } = await import("https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js");
-      
-      // Plato Estrella
-      const estSnap = await getDoc(doc(db, "configuracion", "estrella"));
-      if (estSnap.exists() && estSnap.data().imagen) {
-        const imgEl = document.getElementById('plato-estrella-img');
-        if (imgEl) {
-          imgEl.src = estSnap.data().imagen;
-          imgEl.style.display = 'block';
-          document.getElementById('plato-estrella-emoji').style.display = 'none';
-        }
-      }
-      
+
       // Estado Tienda
       const confSnap = await getDoc(doc(db, "configuracion", "estado"));
-      if (confSnap.exists() && confSnap.data().abierta === false) {
-        isStoreOpen = false;
+      if (confSnap.exists()) {
+        const estado = confSnap.data();
+        if (estado.abierta === false) {
+          isStoreOpen = false;
+        }
+
+        const addressEl = document.getElementById('restaurant-address');
+        const hoursEl = document.getElementById('restaurant-hours');
+        if (addressEl && estado.direccion) {
+          addressEl.textContent = `📍 ${estado.direccion}`;
+        }
+        if (hoursEl && estado.horario) {
+          hoursEl.textContent = `🕒 ${estado.horario}`;
+        }
       }
     } catch (e) {
       console.error("No se pudo obtener el estado de la tienda", e);

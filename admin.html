@@ -322,11 +322,22 @@
               <h2>⚙️ Configuración del Restaurante</h2>
             </div>
             <div style="padding: 20px;">
-              <label style="display:block; font-size:14px; font-weight:600; margin-bottom:8px;">Cantidad de Mesas
-                Activas:</label>
-              <div style="display:flex; gap:12px;">
+              <div style="display:grid; gap:14px;">
+                <label style="display:block; font-size:14px; font-weight:600;">
+                  Cantidad de Mesas Activas:
+                </label>
                 <input type="number" id="op-mesas" value="10" min="1" max="100"
-                  style="padding:10px; border-radius:8px; border:1px solid var(--border-color); width:100px; font-weight:bold; background:var(--surface); color:var(--text-main);" />
+                  style="padding:10px; border-radius:8px; border:1px solid var(--border-color); width:100%; font-weight:bold; background:var(--surface); color:var(--text-main);" />
+                <label style="display:block; font-size:14px; font-weight:600;">
+                  Horario:
+                </label>
+                <input type="text" id="op-horario" placeholder="Ej: Lun a Dom · 5:00 p.m. - 11:00 p.m."
+                  style="padding:10px; border-radius:8px; border:1px solid var(--border-color); width:100%; background:var(--surface); color:var(--text-main);" />
+                <label style="display:block; font-size:14px; font-weight:600;">
+                  Dirección:
+                </label>
+                <input type="text" id="op-direccion" placeholder="Ej: Carrera 00 #00-00, Valledupar"
+                  style="padding:10px; border-radius:8px; border:1px solid var(--border-color); width:100%; background:var(--surface); color:var(--text-main);" />
                 <button class="primary-btn" onclick="saveOperacion()">Guardar</button>
               </div>
             </div>

@@ -32,41 +32,24 @@
     ⚠️ ¡ESTAMOS CERRADOS POR HOY! Puedes explorar el menú 🍌, ¡Te esperamos mañana para pedir!
   </div>
 
-  <!-- Topbar -->
-  <div class="topbar">
-    <span>🍌 El sabor del plátano maduro hecho arte</span>
-    <span>📍 Domicilios disponibles &nbsp;|&nbsp; 📞 318 289 6219</span>
-  </div>
-
-  <!-- HERO -->
-  <header>
+  <!-- Banner de restaurante -->
+  <header class="restaurant-banner">
     <div class="hero-pattern"></div>
-    <nav>
-      <div class="logo" style="display:flex; flex-direction:column; gap:4px;">
-        <div class="brand-logo-container">
+    <div class="restaurant-banner-inner">
+      <div class="restaurant-brand">
+        <div class="brand-logo-container banner-logo-container">
           <img src="img/logo.png" alt="Mauitop">
         </div>
-        <span class="logo-sub" style="margin-left:4px;">Sabor Colombiano</span>
+        <div>
+          <p class="banner-kicker">Sabor colombiano</p>
+          <h1>Mauitop</h1>
+          <p class="banner-copy">El sabor del plátano maduro hecho arte.</p>
+        </div>
       </div>
-      <ul class="nav-links">
-        <li><a href="#menu">Menú</a></li>
-        <li><a href="#platano">Muitop</a></li>
-        <li><a href="#nosotros">Nosotros</a></li>
-        <li><a href="#" class="cart-btn" onclick="toggleCart(); return false;">🛒 Carrito <span
-              id="cart-count">0</span></a></li>
-      </ul>
-      <a href="#" class="cart-btn" id="mobile-cart" onclick="toggleCart(); return false;"
-        style="font-family:'Bebas Neue';font-size:17px;text-decoration:none;background:var(--rojo);color:white;padding:10px 20px;border-radius:30px;display:flex;align-items:center;gap:8px;">
-        🛒 <span id="cart-count-2">0</span>
-      </a>
-    </nav>
-
-    <div class="hero-content">
-      <div class="hero-text">
-        <h1>El Sabor<span class="highlight">Colombiano</span>en tu mesa</h1>
-        <p>Platos únicos a base de plátano maduro, hamburguesas, perros y salchipapas. ¡Todo con el alma de Colombia!
-          🇨🇴</p>
-        <a href="#menu" class="hero-badge">🍌 Ver el Menú</a>
+      <div class="restaurant-info">
+        <a href="https://wa.me/573182896219" target="_blank">📞 318 289 6219</a>
+        <span id="restaurant-address">📍 Domicilios disponibles</span>
+        <span id="restaurant-hours">🕒 Horario disponible pronto</span>
       </div>
     </div>
   </header>
@@ -78,80 +61,14 @@
     <div class="s-rojo"></div>
   </div>
 
-  <!-- PLATO ESTRELLA -->
-  <section id="estrella" class="section">
-    <div class="estrella-inner">
-      <div class="estrella-img">
-        <span id="plato-estrella-emoji" style="font-size:80px;">🌟</span>
-        <img id="plato-estrella-img" src="" style="width:100%; height:100%; object-fit:cover; display:none;"
-          alt="El Mauito">
-      </div>
-      <div class="estrella-text">
-        <h2>El Mauito</h2>
-        <p>Nuestro plato insignia. Una obra maestra hecha con plátano maduro, preparada con la receta secreta de
-          Mauitop. Jugoso, dorado y con ese sabor que solo Colombia puede dar. ¡Tienes que probarlo!</p>
-        <div>
-          <!-- Precio y botón eliminados según solicitud -->
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Bandera Colombia -->
-  <div class="colombia-stripe">
-    <div class="s-amarillo"></div>
-    <div class="s-azul"></div>
-    <div class="s-rojo"></div>
-  </div>
-
   <!-- MENÚ -->
   <section id="menu" class="section">
-    <div style="max-width:1200px;margin:0 auto;">
-      <div class="section-title">Nuestro Menú</div>
-      <div class="section-subtitle">Escoge tu favorito y arma tu pedido</div>
-
+    <div class="menu-shell">
       <div class="menu-tabs" id="menu-tabs">
         <button class="tab-btn active" onclick="filterMenu('todos', this)">🍽️ Todos</button>
       </div>
 
       <div class="menu-grid" id="menu-grid"></div>
-    </div>
-  </section>
-
-  <!-- SOBRE NOSOTROS -->
-  <section id="nosotros" class="section section-bg-alt"
-    style="background: linear-gradient(135deg,#FFF8E7 0%,#FFF3E0 100%);">
-    <div style="max-width:900px;margin:0 auto;text-align:center;">
-      <div class="section-title">¿Quiénes somos?</div>
-      <p style="font-size:18px;line-height:1.8;color:#666;margin-top:20px;font-weight:600;">
-        <strong style="color:var(--cafe)">Mauitop</strong> nació del amor por el plátano maduro y el sabor de Colombia.
-        🇨🇴 Somos un restaurante de comidas rápidas con corazón colombiano, donde cada plato lleva el alma de nuestra
-        tierra. Desde nuestro legendario <strong style="color:var(--rojo)">Mauito</strong> hasta nuestras hamburguesas y
-        perros, todo está hecho con el cariño de siempre.
-      </p>
-      <div style="display:flex;gap:20px;justify-content:center;margin-top:36px;flex-wrap:wrap;">
-        <div
-          style="background:white;border-radius:20px;padding:24px 32px;box-shadow:0 4px 20px var(--sombra);text-align:center;min-width:140px;">
-          <div style="font-size:42px;">🍌</div>
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--cafe);margin-top:8px;">100% Plátano
-          </div>
-          <div style="font-size:13px;color:#888;font-weight:600;">Ingredientes frescos</div>
-        </div>
-        <div
-          style="background:white;border-radius:20px;padding:24px 32px;box-shadow:0 4px 20px var(--sombra);text-align:center;min-width:140px;">
-          <div style="font-size:42px;">🚀</div>
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--cafe);margin-top:8px;">Pedido
-            Rápido</div>
-          <div style="font-size:13px;color:#888;font-weight:600;">Por WhatsApp</div>
-        </div>
-        <div
-          style="background:white;border-radius:20px;padding:24px 32px;box-shadow:0 4px 20px var(--sombra);text-align:center;min-width:140px;">
-          <div style="font-size:42px;">🇨🇴</div>
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--cafe);margin-top:8px;">Sabor
-            Colombiano</div>
-          <div style="font-size:13px;color:#888;font-weight:600;">Recetas auténticas</div>
-        </div>
-      </div>
     </div>
   </section>
 

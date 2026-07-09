@@ -998,11 +998,15 @@ let isStoreOpen = false;
 
 window.saveOperacion = async function () {
   const mesas = parseInt(document.getElementById('op-mesas').value) || 0;
+  const horario = document.getElementById('op-horario')?.value.trim() || '';
+  const direccion = document.getElementById('op-direccion')?.value.trim() || '';
   try {
     await setDoc(doc(db, "configuracion", "operacion"), { mesasActivas: mesas }, { merge: true });
-    showAdminMessage('Configuración de mesas guardada', 'success');
+    await setDoc(doc(db, "configuracion", "estado"), { horario, direccion }, { merge: true });
+    showAdminMessage('Configuración del restaurante guardada', 'success');
   } catch (e) {
     console.error(e);
+    showAdminMessage('Error guardando la configuración', 'error');
   }
 };
 
@@ -1071,7 +1075,12 @@ async function checkStoreStatus() {
     const docRef = doc(db, "configuracion", "estado");
     const docSnap = await getDoc(docRef);
     if (docSnap.exists()) {
-      isStoreOpen = docSnap.data().abierta !== false; // por defecto true si no está seteado el bool "abierta: false" pero existe doc
+      const estado = docSnap.data();
+      isStoreOpen = estado.abierta !== false; // por defecto true si no está seteado el bool "abierta: false" pero existe doc
+      const horarioInput = document.getElementById('op-horario');
+      const direccionInput = document.getElementById('op-direccion');
+      if (horarioInput) horarioInput.value = estado.horario || '';
+      if (direccionInput) direccionInput.value = estado.direccion || '';
     } else {
       isStoreOpen = true; // Por defecto abierto si nunca se configuró
     }
@@ -1097,7 +1106,7 @@ window.toggleStoreStatus = async function () {
   try {
     await setDoc(doc(db, "configuracion", "estado"), {
       abierta: nuevoEstado
-    });
+    }, { merge: true });
     showAdminMessage(nuevoEstado ? 'Tienda Abierta' : 'Tienda Cerrada', 'success');
   } catch (error) {
     console.error(error);
