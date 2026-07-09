@@ -7,6 +7,10 @@ let cart = [];
 let currentFilter = 'todos';
 let isStoreOpen = true;
 
+const iconSvg = {
+  trash: `<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M3 6h18" /><path d="M8 6V4h8v2" /><path d="m19 6-1 14H6L5 6" /><path d="M10 11v5" /><path d="M14 11v5" /></svg>`
+};
+
 function fmtPrice(p) {
   return '$' + p.toLocaleString('es-CO');
 }
@@ -117,23 +121,24 @@ function renderCart() {
   document.getElementById('pedido-btn').disabled = cart.length === 0;
 
   if (cart.length === 0) {
-    container.innerHTML = `<div class="cart-empty"><span class="emoji">🍽️</span><p>Tu carrito está vacío</p><p style="font-size:13px;color:#ccc;margin-top:6px;">¡Agrega algo rico!</p></div>`;
+    container.innerHTML = `<div class="cart-empty"><span class="emoji">🍽️</span><p>Tu carrito está vacío</p><p style="font-size:13px;color:#9b8d78;margin-top:6px;">¡Agrega algo rico!</p></div>`;
     return;
   }
 
   container.innerHTML = cart.map((item, idx) => `
     <div class="cart-item">
-      <div class="ci-emoji"><img src="${item.imagen}" style="width:40px;height:40px;object-fit:cover;border-radius:4px;" alt="${item.nombre}" /></div>
+      <div class="ci-emoji"><img src="${item.imagen}" alt="${item.nombre}" /></div>
       <div class="ci-info">
         <div class="ci-name">${item.nombre}</div>
+        <div class="ci-unit">${fmtPrice(item.precio)} c/u</div>
         <div class="ci-price">${fmtPrice(item.precio * item.qty)}</div>
       </div>
       <div class="ci-controls">
-        <button class="ci-btn" onclick="changeQty(${idx},-1)">−</button>
+        <button class="ci-btn" onclick="changeQty(${idx},-1)" aria-label="Disminuir cantidad">−</button>
         <span class="ci-qty">${item.qty}</span>
-        <button class="ci-btn" onclick="changeQty(${idx},1)">+</button>
+        <button class="ci-btn" onclick="changeQty(${idx},1)" aria-label="Aumentar cantidad">+</button>
       </div>
-      <button class="ci-remove" onclick="removeItem(${idx})">🗑️</button>
+      <button class="ci-remove" onclick="removeItem(${idx})" aria-label="Eliminar ${item.nombre}">${iconSvg.trash}</button>
     </div>
   `).join('');
 }
@@ -229,7 +234,7 @@ window.enviarPedido = async function () {
   document.getElementById('f-dir').value = '';
   document.getElementById('f-barrio').value = '';
   document.getElementById('f-notas').value = '';
-  showToast('✅ ¡Pedido enviado por WhatsApp!');
+  showToast('¡Pedido enviado por WhatsApp!');
 };
 
 // ====== TOAST ======

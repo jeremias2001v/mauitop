@@ -128,8 +128,12 @@
   </footer>
 
   <!-- Carrito flotante -->
-  <button id="floating-cart-btn" class="floating-cart-btn" onclick="toggleCart()" title="Abrir carrito">
-    🛒 Tu carrito
+  <button id="floating-cart-btn" class="floating-cart-btn" onclick="toggleCart()" title="Abrir carrito" aria-label="Abrir carrito">
+    <svg aria-hidden="true" viewBox="0 0 24 24" class="floating-cart-icon">
+      <path d="M6 6h15l-1.5 8.5a2 2 0 0 1-2 1.5H9a2 2 0 0 1-2-1.6L5.2 3H3" />
+      <circle cx="9" cy="20" r="1.6" />
+      <circle cx="18" cy="20" r="1.6" />
+    </svg>
     <span class="floating-cart-badge" id="floating-cart-count">0</span>
   </button>
 
@@ -137,7 +141,11 @@
 
   <!-- Toast -->
   <div id="toast">
-    <div class="toast-icon">✅</div>
+    <div class="toast-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24">
+        <path d="M20 6 9 17l-5-5" />
+      </svg>
+    </div>
     <div class="toast-text" id="toast-msg">¡Agregado al carrito!</div>
   </div>
 
@@ -146,10 +154,21 @@
   <aside class="cart-sidebar" id="cart-sidebar">
     <div class="cart-header">
       <div>
-        <h2>Tu Carrito 🛒</h2>
+        <h2>
+          <svg aria-hidden="true" viewBox="0 0 24 24" class="cart-title-icon">
+            <path d="M6 6h15l-1.5 8.5a2 2 0 0 1-2 1.5H9a2 2 0 0 1-2-1.6L5.2 3H3" />
+            <circle cx="9" cy="20" r="1.6" />
+            <circle cx="18" cy="20" r="1.6" />
+          </svg>
+          Tu Carrito
+        </h2>
         <p>Revisa tu pedido antes de enviarlo</p>
       </div>
-      <button class="close-cart" onclick="toggleCart()">✕</button>
+      <button class="close-cart" onclick="toggleCart()" aria-label="Cerrar carrito">
+        <svg aria-hidden="true" viewBox="0 0 24 24">
+          <path d="M18 6 6 18M6 6l12 12" />
+        </svg>
+      </button>
     </div>
     <div class="cart-platano">🍌 MAUITOP · SABOR COLOMBIANO 🇨🇴</div>
     <div class="cart-items" id="cart-items">
