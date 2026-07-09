@@ -77,79 +77,84 @@
   .topbar span { display: flex; align-items: center; gap: 6px; }
 
   .restaurant-banner {
-    min-height: 260px;
+    min-height: 172px;
   }
 
   .restaurant-banner-inner {
     position: relative;
     z-index: 5;
     max-width: 1200px;
-    min-height: 260px;
+    min-height: 172px;
     margin: 0 auto;
-    padding: 34px 40px;
+    padding: 18px 40px;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 32px;
   }
 
   .restaurant-brand {
     display: flex;
     align-items: center;
-    gap: 26px;
+    justify-content: space-between;
+    gap: 34px;
+    width: 100%;
     min-width: 0;
   }
 
   .banner-logo-container {
-    width: 190px;
-    height: 86px;
+    width: 214px;
+    height: 96px;
     flex-shrink: 0;
+  }
+
+  .banner-text {
+    min-width: 0;
   }
 
   .banner-kicker {
     font-family: 'Bebas Neue', sans-serif;
     color: var(--amarillo);
-    font-size: 22px;
+    font-size: 18px;
+    line-height: 1;
     letter-spacing: 2px;
-    margin-bottom: 2px;
+    margin-bottom: 0;
   }
 
   .restaurant-brand h1 {
     font-family: 'Bebas Neue', sans-serif;
-    font-size: 84px;
-    line-height: 0.9;
+    font-size: 58px;
+    line-height: 0.82;
     color: white;
     letter-spacing: 0;
   }
 
   .banner-copy {
     color: rgba(255,255,255,0.84);
-    font-size: 18px;
+    font-size: 16px;
     font-weight: 800;
-    line-height: 1.35;
-    margin-top: 10px;
+    line-height: 1.1;
+    margin-top: 8px;
   }
 
   .restaurant-info {
     display: flex;
-    align-items: flex-end;
-    flex-direction: column;
-    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px 14px;
     color: white;
-    font-size: 15px;
+    font-size: 13px;
     font-weight: 800;
-    text-align: right;
-    flex-shrink: 0;
+    line-height: 1;
+    margin-top: 12px;
   }
 
   .restaurant-info a,
   .restaurant-info span {
     color: white;
     text-decoration: none;
-    background: rgba(255,255,255,0.1);
-    border: 1px solid rgba(255,255,255,0.16);
-    border-radius: 8px;
-    padding: 10px 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 20px;
   }
 
   nav {
@@ -1091,30 +1096,43 @@
     .restaurant-banner { min-height: auto; }
     .restaurant-banner-inner {
       min-height: auto;
-      padding: 28px 20px 30px;
-      flex-direction: column;
-      align-items: stretch;
-      gap: 22px;
+      padding: 18px 18px 20px;
+      justify-content: flex-start;
     }
     .restaurant-brand {
-      align-items: flex-start;
-      gap: 18px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
     }
     .banner-logo-container {
-      width: 128px;
-      height: 62px;
+      width: clamp(116px, 34vw, 154px);
+      height: clamp(54px, 16vw, 72px);
     }
-    .banner-kicker { font-size: 17px; }
-    .restaurant-brand h1 { font-size: 54px; }
-    .banner-copy { font-size: 15px; margin-top: 6px; }
+    .banner-kicker { font-size: 15px; }
+    .restaurant-brand h1 { font-size: clamp(38px, 11vw, 46px); }
+    .banner-copy { font-size: 13px; line-height: 1.12; margin-top: 6px; }
     .restaurant-info {
-      align-items: stretch;
+      align-items: center;
       text-align: left;
-      font-size: 14px;
+      font-size: 11px;
+      gap: 6px 10px;
+      margin-top: 10px;
     }
     .restaurant-info a,
     .restaurant-info span {
-      justify-content: center;
+      justify-content: flex-start;
+    }
+    @media (max-width: 420px) {
+      .restaurant-banner-inner { padding-inline: 14px; }
+      .restaurant-brand { gap: 10px; }
+      .banner-logo-container {
+        width: 104px;
+        height: 50px;
+      }
+      .banner-kicker { font-size: 13px; letter-spacing: 1.4px; }
+      .restaurant-brand h1 { font-size: 36px; }
+      .banner-copy { font-size: 12px; }
+      .restaurant-info { font-size: 10.5px; gap: 5px 8px; }
     }
     .hero-content { flex-direction: column; padding: 30px 20px 50px; }
     .hero-text h1 { font-size: 56px; }
