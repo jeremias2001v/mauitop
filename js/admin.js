@@ -1,8 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
 import { collection, getDocs, getDoc, doc, setDoc, deleteDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, getAuth as getSecondaryAuth } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js";
-import { ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-storage.js";
-import { db, auth, storage, firebaseConfig } from "./firebase-config.js";
+import { db, auth, firebaseConfig } from "./firebase-config.js";
 
 let localProductos = [];
 let localCategorias = [];
@@ -498,24 +497,9 @@ const submitBtn = document.getElementById('submit-btn');
 
 let editingId = null;
 let editingCatName = null;
-let pendingProductImageBlob = null;
-let pendingStarImageBlob = null;
-let pendingBannerImageBlob = null;
 
 function isDataImage(value = '') {
   return typeof value === 'string' && value.startsWith('data:image/');
-}
-
-function safeStorageName(value = 'imagen') {
-  return value
-    .toString()
-    .trim()
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .slice(0, 48) || 'imagen';
 }
 
 function loadImageFromSource(source) {
@@ -553,35 +537,15 @@ async function compressImageSource(source, maxSize = 900, quality = 0.82) {
   });
 }
 
-function readFileAsDataURL(file) {
+async function optimizeDataImage(dataUrl, maxSize = 900, quality = 0.82) {
+  if (!isDataImage(dataUrl)) return dataUrl;
+  const blob = await compressImageSource(dataUrl, maxSize, quality);
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = event => resolve(event.target.result);
     reader.onerror = reject;
-    reader.readAsDataURL(file);
+    reader.readAsDataURL(blob);
   });
-}
-
-async function compressImageFile(file, maxSize = 900, quality = 0.82) {
-  const dataUrl = await readFileAsDataURL(file);
-  return compressImageSource(dataUrl, maxSize, quality);
-}
-
-async function uploadImageBlob(blob, path) {
-  if (!blob) return '';
-  const storageRef = ref(storage, path);
-  await uploadBytes(storageRef, blob, { contentType: 'image/jpeg' });
-  return getDownloadURL(storageRef);
-}
-
-async function migrateDataImageToStorage(dataUrl, path, maxSize = 900, quality = 0.82) {
-  try {
-    const blob = await compressImageSource(dataUrl, maxSize, quality);
-    return await uploadImageBlob(blob, path);
-  } catch (error) {
-    console.warn('No se pudo subir la imagen a Storage. Se guardará como imagen optimizada en Firestore.', error);
-    return dataUrl;
-  }
 }
 
 // FIREBASE FETCH Y MIGRACIÓN AUTÓMATICA
@@ -598,8 +562,8 @@ async function initData() {
       if (estSnap.exists() && estSnap.data().imagen) {
         let estrellaImagen = estSnap.data().imagen;
         if (isDataImage(estrellaImagen)) {
-          showAdminMessage('Migrando imagen estrella a Storage...', 'info');
-          estrellaImagen = await migrateDataImageToStorage(estrellaImagen, 'configuracion/estrella.jpg', 1000, 0.86);
+          showAdminMessage('Optimizando imagen estrella...', 'info');
+          estrellaImagen = await optimizeDataImage(estrellaImagen, 1000, 0.86);
           await setDoc(doc(db, "configuracion", "estrella"), { imagen: estrellaImagen }, { merge: true });
         }
         document.getElementById('estrella-preview').src = estrellaImagen;
@@ -643,7 +607,7 @@ async function initData() {
         showAdminMessage('Migrando productos locales...', 'info');
         for (let p of stored) {
           if (isDataImage(p.imagen)) {
-            p.imagen = await migrateDataImageToStorage(p.imagen, `productos/${p.id}-${safeStorageName(p.nombre)}.jpg`, 800, 0.8);
+            p.imagen = await optimizeDataImage(p.imagen, 800, 0.8);
           }
           await setDoc(doc(db, "productos", p.id.toString()), p);
           localProductos.push(p);
@@ -654,10 +618,10 @@ async function initData() {
       const productosMigrados = [];
       for (let p of localProductos) {
         if (isDataImage(p.imagen)) {
-          showAdminMessage(`Migrando imagen de ${p.nombre} a Storage...`, 'info');
+          showAdminMessage(`Optimizando imagen de ${p.nombre}...`, 'info');
           const migrated = {
             ...p,
-            imagen: await migrateDataImageToStorage(p.imagen, `productos/${p.id}-${safeStorageName(p.nombre)}.jpg`, 800, 0.8)
+            imagen: await optimizeDataImage(p.imagen, 800, 0.8)
           };
           await setDoc(doc(db, "productos", migrated.id.toString()), migrated, { merge: true });
           productosMigrados.push(migrated);
@@ -750,7 +714,6 @@ window.closeProdModal = function () {
 window.editProduct = function (id) {
   const prod = localProductos.find(p => p.id === id);
   if (!prod) return;
-  pendingProductImageBlob = null;
 
   document.getElementById('p-id').value = prod.id;
   document.getElementById('p-nombre').value = prod.nombre;
@@ -852,7 +815,6 @@ window.removeCat = async function (nombre) {
 
 function resetProdForm() {
   editingId = null;
-  pendingProductImageBlob = null;
   document.getElementById('p-id').value = '';
   document.getElementById('p-nombre').value = '';
   document.getElementById('p-categoria').value = '';
@@ -876,7 +838,7 @@ window.handleProdSubmit = async function (event) {
   const desc = document.getElementById('p-desc').value.trim();
   const disponible = document.getElementById('p-disponible').value === 'true';
 
-  if (!nombre || Number.isNaN(precio) || (!imagen && !pendingProductImageBlob) || !desc) {
+  if (!nombre || Number.isNaN(precio) || !imagen || !desc) {
     alert('Por favor completa todos los campos.');
     return;
   }
@@ -887,12 +849,9 @@ window.handleProdSubmit = async function (event) {
     if (editingId !== null) {
       const idx = localProductos.findIndex(p => p.id === editingId);
       if (idx >= 0) {
-        if (pendingProductImageBlob) {
-          showAdminMessage('Subiendo imagen a Storage...', 'info');
-          imagen = await uploadImageBlob(pendingProductImageBlob, `productos/${editingId}-${safeStorageName(nombre)}.jpg`);
-        } else if (isDataImage(imagen)) {
-          showAdminMessage('Migrando imagen a Storage...', 'info');
-          imagen = await migrateDataImageToStorage(imagen, `productos/${editingId}-${safeStorageName(nombre)}.jpg`, 800, 0.8);
+        if (isDataImage(imagen)) {
+          showAdminMessage('Optimizando imagen...', 'info');
+          imagen = await optimizeDataImage(imagen, 800, 0.8);
         }
         const pMod = { id: editingId, nombre, categoria, precio, imagen, desc, disponible };
         await setDoc(doc(db, "productos", editingId.toString()), pMod);
@@ -905,12 +864,9 @@ window.handleProdSubmit = async function (event) {
     }
 
     const nextId = localProductos.reduce((max, p) => Math.max(max, p.id || 0), 0) + 1;
-    if (pendingProductImageBlob) {
-      showAdminMessage('Subiendo imagen a Storage...', 'info');
-      imagen = await uploadImageBlob(pendingProductImageBlob, `productos/${nextId}-${safeStorageName(nombre)}.jpg`);
-    } else if (isDataImage(imagen)) {
-      showAdminMessage('Migrando imagen a Storage...', 'info');
-      imagen = await migrateDataImageToStorage(imagen, `productos/${nextId}-${safeStorageName(nombre)}.jpg`, 800, 0.8);
+    if (isDataImage(imagen)) {
+      showAdminMessage('Optimizando imagen...', 'info');
+      imagen = await optimizeDataImage(imagen, 800, 0.8);
     }
     const pNew = { id: nextId, nombre, categoria, precio, imagen, desc, disponible };
     await setDoc(doc(db, "productos", nextId.toString()), pNew);
@@ -1119,8 +1075,8 @@ if (bannerFileInput) {
       const img = new Image();
       img.onload = function () {
         const canvas = document.createElement('canvas');
-        const MAX_WIDTH = 1400;
-        const MAX_HEIGHT = 800;
+        const MAX_WIDTH = 1000;
+        const MAX_HEIGHT = 570;
         let w = img.width, h = img.height;
         if (w / h > MAX_WIDTH / MAX_HEIGHT) {
           if (w > MAX_WIDTH) {
@@ -1137,7 +1093,7 @@ if (bannerFileInput) {
         ctx.fillStyle = '#FFFFFF';
         ctx.fillRect(0, 0, w, h);
         ctx.drawImage(img, 0, 0, w, h);
-        const dataUrl = canvas.toDataURL('image/jpeg', 0.82);
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.76);
         document.getElementById('op-banner-imagen').value = dataUrl;
         document.getElementById('op-banner-preview').src = dataUrl;
         document.getElementById('op-banner-preview-container').style.display = 'block';
@@ -1157,7 +1113,7 @@ window.guardarEstrella = async function () {
   showAdminMessage('Guardando imagen...', 'info');
   try {
     if (isDataImage(imgStr)) {
-      imgStr = await migrateDataImageToStorage(imgStr, 'configuracion/estrella.jpg', 1000, 0.86);
+      imgStr = await optimizeDataImage(imgStr, 1000, 0.86);
       document.getElementById('estrella-imagen').value = imgStr;
     }
     await setDoc(doc(db, "configuracion", "estrella"), { imagen: imgStr });
@@ -1179,7 +1135,7 @@ window.saveOperacion = async function () {
   try {
     if (isDataImage(bannerImagen)) {
       showAdminMessage('Guardando fondo del banner...', 'info');
-      bannerImagen = await migrateDataImageToStorage(bannerImagen, 'configuracion/banner.jpg', 1400, 0.82);
+      bannerImagen = await optimizeDataImage(bannerImagen, 1000, 0.76);
       document.getElementById('op-banner-imagen').value = bannerImagen;
     }
     await setDoc(doc(db, "configuracion", "operacion"), { mesasActivas: mesas }, { merge: true });
