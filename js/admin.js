@@ -575,8 +575,13 @@ async function uploadImageBlob(blob, path) {
 }
 
 async function migrateDataImageToStorage(dataUrl, path, maxSize = 900, quality = 0.82) {
-  const blob = await compressImageSource(dataUrl, maxSize, quality);
-  return uploadImageBlob(blob, path);
+  try {
+    const blob = await compressImageSource(dataUrl, maxSize, quality);
+    return await uploadImageBlob(blob, path);
+  } catch (error) {
+    console.warn('No se pudo subir la imagen a Storage. Se guardará como imagen optimizada en Firestore.', error);
+    return dataUrl;
+  }
 }
 
 // FIREBASE FETCH Y MIGRACIÓN AUTÓMATICA
@@ -915,7 +920,8 @@ window.handleProdSubmit = async function (event) {
     showAdminMessage('Producto agregado a Firebase.', 'success');
   } catch (err) {
     console.error(err);
-    alert('Error al guardar producto');
+    showAdminMessage(`Error al guardar producto: ${err.message || 'revisa la consola'}`, 'error');
+    alert(`Error al guardar producto: ${err.message || 'revisa la consola'}`);
   }
 }
 
@@ -1003,7 +1009,8 @@ window.handleCatSubmit = async function (event) {
 
   } catch (err) {
     console.error(err);
-    alert("Error al guardar categoría");
+    showAdminMessage(`Error al guardar categoría: ${err.message || 'revisa la consola'}`, 'error');
+    alert(`Error al guardar categoría: ${err.message || 'revisa la consola'}`);
   }
 }
 
@@ -1098,18 +1105,65 @@ if (starFileInput) {
   });
 }
 
+const bannerFileInput = document.getElementById('op-banner-file');
+if (bannerFileInput) {
+  bannerFileInput.addEventListener('change', function (e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (!file.type.match('image.*')) {
+      showAdminMessage('Elige una imagen válida para el banner (JPG, PNG, WebP).', 'error');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = function (event) {
+      const img = new Image();
+      img.onload = function () {
+        const canvas = document.createElement('canvas');
+        const MAX_WIDTH = 1400;
+        const MAX_HEIGHT = 800;
+        let w = img.width, h = img.height;
+        if (w / h > MAX_WIDTH / MAX_HEIGHT) {
+          if (w > MAX_WIDTH) {
+            h = Math.round(h * MAX_WIDTH / w);
+            w = MAX_WIDTH;
+          }
+        } else if (h > MAX_HEIGHT) {
+          w = Math.round(w * MAX_HEIGHT / h);
+          h = MAX_HEIGHT;
+        }
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(0, 0, w, h);
+        ctx.drawImage(img, 0, 0, w, h);
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.82);
+        document.getElementById('op-banner-imagen').value = dataUrl;
+        document.getElementById('op-banner-preview').src = dataUrl;
+        document.getElementById('op-banner-preview-container').style.display = 'block';
+      };
+      img.src = event.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
 window.guardarEstrella = async function () {
-  const imgStr = document.getElementById('estrella-imagen').value;
+  let imgStr = document.getElementById('estrella-imagen').value;
   if (!imgStr) {
     alert('Sube una imagen primero');
     return;
   }
   showAdminMessage('Guardando imagen...', 'info');
   try {
+    if (isDataImage(imgStr)) {
+      imgStr = await migrateDataImageToStorage(imgStr, 'configuracion/estrella.jpg', 1000, 0.86);
+      document.getElementById('estrella-imagen').value = imgStr;
+    }
     await setDoc(doc(db, "configuracion", "estrella"), { imagen: imgStr });
     showAdminMessage('Imagen actualizada exitosamente 🌟', 'success');
   } catch (e) {
-    showAdminMessage('Error al guardar', 'error');
+    showAdminMessage(`Error al guardar: ${e.message || 'revisa la consola'}`, 'error');
     console.error(e);
   }
 };
@@ -1121,13 +1175,19 @@ window.saveOperacion = async function () {
   const mesas = parseInt(document.getElementById('op-mesas').value) || 0;
   const horario = document.getElementById('op-horario')?.value.trim() || '';
   const direccion = document.getElementById('op-direccion')?.value.trim() || '';
+  let bannerImagen = document.getElementById('op-banner-imagen')?.value.trim() || '';
   try {
+    if (isDataImage(bannerImagen)) {
+      showAdminMessage('Guardando fondo del banner...', 'info');
+      bannerImagen = await migrateDataImageToStorage(bannerImagen, 'configuracion/banner.jpg', 1400, 0.82);
+      document.getElementById('op-banner-imagen').value = bannerImagen;
+    }
     await setDoc(doc(db, "configuracion", "operacion"), { mesasActivas: mesas }, { merge: true });
-    await setDoc(doc(db, "configuracion", "estado"), { horario, direccion }, { merge: true });
+    await setDoc(doc(db, "configuracion", "estado"), { horario, direccion, bannerImagen }, { merge: true });
     showAdminMessage('Configuración del restaurante guardada', 'success');
   } catch (e) {
     console.error(e);
-    showAdminMessage('Error guardando la configuración', 'error');
+    showAdminMessage(`Error guardando la configuración: ${e.message || 'revisa la consola'}`, 'error');
   }
 };
 
@@ -1200,8 +1260,16 @@ async function checkStoreStatus() {
       isStoreOpen = estado.abierta !== false; // por defecto true si no está seteado el bool "abierta: false" pero existe doc
       const horarioInput = document.getElementById('op-horario');
       const direccionInput = document.getElementById('op-direccion');
+      const bannerInput = document.getElementById('op-banner-imagen');
+      const bannerPreview = document.getElementById('op-banner-preview');
+      const bannerPreviewContainer = document.getElementById('op-banner-preview-container');
       if (horarioInput) horarioInput.value = estado.horario || '';
       if (direccionInput) direccionInput.value = estado.direccion || '';
+      if (bannerInput) bannerInput.value = estado.bannerImagen || '';
+      if (bannerPreview && bannerPreviewContainer && estado.bannerImagen) {
+        bannerPreview.src = estado.bannerImagen;
+        bannerPreviewContainer.style.display = 'block';
+      }
     } else {
       isStoreOpen = true; // Por defecto abierto si nunca se configuró
     }

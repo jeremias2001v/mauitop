@@ -1,4 +1,4 @@
-import { collection, getDocs, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+import { collection, getDocs, getDoc, doc, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 import { db } from "./firebase-config.js";
 
 let productos = [];
@@ -276,8 +276,6 @@ async function initMenu() {
 
     // Fetch Configs Adicionales (Estado)
     try {
-      const { doc, getDoc } = await import("https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js");
-
       // Estado Tienda
       const confSnap = await getDoc(doc(db, "configuracion", "estado"));
       if (confSnap.exists()) {
@@ -293,6 +291,14 @@ async function initMenu() {
         }
         if (hoursEl && estado.horario) {
           hoursEl.textContent = `🕒 ${estado.horario}`;
+        }
+        if (estado.bannerImagen) {
+          const banner = document.querySelector('.restaurant-banner');
+          if (banner) {
+            banner.style.backgroundImage = `linear-gradient(135deg, rgba(26,14,5,0.78), rgba(42,22,10,0.72)), url("${estado.bannerImagen}")`;
+            banner.style.backgroundSize = 'cover';
+            banner.style.backgroundPosition = 'center';
+          }
         }
       }
     } catch (e) {
