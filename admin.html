@@ -338,6 +338,19 @@
                 </label>
                 <input type="text" id="op-direccion" placeholder="Ej: Carrera 00 #00-00, Valledupar"
                   style="padding:10px; border-radius:8px; border:1px solid var(--border-color); width:100%; background:var(--surface); color:var(--text-main);" />
+                <label style="display:block; font-size:14px; font-weight:600;">
+                  Fondo del banner:
+                </label>
+                <input type="hidden" id="op-banner-imagen" />
+                <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
+                  <input type="file" id="op-banner-file" accept="image/png, image/jpeg, image/webp"
+                    style="flex:1; min-width:220px; padding:10px; border-radius:8px; border:1px dashed var(--border-color); background:var(--surface); color:var(--text-main); cursor:pointer;" />
+                  <div id="op-banner-preview-container"
+                    style="display:none; width:96px; height:54px; border-radius:8px; overflow:hidden; border:1px solid var(--border-color); flex-shrink:0;">
+                    <img id="op-banner-preview" src="" style="width:100%; height:100%; object-fit:cover;" />
+                  </div>
+                </div>
+                <small style="color:var(--text-muted); margin-top:-6px;">La tienda la oscurece automáticamente para que el texto contraste.</small>
                 <button class="primary-btn" onclick="saveOperacion()">Guardar</button>
               </div>
             </div>

@@ -1,7 +1,8 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
 import { collection, getDocs, getDoc, doc, setDoc, deleteDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, getAuth as getSecondaryAuth } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js";
-import { db, auth, firebaseConfig } from "./firebase-config.js";
+import { ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-storage.js";
+import { db, auth, storage, firebaseConfig } from "./firebase-config.js";
 
 let localProductos = [];
 let localCategorias = [];
@@ -497,6 +498,86 @@ const submitBtn = document.getElementById('submit-btn');
 
 let editingId = null;
 let editingCatName = null;
+let pendingProductImageBlob = null;
+let pendingStarImageBlob = null;
+let pendingBannerImageBlob = null;
+
+function isDataImage(value = '') {
+  return typeof value === 'string' && value.startsWith('data:image/');
+}
+
+function safeStorageName(value = 'imagen') {
+  return value
+    .toString()
+    .trim()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 48) || 'imagen';
+}
+
+function loadImageFromSource(source) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = source;
+  });
+}
+
+async function compressImageSource(source, maxSize = 900, quality = 0.82) {
+  const img = await loadImageFromSource(source);
+  const canvas = document.createElement('canvas');
+  let width = img.width;
+  let height = img.height;
+
+  if (width > height && width > maxSize) {
+    height = Math.round(height * maxSize / width);
+    width = maxSize;
+  } else if (height > maxSize) {
+    width = Math.round(width * maxSize / height);
+    height = maxSize;
+  }
+
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#FFFFFF';
+  ctx.fillRect(0, 0, width, height);
+  ctx.drawImage(img, 0, 0, width, height);
+
+  return new Promise(resolve => {
+    canvas.toBlob(blob => resolve(blob), 'image/jpeg', quality);
+  });
+}
+
+function readFileAsDataURL(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = event => resolve(event.target.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+async function compressImageFile(file, maxSize = 900, quality = 0.82) {
+  const dataUrl = await readFileAsDataURL(file);
+  return compressImageSource(dataUrl, maxSize, quality);
+}
+
+async function uploadImageBlob(blob, path) {
+  if (!blob) return '';
+  const storageRef = ref(storage, path);
+  await uploadBytes(storageRef, blob, { contentType: 'image/jpeg' });
+  return getDownloadURL(storageRef);
+}
+
+async function migrateDataImageToStorage(dataUrl, path, maxSize = 900, quality = 0.82) {
+  const blob = await compressImageSource(dataUrl, maxSize, quality);
+  return uploadImageBlob(blob, path);
+}
 
 // FIREBASE FETCH Y MIGRACIÓN AUTÓMATICA
 async function initData() {
@@ -510,9 +591,15 @@ async function initData() {
     try {
       const estSnap = await getDoc(doc(db, "configuracion", "estrella"));
       if (estSnap.exists() && estSnap.data().imagen) {
-        document.getElementById('estrella-preview').src = estSnap.data().imagen;
+        let estrellaImagen = estSnap.data().imagen;
+        if (isDataImage(estrellaImagen)) {
+          showAdminMessage('Migrando imagen estrella a Storage...', 'info');
+          estrellaImagen = await migrateDataImageToStorage(estrellaImagen, 'configuracion/estrella.jpg', 1000, 0.86);
+          await setDoc(doc(db, "configuracion", "estrella"), { imagen: estrellaImagen }, { merge: true });
+        }
+        document.getElementById('estrella-preview').src = estrellaImagen;
         document.getElementById('estrella-preview-container').style.display = 'block';
-        document.getElementById('estrella-imagen').value = estSnap.data().imagen;
+        document.getElementById('estrella-imagen').value = estrellaImagen;
       }
     } catch (e) { console.error(e); }
 
@@ -550,12 +637,30 @@ async function initData() {
       if (Array.isArray(stored) && stored.length > 0) {
         showAdminMessage('Migrando productos locales...', 'info');
         for (let p of stored) {
+          if (isDataImage(p.imagen)) {
+            p.imagen = await migrateDataImageToStorage(p.imagen, `productos/${p.id}-${safeStorageName(p.nombre)}.jpg`, 800, 0.8);
+          }
           await setDoc(doc(db, "productos", p.id.toString()), p);
           localProductos.push(p);
         }
       }
     } else {
       localProductos = prodsSnap.docs.map(d => d.data());
+      const productosMigrados = [];
+      for (let p of localProductos) {
+        if (isDataImage(p.imagen)) {
+          showAdminMessage(`Migrando imagen de ${p.nombre} a Storage...`, 'info');
+          const migrated = {
+            ...p,
+            imagen: await migrateDataImageToStorage(p.imagen, `productos/${p.id}-${safeStorageName(p.nombre)}.jpg`, 800, 0.8)
+          };
+          await setDoc(doc(db, "productos", migrated.id.toString()), migrated, { merge: true });
+          productosMigrados.push(migrated);
+        } else {
+          productosMigrados.push(p);
+        }
+      }
+      localProductos = productosMigrados;
     }
 
     renderCats();
@@ -640,6 +745,7 @@ window.closeProdModal = function () {
 window.editProduct = function (id) {
   const prod = localProductos.find(p => p.id === id);
   if (!prod) return;
+  pendingProductImageBlob = null;
 
   document.getElementById('p-id').value = prod.id;
   document.getElementById('p-nombre').value = prod.nombre;
@@ -741,6 +847,7 @@ window.removeCat = async function (nombre) {
 
 function resetProdForm() {
   editingId = null;
+  pendingProductImageBlob = null;
   document.getElementById('p-id').value = '';
   document.getElementById('p-nombre').value = '';
   document.getElementById('p-categoria').value = '';
@@ -760,11 +867,11 @@ window.handleProdSubmit = async function (event) {
   const nombre = document.getElementById('p-nombre').value.trim();
   const categoria = document.getElementById('p-categoria').value;
   const precio = Number(document.getElementById('p-precio').value);
-  const imagen = document.getElementById('p-imagen').value.trim();
+  let imagen = document.getElementById('p-imagen').value.trim();
   const desc = document.getElementById('p-desc').value.trim();
   const disponible = document.getElementById('p-disponible').value === 'true';
 
-  if (!nombre || Number.isNaN(precio) || !imagen || !desc) {
+  if (!nombre || Number.isNaN(precio) || (!imagen && !pendingProductImageBlob) || !desc) {
     alert('Por favor completa todos los campos.');
     return;
   }
@@ -775,6 +882,13 @@ window.handleProdSubmit = async function (event) {
     if (editingId !== null) {
       const idx = localProductos.findIndex(p => p.id === editingId);
       if (idx >= 0) {
+        if (pendingProductImageBlob) {
+          showAdminMessage('Subiendo imagen a Storage...', 'info');
+          imagen = await uploadImageBlob(pendingProductImageBlob, `productos/${editingId}-${safeStorageName(nombre)}.jpg`);
+        } else if (isDataImage(imagen)) {
+          showAdminMessage('Migrando imagen a Storage...', 'info');
+          imagen = await migrateDataImageToStorage(imagen, `productos/${editingId}-${safeStorageName(nombre)}.jpg`, 800, 0.8);
+        }
         const pMod = { id: editingId, nombre, categoria, precio, imagen, desc, disponible };
         await setDoc(doc(db, "productos", editingId.toString()), pMod);
         localProductos[idx] = pMod;
@@ -786,6 +900,13 @@ window.handleProdSubmit = async function (event) {
     }
 
     const nextId = localProductos.reduce((max, p) => Math.max(max, p.id || 0), 0) + 1;
+    if (pendingProductImageBlob) {
+      showAdminMessage('Subiendo imagen a Storage...', 'info');
+      imagen = await uploadImageBlob(pendingProductImageBlob, `productos/${nextId}-${safeStorageName(nombre)}.jpg`);
+    } else if (isDataImage(imagen)) {
+      showAdminMessage('Migrando imagen a Storage...', 'info');
+      imagen = await migrateDataImageToStorage(imagen, `productos/${nextId}-${safeStorageName(nombre)}.jpg`, 800, 0.8);
+    }
     const pNew = { id: nextId, nombre, categoria, precio, imagen, desc, disponible };
     await setDoc(doc(db, "productos", nextId.toString()), pNew);
     localProductos.push(pNew);
