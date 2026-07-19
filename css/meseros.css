@@ -416,7 +416,7 @@ body {
 
 .prod-name {
   font-weight: 700;
-  font-size: 15px;
+  font-size: 14px;
   color: var(--text-main);
   line-height: 1.3;
 }
