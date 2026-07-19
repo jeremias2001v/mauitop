@@ -246,7 +246,7 @@ function renderPosCategories() {
   const container = document.getElementById('pos-cats');
   container.innerHTML = localCategorias.map((c, i) => `
     <div class="cat-chip ${i === 0 ? 'selected' : ''}" onclick="selectPosCat('${c.nombre}', this)">
-      ${c.emoji} ${c.label}
+      ${c.label}
     </div>
   `).join('');
 }
@@ -538,4 +538,3 @@ document.addEventListener('touchend', (e) => {
 document.addEventListener('gesturestart', (e) => {
   e.preventDefault();
 });
-

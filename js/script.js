@@ -33,10 +33,9 @@ function renderTabs() {
   const catNames = ['todos', ...categorias.map(c => c.nombre)];
   tabsContainer.innerHTML = catNames.map(cat => {
     const catData = categorias.find(c => c.nombre === cat);
-    const emoji = cat === 'todos' ? '' : (catData && catData.emoji ? catData.emoji + ' ' : '');
     const label = cat === 'todos' ? 'Todos' : (catData ? catData.label : cat.charAt(0).toUpperCase() + cat.slice(1));
     const activeClass = cat === currentFilter ? 'active' : '';
-    return `<button class="tab-btn ${activeClass}" onclick="filterMenu('${cat}', this)">${emoji}${label}</button>`;
+    return `<button class="tab-btn ${activeClass}" onclick="filterMenu('${cat}', this)">${label}</button>`;
   }).join('');
 }
 

@@ -40,7 +40,7 @@
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
-    font-family: 'Nunito', sans-serif;
+    font-family: 'Inter', sans-serif;
     background: var(--crema);
     color: var(--cafe);
     overflow-x: hidden;
@@ -116,7 +116,7 @@
   }
 
   .banner-kicker {
-    font-family: 'Bebas Neue', sans-serif;
+    font-family: 'Inter', sans-serif;
     color: var(--amarillo);
     font-size: 18px;
     line-height: 1;
@@ -125,7 +125,7 @@
   }
 
   .restaurant-brand h1 {
-    font-family: 'Bebas Neue', sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 58px;
     line-height: 0.82;
     color: white;
@@ -178,7 +178,7 @@
   }
 
   .logo-main {
-    font-family: 'Pacifico', cursive;
+    font-family: 'Inter', sans-serif;
     font-size: 52px;
     color: var(--cafe);
     line-height: 1;
@@ -187,7 +187,7 @@
   }
 
   .logo-sub {
-    font-family: 'Bebas Neue', sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 14px;
     color: var(--rojo);
     letter-spacing: 4px;
@@ -204,7 +204,7 @@
   }
 
   .nav-links a {
-    font-family: 'Bebas Neue', sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 18px;
     color: var(--crema);
     text-decoration: none;
@@ -246,7 +246,7 @@
     width: 20px; height: 20px;
     border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
-    font-family: 'Nunito', sans-serif;
+    font-family: 'Inter', sans-serif;
   }
 
   .hero-content {
@@ -259,7 +259,7 @@
   }
 
   .hero-text h1 {
-    font-family: 'Bebas Neue', sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 88px;
     line-height: 0.9;
     color: white;
@@ -288,7 +288,7 @@
     color: white;
     padding: 14px 28px;
     border-radius: 50px;
-    font-family: 'Bebas Neue', sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 22px;
     letter-spacing: 2px;
     text-decoration: none;
@@ -348,7 +348,7 @@
   }
 
   .section-title {
-    font-family: 'Bebas Neue', sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 56px;
     color: var(--cafe);
     letter-spacing: 1px;
@@ -422,7 +422,7 @@
   }
 
   .estrella-text h2 {
-    font-family: 'Pacifico', cursive;
+    font-family: 'Inter', sans-serif;
     font-size: 64px;
     color: var(--amarillo);
     line-height: 1;
@@ -441,7 +441,7 @@
     display: inline-block;
     background: var(--amarillo);
     color: var(--cafe);
-    font-family: 'Bebas Neue', sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 28px;
     padding: 8px 24px;
     border-radius: 30px;
@@ -530,7 +530,7 @@
   }
 
   .card-name {
-    font-family: 'Bebas Neue', sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 24px;
     color: var(--cafe);
     letter-spacing: 0.5px;
@@ -560,7 +560,7 @@
   }
 
   .card-price {
-    font-family: 'Bebas Neue', sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 22px;
     color: var(--verde);
     letter-spacing: 0.5px;
@@ -644,7 +644,7 @@
   }
 
   .cart-header h2 {
-    font-family: 'Bebas Neue', sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 28px;
     letter-spacing: 1px;
     color: var(--amarillo);
@@ -752,7 +752,7 @@
   }
 
   .ci-name {
-    font-family: 'Bebas Neue', sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 18px;
     color: var(--cafe);
     letter-spacing: 0.5px;
@@ -800,7 +800,7 @@
   .ci-btn:hover { background: var(--amarillo); }
 
   .ci-qty {
-    font-family: 'Bebas Neue', sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 20px;
     min-width: 22px;
     text-align: center;
@@ -858,14 +858,14 @@
   }
 
   .cart-total span:first-child {
-    font-family: 'Bebas Neue', sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 18px;
     letter-spacing: 1px;
     color: var(--cafe);
   }
 
   .cart-total .total-val {
-    font-family: 'Bebas Neue', sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 30px;
     color: var(--verde);
     letter-spacing: 1px;
@@ -878,7 +878,7 @@
     border: none;
     padding: 16px;
     border-radius: 8px;
-    font-family: 'Bebas Neue', sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 22px;
     letter-spacing: 2px;
     cursor: pointer;
@@ -940,7 +940,7 @@
   }
 
   .modal-head h2 {
-    font-family: 'Bebas Neue', sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 30px;
     letter-spacing: 1px;
     color: var(--amarillo);
@@ -977,7 +977,7 @@
   }
 
   .resumen-pedido h3 {
-    font-family: 'Bebas Neue', sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 20px;
     letter-spacing: 1px;
     color: var(--cafe);
@@ -1016,7 +1016,7 @@
     padding: 12px 16px;
     border: 2px solid #e0d4be;
     border-radius: 10px;
-    font-family: 'Nunito', sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 15px;
     color: var(--cafe);
     background: white;
@@ -1039,7 +1039,7 @@
     border: none;
     padding: 16px;
     border-radius: 14px;
-    font-family: 'Bebas Neue', sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 24px;
     letter-spacing: 2px;
     cursor: pointer;
@@ -1075,7 +1075,7 @@
   }
 
   .footer-logo {
-    font-family: 'Pacifico', cursive;
+    font-family: 'Inter', sans-serif;
     font-size: 42px;
     color: var(--amarillo);
   }
@@ -1085,11 +1085,11 @@
     color: rgba(255,255,255,0.6);
     margin-top: 8px;
     line-height: 1.6;
-    font-family: 'Nunito', sans-serif;
+    font-family: 'Inter', sans-serif;
   }
 
   .footer-col h4 {
-    font-family: 'Bebas Neue', sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 20px;
     letter-spacing: 2px;
     color: var(--amarillo);
@@ -1283,8 +1283,8 @@
 
   .menu-tabs {
     display: flex;
-    gap: 12px;
-    margin-bottom: 24px;
+    gap: 8px;
+    margin-bottom: 22px;
     overflow-x: auto; /* Permite scroll horizontal */
     padding-bottom: 12px; /* Espacio para respirar */
     padding-top: 2px;
@@ -1305,13 +1305,14 @@
   }
 
   .tab-btn {
-    padding: 10px 24px;
-    border-radius: 30px;
-    border: 2px solid #e0d4be;
+    padding: 8px 16px;
+    border-radius: 999px;
+    border: 1.5px solid #e0d4be;
     background: white;
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 18px;
-    letter-spacing: 1px;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0;
     color: var(--cafe);
     cursor: pointer;
     transition: all .2s;
@@ -1323,7 +1324,7 @@
   .tab-btn.active, .tab-btn:hover {
     background: var(--amarillo);
     border-color: var(--amarillo);
-    box-shadow: 2px 2px 0 var(--cafe);
+    box-shadow: 0 2px 0 var(--cafe);
   }
 
   @media (min-width: 768px) {
@@ -1552,7 +1553,7 @@
   }
 
   .product-detail-name {
-    font-family: 'Bebas Neue', sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 32px;
     color: var(--cafe);
     letter-spacing: 0.5px;
@@ -1578,7 +1579,7 @@
   }
 
   .product-detail-price {
-    font-family: 'Bebas Neue', sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 34px;
     color: var(--verde);
     letter-spacing: 0.5px;
@@ -1590,7 +1591,7 @@
     border: none;
     padding: 14px 26px;
     border-radius: 14px;
-    font-family: 'Bebas Neue', sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 19px;
     letter-spacing: 1px;
     cursor: pointer;

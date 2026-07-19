@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
 :root {
   --bg-color: #f3f4f6;
@@ -668,7 +668,7 @@ body.admin.dark-theme .estado-listo      { background: rgba(16,185,129,0.15);  c
   color: var(--text-main);
   font-weight: 800;
   margin: 0;
-  font-family: 'Bebas Neue', 'Inter', sans-serif;
+  font-family: 'Inter', sans-serif;
 }
 
 /* ── Mobile Bottom Navigation ── */

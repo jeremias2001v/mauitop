@@ -649,7 +649,7 @@ function renderCats() {
   catsTableBody.innerHTML = localCategorias.map(c => `
     <tr>
       <td style="font-weight:500; font-family:monospace; color:var(--text-muted);">${c.nombre}</td>
-      <td><span class="cat-badge" style="background:${c.color}; color:white; border:none; text-shadow:0 1px 2px rgba(0,0,0,0.2);">${c.emoji} ${c.label}</span></td>
+      <td><span class="cat-badge" style="background:${c.color}; color:white; border:none; text-shadow:0 1px 2px rgba(0,0,0,0.2);">${c.label}</span></td>
       <td>
         <button class="action-btn edit" onclick="editCat('${c.nombre}')">Editar</button>
         <button class="action-btn delete" onclick="removeCat('${c.nombre}')">Eliminar</button>
@@ -690,7 +690,7 @@ function renderProducts() {
         <td style="color:var(--text-muted);">#${p.id}</td>
         <td>${imgHtml}</td>
         <td style="font-weight:500; color:var(--text-main);">${p.nombre}</td>
-        <td><span class="cat-badge">${cat ? cat.emoji + ' ' + cat.label : p.categoria}</span></td>
+        <td><span class="cat-badge">${cat ? cat.label : p.categoria}</span></td>
         <td style="font-weight:500;">$${Number(p.precio).toLocaleString('es-CO')}</td>
         <td>${badgeHtml}</td>
         <td>
@@ -1286,4 +1286,3 @@ document.addEventListener('touchend', (e) => {
 document.addEventListener('gesturestart', (e) => {
   e.preventDefault();
 });
-
