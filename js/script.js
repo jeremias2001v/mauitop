@@ -15,6 +15,18 @@ function fmtPrice(p) {
   return '$' + p.toLocaleString('es-CO');
 }
 
+function applyStoreStatus() {
+  const closedBanner = document.getElementById('closed-banner');
+  const floatingButton = document.querySelector('.floating-cart-btn');
+
+  if (closedBanner) {
+    closedBanner.style.display = isStoreOpen ? 'none' : 'flex';
+  }
+  if (floatingButton) {
+    floatingButton.style.display = isStoreOpen ? '' : 'none';
+  }
+}
+
 // ====== RENDER TABS ======
 function renderTabs() {
   const tabsContainer = document.getElementById('menu-tabs');
@@ -365,9 +377,7 @@ async function initMenu() {
       const confSnap = await getDoc(doc(db, "configuracion", "estado"));
       if (confSnap.exists()) {
         const estado = confSnap.data();
-        if (estado.abierta === false) {
-          isStoreOpen = false;
-        }
+        isStoreOpen = estado.abierta !== false;
 
         const addressEl = document.getElementById('restaurant-address');
         const hoursEl = document.getElementById('restaurant-hours');
@@ -390,11 +400,7 @@ async function initMenu() {
       console.error("No se pudo obtener el estado de la tienda", e);
     }
 
-    if (!isStoreOpen) {
-      document.getElementById('closed-banner').style.display = 'block';
-      const floatingButton = document.querySelector('.floating-cart-btn');
-      if (floatingButton) floatingButton.style.display = 'none';
-    }
+    applyStoreStatus();
 
     // Si llegara a estar 100% vacío (porque aún no han abierto el admin-panel para migrar)
     if (productos.length === 0 && categorias.length === 0) {
@@ -430,4 +436,3 @@ document.addEventListener('touchend', (e) => {
 document.addEventListener('gesturestart', (e) => {
   e.preventDefault();
 });
-
