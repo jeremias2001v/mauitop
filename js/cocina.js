@@ -54,7 +54,7 @@ document.getElementById('login-form').addEventListener('submit', async e => {
     errEl.style.display = 'block';
   } finally {
     btn.disabled = false;
-    btn.textContent = 'Entrar a Cocina 🔥';
+    btn.textContent = 'Entrar a Cocina';
   }
 });
 
@@ -147,14 +147,14 @@ function stateClass(estado) {
 }
 
 function stateLabel(estado) {
-  return estado === 'Pendiente'     ? '⏳ Pendiente'
-       : estado === 'En Preparación' ? '🔥 En Preparación'
-       : '✅ Listo';
+  return estado === 'Pendiente'     ? 'Pendiente'
+       : estado === 'En Preparación' ? 'En Preparación'
+       : 'Listo';
 }
 
 function nextActionLabel(estado) {
-  return estado === 'Pendiente'     ? '🔥 Empezar'
-       : estado === 'En Preparación' ? '✅ Marcar Listo'
+  return estado === 'Pendiente'     ? 'Empezar'
+       : estado === 'En Preparación' ? 'Marcar Listo'
        : null;
 }
 
@@ -164,7 +164,7 @@ function renderOrders(orders) {
   if (orders.length === 0) {
     container.innerHTML = `
       <div class="empty-state">
-        <div class="empty-icon">✅</div>
+        <div class="empty-icon" style="display:flex; justify-content:center; align-items:center;"><svg width="84" height="84" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.35;"><polyline points="20 6 9 17 4 12"/></svg></div>
         <h2>¡Todo al día!</h2>
         <p>No hay pedidos pendientes en este momento</p>
       </div>`;
@@ -179,7 +179,7 @@ function renderOrders(orders) {
 
 function renderCard(order) {
   const cls       = stateClass(order.estado);
-  const tableName = order.mesa || 'Domicilio 🛵';
+  const tableName = order.mesa || 'Domicilio';
   const waiter    = order.mesero || order.cliente?.nombre || 'Sin asignar';
   const items     = order.ítems || order.items || [];
   const ts        = order.fecha?.toMillis ? order.fecha.toMillis() : Date.now();
@@ -203,7 +203,7 @@ function renderCard(order) {
       <div class="order-card-header">
         <div class="order-table">${tableName}</div>
         <div class="order-meta">
-          <div class="order-mesero">👨‍🍳 ${waiter}</div>
+          <div class="order-mesero" style="display:inline-flex; align-items:center; gap:4px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> ${waiter}</div>
           <div class="order-timer" data-ts="${ts}">${elapsed}</div>
         </div>
       </div>
@@ -232,3 +232,24 @@ window.avanzarEstado = async function (id, estadoActual) {
     }
   }
 };
+
+// --- PREVENT MOBILE ZOOM ---
+document.addEventListener('touchstart', (e) => {
+  if (e.touches.length > 1) {
+    e.preventDefault();
+  }
+}, { passive: false });
+
+let lastTouchEnd = 0;
+document.addEventListener('touchend', (e) => {
+  const now = Date.now();
+  if (now - lastTouchEnd <= 300) {
+    e.preventDefault();
+  }
+  lastTouchEnd = now;
+}, false);
+
+document.addEventListener('gesturestart', (e) => {
+  e.preventDefault();
+});
+

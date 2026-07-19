@@ -21,10 +21,10 @@ function renderTabs() {
   const catNames = ['todos', ...categorias.map(c => c.nombre)];
   tabsContainer.innerHTML = catNames.map(cat => {
     const catData = categorias.find(c => c.nombre === cat);
-    const emoji = cat === 'todos' ? '🍽️' : (catData ? catData.emoji : '🍽️');
+    const emoji = cat === 'todos' ? '' : (catData && catData.emoji ? catData.emoji + ' ' : '');
     const label = cat === 'todos' ? 'Todos' : (catData ? catData.label : cat.charAt(0).toUpperCase() + cat.slice(1));
     const activeClass = cat === currentFilter ? 'active' : '';
-    return `<button class="tab-btn ${activeClass}" onclick="filterMenu('${cat}', this)">${emoji} ${label}</button>`;
+    return `<button class="tab-btn ${activeClass}" onclick="filterMenu('${cat}', this)">${emoji}${label}</button>`;
   }).join('');
 }
 
@@ -39,7 +39,7 @@ function renderMenu(filter = 'todos') {
     return;
   }
 
-  grid.innerHTML = filtered.map(p => {
+  grid.innerHTML = filtered.map((p, idx) => {
     const isAvailable = p.disponible !== false && p.precio > 0;
     const isReady = isAvailable && isStoreOpen;
     const buttonLabel = isReady ? '+' : (isAvailable && !isStoreOpen ? 'Cerrado' : 'No disp.');
@@ -50,10 +50,13 @@ function renderMenu(filter = 'todos') {
     const hasImage = p.imagen && p.imagen.trim().length > 0;
     const contentHtml = hasImage ?
       `<img src="${p.imagen}" style="width:100%;height:100%;object-fit:cover;" alt="${p.nombre}" />` :
-      `<span class="card-emoji">${cat ? cat.emoji : '🍽️'}</span>`;
+      `<span class="card-emoji"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/></svg></span>`;
+
+    // Use the product name to find the product (works across filters)
+    const safeName = p.nombre.replace(/'/g, "\\'");
 
     return `
-      <div class="menu-card">
+      <div class="menu-card" onclick="openProductDetail('${safeName}')">
         <div class="card-img" style="background:${catColor(p.categoria)}">
           ${contentHtml}
           <span class="card-category">${cat ? cat.label : catLabel(p.categoria)}</span>
@@ -63,7 +66,7 @@ function renderMenu(filter = 'todos') {
           <div class="card-desc">${p.desc}</div>
           <div class="card-footer">
             <span class="card-price">${fmtPrice(p.precio)}</span>
-            <button class="add-btn" ${buttonDisabled} onclick="addToCart('${p.nombre}', ${p.precio}, '${p.imagen}', '${p.categoria}', ${p.disponible})" title="${buttonTitle}">${buttonLabel}</button>
+            <button class="add-btn" ${buttonDisabled} onclick="event.stopPropagation(); addToCart('${safeName}', ${p.precio}, '${(p.imagen || '').replace(/'/g, "\\'") }', '${p.categoria}', ${p.disponible})" title="${buttonTitle}">${buttonLabel}</button>
           </div>
         </div>
       </div>
@@ -88,14 +91,96 @@ window.filterMenu = function (cat, btn) {
   renderMenu(cat);
 };
 
+// ====== PRODUCT DETAIL ======
+window.openProductDetail = function (nombre) {
+  const p = productos.find(prod => prod.nombre === nombre);
+  if (!p) return;
+
+  const overlay = document.getElementById('product-detail-overlay');
+  const cat = categorias.find(c => c.nombre === p.categoria);
+  const hasImage = p.imagen && p.imagen.trim().length > 0;
+
+  // Image
+  const imgWrap = document.getElementById('product-detail-img-wrap');
+  const img = document.getElementById('product-detail-img');
+  if (hasImage) {
+    img.src = p.imagen;
+    img.alt = p.nombre;
+    img.style.display = 'block';
+    imgWrap.style.background = catColor(p.categoria);
+    // Remove any previous emoji
+    const prevEmoji = imgWrap.querySelector('.product-detail-emoji');
+    if (prevEmoji) prevEmoji.remove();
+  } else {
+    img.style.display = 'none';
+    imgWrap.style.background = catColor(p.categoria);
+    // Add emoji/icon fallback
+    let emojiEl = imgWrap.querySelector('.product-detail-emoji');
+    if (!emojiEl) {
+      emojiEl = document.createElement('span');
+      emojiEl.className = 'product-detail-emoji';
+      imgWrap.appendChild(emojiEl);
+    }
+    if (cat && cat.emoji) {
+      emojiEl.textContent = cat.emoji;
+      emojiEl.innerHTML = '';
+      emojiEl.textContent = cat.emoji;
+    } else {
+      emojiEl.innerHTML = `<svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/></svg>`;
+    }
+  }
+
+  // Badge
+  const badge = document.getElementById('product-detail-badge');
+  badge.textContent = cat ? cat.label : catLabel(p.categoria);
+
+  // Text
+  document.getElementById('product-detail-name').textContent = p.nombre;
+  document.getElementById('product-detail-desc').textContent = p.desc || 'Sin descripción disponible.';
+  document.getElementById('product-detail-price').textContent = fmtPrice(p.precio);
+
+  // Add to cart button
+  const addBtn = document.getElementById('product-detail-add');
+  const isAvailable = p.disponible !== false && p.precio > 0;
+  const isReady = isAvailable && isStoreOpen;
+  addBtn.disabled = !isReady;
+  addBtn.onclick = function () {
+    window.addToCart(p.nombre, p.precio, p.imagen || '', p.categoria, p.disponible);
+  };
+
+  // Open
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+};
+
+window.closeProductDetail = function () {
+  const overlay = document.getElementById('product-detail-overlay');
+  overlay.classList.remove('open');
+  document.body.style.overflow = '';
+};
+
+// Close on overlay click
+document.addEventListener('DOMContentLoaded', () => {
+  const overlay = document.getElementById('product-detail-overlay');
+  if (overlay) {
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) window.closeProductDetail();
+    });
+  }
+  const closeBtn = document.getElementById('product-detail-close');
+  if (closeBtn) {
+    closeBtn.addEventListener('click', () => window.closeProductDetail());
+  }
+});
+
 // ====== CART ======
 window.addToCart = function (nombre, precio, imagen, categoria, disponible) {
   if (!isStoreOpen) {
-    showToast(`🏪 La tienda está cerrada por hoy`);
+    showToast(`La tienda está cerrada por hoy`);
     return;
   }
   if (precio <= 0 || disponible === false) {
-    showToast(`🚫 ${nombre} no está disponible actualmente`);
+    showToast(`${nombre} no está disponible actualmente`);
     return;
   }
 
@@ -103,7 +188,7 @@ window.addToCart = function (nombre, precio, imagen, categoria, disponible) {
   if (idx >= 0) cart[idx].qty++;
   else cart.push({ nombre, precio, imagen, qty: 1 });
   renderCart();
-  showToast('🍌 ' + nombre + ' agregado!');
+  showToast(nombre + ' agregado!');
 };
 
 function renderCart() {
@@ -121,7 +206,7 @@ function renderCart() {
   document.getElementById('pedido-btn').disabled = cart.length === 0;
 
   if (cart.length === 0) {
-    container.innerHTML = `<div class="cart-empty"><span class="emoji">🍽️</span><p>Tu carrito está vacío</p><p style="font-size:13px;color:#9b8d78;margin-top:6px;">¡Agrega algo rico!</p></div>`;
+    container.innerHTML = `<div class="cart-empty"><span class="emoji"><svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6h15l-1.5 8.5a2 2 0 0 1-2 1.5H9a2 2 0 0 1-2-1.6L5.2 3H3"/><circle cx="9" cy="20" r="1.6"/><circle cx="18" cy="20" r="1.6"/></svg></span><p>Tu carrito está vacío</p><p style="font-size:13px;color:#9b8d78;margin-top:6px;">¡Agrega algo rico!</p></div>`;
     return;
   }
 
@@ -169,8 +254,8 @@ window.openModal = function () {
   const total = cart.reduce((s, i) => s + i.precio * i.qty, 0);
   const list = document.getElementById('modal-items-list');
   list.innerHTML = cart.map(i => `
-    <div class="resumen-item"><span>🍌 ${i.nombre} x${i.qty}</span><span>${fmtPrice(i.precio * i.qty)}</span></div>
-  `).join('') + `<div class="resumen-item"><span>💵 TOTAL</span><span>${fmtPrice(total)}</span></div>`;
+    <div class="resumen-item"><span>${i.nombre} x${i.qty}</span><span>${fmtPrice(i.precio * i.qty)}</span></div>
+  `).join('') + `<div class="resumen-item"><span>TOTAL</span><span>${fmtPrice(total)}</span></div>`;
   document.getElementById('modal-overlay').classList.add('open');
 };
 
@@ -187,25 +272,25 @@ window.enviarPedido = async function () {
   const notas = document.getElementById('f-notas').value.trim();
 
   if (!nombre || !tel || !dir) {
-    alert('⚠️ Por favor completa los campos obligatorios (nombre, teléfono y dirección).');
+    alert('Por favor completa los campos obligatorios (nombre, teléfono y dirección).');
     return;
   }
 
   const total = cart.reduce((s, i) => s + i.precio * i.qty, 0);
 
-  let msg = `🍌 *NUEVO PEDIDO - MAUITOP* 🍌\n\n`;
-  msg += `👤 *Cliente:* ${nombre}\n`;
-  msg += `📱 *Teléfono:* ${tel}\n`;
-  msg += `📍 *Dirección:* ${dir}\n`;
-  if (barrio) msg += `🏘️ *Barrio:* ${barrio}\n`;
-  msg += `💳 *Pago:* ${pago}\n\n`;
-  msg += `🛒 *Pedido:*\n`;
+  let msg = `*NUEVO PEDIDO - MAUITOP*\n\n`;
+  msg += `*Cliente:* ${nombre}\n`;
+  msg += `*Teléfono:* ${tel}\n`;
+  msg += `*Dirección:* ${dir}\n`;
+  if (barrio) msg += `*Barrio:* ${barrio}\n`;
+  msg += `*Pago:* ${pago}\n\n`;
+  msg += `*Pedido:*\n`;
   cart.forEach(i => {
-    msg += `  🍌 ${i.nombre} x${i.qty} — ${fmtPrice(i.precio * i.qty)}\n`;
+    msg += `  ${i.nombre} x${i.qty} — ${fmtPrice(i.precio * i.qty)}\n`;
   });
-  msg += `\n💵 *TOTAL: ${fmtPrice(total)}*\n`;
-  if (notas) msg += `📝 *Notas:* ${notas}\n`;
-  msg += `\n¡Gracias por pedir en Mauitop! 🇨🇴`;
+  msg += `\n*TOTAL: ${fmtPrice(total)}*\n`;
+  if (notas) msg += `*Notas:* ${notas}\n`;
+  msg += `\n¡Gracias por pedir en Mauitop!`;
 
   const waUrl = `https://wa.me/573182896219?text=${encodeURIComponent(msg)}`;
 
@@ -241,7 +326,7 @@ window.enviarPedido = async function () {
 function showToast(msg) {
   const t = document.getElementById('toast');
   const msgEl = document.getElementById('toast-msg');
-  if (msgEl) msgEl.textContent = msg.replace('🍌 ', '');
+  if (msgEl) msgEl.textContent = msg;
   else t.textContent = msg;
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 2500);
@@ -287,10 +372,10 @@ async function initMenu() {
         const addressEl = document.getElementById('restaurant-address');
         const hoursEl = document.getElementById('restaurant-hours');
         if (addressEl && estado.direccion) {
-          addressEl.textContent = `📍 ${estado.direccion}`;
+          addressEl.textContent = `${estado.direccion}`;
         }
         if (hoursEl && estado.horario) {
-          hoursEl.textContent = `🕒 ${estado.horario}`;
+          hoursEl.textContent = `${estado.horario}`;
         }
         if (estado.bannerImagen) {
           const banner = document.querySelector('.restaurant-banner');
@@ -325,3 +410,24 @@ async function initMenu() {
 }
 
 initMenu();
+
+// --- PREVENT MOBILE ZOOM ---
+document.addEventListener('touchstart', (e) => {
+  if (e.touches.length > 1) {
+    e.preventDefault();
+  }
+}, { passive: false });
+
+let lastTouchEnd = 0;
+document.addEventListener('touchend', (e) => {
+  const now = Date.now();
+  if (now - lastTouchEnd <= 300) {
+    e.preventDefault();
+  }
+  lastTouchEnd = now;
+}, false);
+
+document.addEventListener('gesturestart', (e) => {
+  e.preventDefault();
+});
+

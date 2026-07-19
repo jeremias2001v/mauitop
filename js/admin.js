@@ -12,13 +12,16 @@ let localMeseros = [];
 const savedTheme = localStorage.getItem('theme-admin');
 if (savedTheme === 'dark') document.body.classList.add('dark-theme');
 
+const darkIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:5px;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`;
+const lightIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:5px;"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>`;
+
 document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.theme-toggle').forEach(btn => {
-    btn.innerHTML = document.body.classList.contains('dark-theme') ? '🌙 Modo Oscuro' : '☀️ Modo Claro';
+    btn.innerHTML = document.body.classList.contains('dark-theme') ? darkIcon + ' Modo Oscuro' : lightIcon + ' Modo Claro';
     btn.addEventListener('click', () => {
       const isDark = document.body.classList.toggle('dark-theme');
       localStorage.setItem('theme-admin', isDark ? 'dark' : 'light');
-      document.querySelectorAll('.theme-toggle').forEach(b => b.innerHTML = isDark ? '🌙 Modo Oscuro' : '☀️ Modo Claro');
+      document.querySelectorAll('.theme-toggle').forEach(b => b.innerHTML = isDark ? darkIcon + ' Modo Oscuro' : lightIcon + ' Modo Claro');
     });
   });
 });
@@ -227,7 +230,7 @@ window.loadPedidos = function () {
       console.error(error);
       showAdminMessage('Error cargando pedidos en vivo', 'error');
     });
-    showAdminMessage('Pedidos Live activados 🟢', 'success');
+    showAdminMessage('Pedidos Live activados', 'success');
   } catch (e) {
     console.error(e);
   }
@@ -319,10 +322,11 @@ function renderProcesoTable(pedidos) {
     const cls = estado === 'Pendiente' ? 'estado-pendiente'
               : estado === 'En Preparación' ? 'estado-preparando'
               : 'estado-listo';
-    const icon = estado === 'Pendiente' ? '⏳'
-               : estado === 'En Preparación' ? '🔥'
-               : '✅';
-    return `<span class="estado-badge ${cls}">${icon} ${estado}</span>`;
+    const dotColor = estado === 'Pendiente' ? '#d97706'
+                   : estado === 'En Preparación' ? '#ea580c'
+                   : '#16a34a';
+    const dot = `<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${dotColor};margin-right:6px;vertical-align:middle;"></span>`;
+    return `<span class="estado-badge ${cls}">${dot}${estado}</span>`;
   };
 
   tbody.innerHTML = pedidos.map(p => {
@@ -334,7 +338,7 @@ function renderProcesoTable(pedidos) {
     const origen = esMesa
       ? `<div style="display:flex;align-items:center;gap:10px;">
            ${mesaBadge(p.mesa)}
-           <span style="font-size:12px;color:var(--text-muted);">👨\u200d🍳 ${p.mesero || 'N/A'}</span>
+           <span style="font-size:12px;color:var(--text-muted);display:inline-flex;align-items:center;gap:4px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> ${p.mesero || 'N/A'}</span>
          </div>`
       : `<span style="font-weight:700;color:var(--text-main);">${p.cliente?.nombre || 'Domicilio'}</span>
          <div style="font-size:12px;color:var(--text-muted);">🛵 Delivery</div>`;
@@ -373,7 +377,7 @@ function renderMesasTable(pedidos) {
     return `<tr>
       <td style="color:var(--text-muted);font-size:13px;">${fmtDate(p, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</td>
       <td>${mesaBadge(p.mesa)}</td>
-      <td style="font-weight:600;color:var(--text-main);">👨\u200d🍳 ${p.mesero || 'N/A'}</td>
+      <td style="font-weight:600;color:var(--text-main);display:inline-flex;align-items:center;gap:4px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> ${p.mesero || 'N/A'}</td>
       <td style="font-size:13px;line-height:1.7;">${itemsStr(p)}</td>
       <td style="font-weight:700;color:var(--success);">$${Number(p.total).toLocaleString('es-CO')}</td>
       <td>${pagoHtml}</td>
@@ -398,7 +402,7 @@ function renderDomiciliosTable(pedidos) {
       <td style="color:var(--text-muted);font-size:13px;">${fmtDate(p, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</td>
       <td>
         <strong style="color:var(--text-main);">${p.cliente?.nombre || 'Sin nombre'}</strong><br>
-        <small style="color:var(--text-muted);">📱 ${p.cliente?.telefono || 'N/A'}</small>
+        <small style="color:var(--text-muted);display:inline-flex;align-items:center;gap:4px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg> ${p.cliente?.telefono || 'N/A'}</small>
       </td>
       <td style="font-size:13px;color:var(--text-muted);">
         ${p.cliente?.direccion || 'Sin dirección'}
@@ -1117,7 +1121,7 @@ window.guardarEstrella = async function () {
       document.getElementById('estrella-imagen').value = imgStr;
     }
     await setDoc(doc(db, "configuracion", "estrella"), { imagen: imgStr });
-    showAdminMessage('Imagen actualizada exitosamente 🌟', 'success');
+    showAdminMessage('Imagen actualizada exitosamente', 'success');
   } catch (e) {
     showAdminMessage(`Error al guardar: ${e.message || 'revisa la consola'}`, 'error');
     console.error(e);
@@ -1172,7 +1176,7 @@ window.handleCreateWaiter = async function (e) {
     alert('Error al crear mesero. Quizás el correo ya exista o clave sea muy corta.');
   } finally {
     btn.disabled = false;
-    btn.textContent = "Crear Usuario 🔑";
+    btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Crear Usuario`;
   }
 };
 
@@ -1189,7 +1193,7 @@ function renderMeseros() {
   if (!tbody) return;
   tbody.innerHTML = localMeseros.map(m => `
     <tr>
-      <td style="font-weight:600;">👨‍🍳 ${m.nombre}</td>
+      <td style="font-weight:600;display:inline-flex;align-items:center;gap:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> ${m.nombre}</td>
       <td style="color:var(--text-muted);">${m.correo}</td>
       <td><button class="action-btn delete" onclick="deleteMesero('${m.id}')">Revocar</button></td>
     </tr>
@@ -1262,3 +1266,24 @@ window.toggleStoreStatus = async function () {
 };
 
 initAuthObserver();
+
+// --- PREVENT MOBILE ZOOM ---
+document.addEventListener('touchstart', (e) => {
+  if (e.touches.length > 1) {
+    e.preventDefault();
+  }
+}, { passive: false });
+
+let lastTouchEnd = 0;
+document.addEventListener('touchend', (e) => {
+  const now = Date.now();
+  if (now - lastTouchEnd <= 300) {
+    e.preventDefault();
+  }
+  lastTouchEnd = now;
+}, false);
+
+document.addEventListener('gesturestart', (e) => {
+  e.preventDefault();
+});
+
