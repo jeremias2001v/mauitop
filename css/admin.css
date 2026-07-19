@@ -376,6 +376,79 @@ body.admin.dark-theme .estado-listo      { background: rgba(16,185,129,0.15);  c
   border-bottom: none;
 }
 
+.product-filters {
+  display: flex;
+  align-items: end;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 14px 20px;
+  border-top: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+  background: var(--bg-color);
+}
+
+.product-filters label {
+  display: grid;
+  gap: 6px;
+  min-width: 190px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.product-filters select {
+  min-height: 36px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 0 10px;
+  background: var(--surface);
+  color: var(--text-main);
+  font-family: inherit;
+  font-weight: 600;
+}
+
+.filter-toggle-btn {
+  min-height: 36px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 0 14px;
+  background: var(--surface);
+  color: var(--text-main);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.filter-toggle-btn:hover,
+.filter-toggle-btn.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: white;
+}
+
+.category-row td {
+  background: var(--bg-color);
+  color: var(--text-main);
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.category-row:hover {
+  background: var(--bg-color) !important;
+}
+
+.empty-row td {
+  color: var(--text-muted);
+  text-align: center;
+  padding: 24px 16px;
+}
+
 .img-cell {
   width: 40px;
   height: 40px;
@@ -1028,6 +1101,11 @@ body.admin.dark-theme .logout-btn:hover {
 body.admin.dark-theme .action-btn.edit:hover {
   background: rgba(129, 140, 248, 0.12);
   color: #818cf8;
+}
+
+body.admin.dark-theme .product-filters,
+body.admin.dark-theme .category-row td {
+  background: #0f172a;
 }
 
 /* ── Badges ── */

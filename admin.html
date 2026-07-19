@@ -222,9 +222,20 @@
           <div class="card-header">
             <h2>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px;"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-              Productos Disponibles
+              Productos
             </h2>
             <button onclick="openProdModal()" class="primary-btn">+ Nuevo Producto</button>
+          </div>
+          <div class="product-filters">
+            <label>
+              Categoría
+              <select id="product-category-filter" onchange="renderProducts()">
+                <option value="all">Todas las categorías</option>
+              </select>
+            </label>
+            <button type="button" class="filter-toggle-btn" id="product-availability-toggle" onclick="toggleUnavailableProducts()">
+              Ocultar agotados
+            </button>
           </div>
           <div class="table-responsive">
             <table class="admin-table" id="products-table">

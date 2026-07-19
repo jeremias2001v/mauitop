@@ -7,6 +7,7 @@ let localProductos = [];
 let localCategorias = [];
 let localPedidos = [];
 let localMeseros = [];
+let hideUnavailableProducts = false;
 
 // --- THEME LOGIC ---
 const savedTheme = localStorage.getItem('theme-admin');
@@ -675,14 +676,62 @@ window.editCat = function (nombre) {
 function renderCatSelect() {
   const select = document.getElementById('p-categoria');
   select.innerHTML = localCategorias.map(c => `<option value="${c.nombre}">${c.label}</option>`).join('');
+
+  const filterSelect = document.getElementById('product-category-filter');
+  if (filterSelect) {
+    const selected = filterSelect.value || 'all';
+    filterSelect.innerHTML = [
+      '<option value="all">Todas las categorías</option>',
+      ...localCategorias.map(c => `<option value="${c.nombre}">${c.label}</option>`)
+    ].join('');
+    filterSelect.value = localCategorias.some(c => c.nombre === selected) ? selected : 'all';
+  }
 }
 
-function renderProducts() {
-  tableBody.innerHTML = localProductos.map(p => {
+window.renderProducts = function renderProducts() {
+  const categoryFilter = document.getElementById('product-category-filter')?.value || 'all';
+  const availabilityToggle = document.getElementById('product-availability-toggle');
+  if (availabilityToggle) {
+    availabilityToggle.textContent = hideUnavailableProducts ? 'Mostrar agotados' : 'Ocultar agotados';
+    availabilityToggle.classList.toggle('active', hideUnavailableProducts);
+  }
+
+  const visibleProducts = localProductos.filter(p => {
+    const matchesCategory = categoryFilter === 'all' || p.categoria === categoryFilter;
+    const isAvailable = p.disponible !== false;
+    const matchesStatus = !hideUnavailableProducts || isAvailable;
+
+    return matchesCategory && matchesStatus;
+  });
+
+  if (visibleProducts.length === 0) {
+    tableBody.innerHTML = `
+      <tr class="empty-row">
+        <td colspan="7">No hay productos que coincidan con los filtros.</td>
+      </tr>
+    `;
+    return;
+  }
+
+  const categoriesToRender = localCategorias
+    .filter(c => visibleProducts.some(p => p.categoria === c.nombre))
+    .concat(
+      visibleProducts
+        .filter(p => !localCategorias.some(c => c.nombre === p.categoria))
+        .map(p => ({ nombre: p.categoria, label: p.categoria || 'Sin categoría' }))
+        .filter((cat, index, arr) => arr.findIndex(c => c.nombre === cat.nombre) === index)
+    );
+
+  tableBody.innerHTML = categoriesToRender.map(c => {
+    const productsHtml = visibleProducts
+      .filter(p => p.categoria === c.nombre)
+      .map(p => {
     const cat = localCategorias.find(c => c.nombre === p.categoria);
     const badgeHtml = p.disponible !== false
       ? '<span class="status-badge yes">Disponible</span>'
       : '<span class="status-badge no">Agotado</span>';
+    const toggleLabel = p.disponible !== false ? 'Desactivar' : 'Activar';
+    const toggleClass = p.disponible !== false ? 'delete' : 'edit';
     const imgHtml = p.imagen ? `<img src="${p.imagen}" class="img-cell" alt="${p.nombre}" />` : `<div style="width:40px;height:40px;border-radius:6px;background:#eee;display:flex;align-items:center;justify-content:center;font-size:11px;color:#aaa;">N/A</div>`;
 
     return `
@@ -695,12 +744,26 @@ function renderProducts() {
         <td>${badgeHtml}</td>
         <td>
           <button class="action-btn edit" onclick="editProduct(${p.id})">Editar</button>
+          <button class="action-btn ${toggleClass}" onclick="toggleProductAvailability(${p.id})">${toggleLabel}</button>
           <button class="action-btn delete" onclick="removeProduct(${p.id})">Eliminar</button>
         </td>
       </tr>
     `;
+      }).join('');
+
+    return `
+      <tr class="category-row">
+        <td colspan="7">${c.label}</td>
+      </tr>
+      ${productsHtml}
+    `;
   }).join('');
-}
+};
+
+window.toggleUnavailableProducts = function () {
+  hideUnavailableProducts = !hideUnavailableProducts;
+  renderProducts();
+};
 
 window.openProdModal = function () {
   editingId = null;
@@ -733,6 +796,28 @@ window.editProduct = function (id) {
   document.querySelector('#prod-modal h3').textContent = 'Editar Producto';
   submitBtn.textContent = 'Actualizar producto';
   editingId = id;
+};
+
+window.toggleProductAvailability = async function (id) {
+  const prod = localProductos.find(p => p.id === id);
+  if (!prod) {
+    showAdminMessage('No se encontró el producto.', 'error');
+    return;
+  }
+
+  const disponible = prod.disponible === false;
+  try {
+    await setDoc(doc(db, "productos", id.toString()), { disponible }, { merge: true });
+    prod.disponible = disponible;
+    renderProducts();
+    showAdminMessage(
+      disponible ? `${prod.nombre} activado.` : `${prod.nombre} desactivado.`,
+      'success'
+    );
+  } catch (err) {
+    console.error(err);
+    showAdminMessage('Error cambiando el estado del producto', 'error');
+  }
 };
 
 // Modales Confirm
