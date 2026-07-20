@@ -74,7 +74,6 @@ function renderMenu(filter = 'todos') {
         </div>
         <div class="card-body">
           <div class="card-name">${p.nombre}</div>
-          <div class="card-desc">${p.desc}</div>
           <div class="card-footer">
             <span class="card-price">${fmtPrice(p.precio)}</span>
             <button class="add-btn" ${buttonDisabled} onclick="event.stopPropagation(); addToCart('${safeName}', ${p.precio}, '${(p.imagen || '').replace(/'/g, "\\'") }', '${p.categoria}', ${p.disponible})" title="${buttonTitle}">${buttonLabel}</button>
@@ -350,9 +349,7 @@ async function initMenu() {
       <div class="skeleton-img shimmer"></div>
       <div class="card-body">
         <div class="skeleton-title shimmer"></div>
-        <div class="skeleton-text shimmer"></div>
-        <div class="skeleton-text shimmer" style="width:70%;"></div>
-        <div class="card-footer" style="margin-top: 15px;">
+        <div class="card-footer">
           <div class="skeleton-price shimmer"></div>
           <div class="skeleton-btn shimmer"></div>
         </div>
