@@ -160,13 +160,11 @@ window.openProductDetail = function (nombre) {
 
   // Open
   overlay.classList.add('open');
-  document.body.style.overflow = 'hidden';
 };
 
 window.closeProductDetail = function () {
   const overlay = document.getElementById('product-detail-overlay');
   overlay.classList.remove('open');
-  document.body.style.overflow = '';
 };
 
 // Close on overlay click

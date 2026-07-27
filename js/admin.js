@@ -280,6 +280,20 @@ window.renderPedidos = function renderPedidos() {
 };
 
 // ── Helpers compartidos ──────────────────────────────────────────────────────
+window.toggleRowExpand = function(btn) {
+  const tr = btn.closest('tr');
+  if (tr) tr.classList.toggle('expanded');
+};
+
+const expandBtn = `
+  <button class="toggle-eye-btn" onclick="toggleRowExpand(this)" title="Ver detalles">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+      <circle cx="12" cy="12" r="3"></circle>
+    </svg>
+  </button>
+`;
+
 function fmtDate(p, opts) {
   if (!p.fecha || !p.fecha.toDate) return 'Fecha desconocida';
   return p.fecha.toDate().toLocaleString('es-CO', opts);
@@ -349,12 +363,12 @@ function renderProcesoTable(pedidos) {
       : '';
 
     return `<tr>
-      <td style="color:var(--text-muted);font-size:13px;white-space:nowrap;">${hora}</td>
-      <td>${origen}</td>
-      <td style="font-size:13px;line-height:1.7;">${itemsStr(p)}</td>
-      <td style="font-weight:700;color:var(--success);">$${Number(p.total).toLocaleString('es-CO')}</td>
-      <td>${estadoBadge(p.estado)}</td>
-      <td>${accion}${deleteBtn(p.id)}</td>
+      <td data-label="Hora" style="color:var(--text-muted);font-size:13px;white-space:nowrap;">${hora}</td>
+      <td data-label="Origen">${origen}</td>
+      <td data-label="Ítems" style="font-size:13px;line-height:1.7;">${itemsStr(p)}</td>
+      <td data-label="Total" style="font-weight:700;color:var(--success);">$${Number(p.total).toLocaleString('es-CO')}</td>
+      <td data-label="Estado">${estadoBadge(p.estado)}</td>
+      <td data-label="Acciones" style="display:flex;">${expandBtn} <div style="display:flex; gap:8px;">${accion}${deleteBtn(p.id)}</div></td>
     </tr>`;
   }).join('');
 }
@@ -376,13 +390,13 @@ function renderMesasTable(pedidos) {
       : `<span style="color:#f59e0b;font-size:12px;font-weight:600;">Sin registrar</span>`;
 
     return `<tr>
-      <td style="color:var(--text-muted);font-size:13px;">${fmtDate(p, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</td>
-      <td>${mesaBadge(p.mesa)}</td>
-      <td style="font-weight:600;color:var(--text-main);display:inline-flex;align-items:center;gap:4px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> ${p.mesero || 'N/A'}</td>
-      <td style="font-size:13px;line-height:1.7;">${itemsStr(p)}</td>
-      <td style="font-weight:700;color:var(--success);">$${Number(p.total).toLocaleString('es-CO')}</td>
-      <td>${pagoHtml}</td>
-      <td>${deleteBtn(p.id)}</td>
+      <td data-label="Fecha" style="color:var(--text-muted);font-size:13px;">${fmtDate(p, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</td>
+      <td data-label="Mesa">${mesaBadge(p.mesa)}</td>
+      <td data-label="Mesero" style="font-weight:600;color:var(--text-main);display:inline-flex;align-items:center;gap:4px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> ${p.mesero || 'N/A'}</td>
+      <td data-label="Ítems" style="font-size:13px;line-height:1.7;">${itemsStr(p)}</td>
+      <td data-label="Total" style="font-weight:700;color:var(--success);">$${Number(p.total).toLocaleString('es-CO')}</td>
+      <td data-label="Pago">${pagoHtml}</td>
+      <td data-label="Acciones" style="display:flex;">${expandBtn} <div style="display:flex; gap:8px;">${deleteBtn(p.id)}</div></td>
     </tr>`;
   }).join('');
 }
@@ -400,19 +414,19 @@ function renderDomiciliosTable(pedidos) {
   tbody.innerHTML = pedidos.map(p => {
     const pago = p.cliente?.metodoPago || 'Efectivo';
     return `<tr>
-      <td style="color:var(--text-muted);font-size:13px;">${fmtDate(p, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</td>
-      <td>
+      <td data-label="Fecha" style="color:var(--text-muted);font-size:13px;">${fmtDate(p, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</td>
+      <td data-label="Cliente">
         <strong style="color:var(--text-main);">${p.cliente?.nombre || 'Sin nombre'}</strong><br>
         <small style="color:var(--text-muted);display:inline-flex;align-items:center;gap:4px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg> ${p.cliente?.telefono || 'N/A'}</small>
       </td>
-      <td style="font-size:13px;color:var(--text-muted);">
+      <td data-label="Dirección" style="font-size:13px;color:var(--text-muted);">
         ${p.cliente?.direccion || 'Sin dirección'}
         ${p.cliente?.barrio ? `<br><small>${p.cliente.barrio}</small>` : ''}
       </td>
-      <td style="font-size:13px;line-height:1.7;">${itemsStr(p)}</td>
-      <td style="font-weight:700;color:var(--success);">$${Number(p.total).toLocaleString('es-CO')}</td>
-      <td style="font-weight:600;">${pago}</td>
-      <td>${deleteBtn(p.id)}</td>
+      <td data-label="Ítems" style="font-size:13px;line-height:1.7;">${itemsStr(p)}</td>
+      <td data-label="Total" style="font-weight:700;color:var(--success);">$${Number(p.total).toLocaleString('es-CO')}</td>
+      <td data-label="Pago" style="font-weight:600;">${pago}</td>
+      <td data-label="Acciones" style="display:flex;">${expandBtn} <div style="display:flex; gap:8px;">${deleteBtn(p.id)}</div></td>
     </tr>`;
   }).join('');
 }
@@ -561,22 +575,6 @@ async function initData() {
     // Fetch Estado Tienda
     checkStoreStatus();
 
-    // Fetch Estrella Img
-    try {
-      const estSnap = await getDoc(doc(db, "configuracion", "estrella"));
-      if (estSnap.exists() && estSnap.data().imagen) {
-        let estrellaImagen = estSnap.data().imagen;
-        if (isDataImage(estrellaImagen)) {
-          showAdminMessage('Optimizando imagen estrella...', 'info');
-          estrellaImagen = await optimizeDataImage(estrellaImagen, 1000, 0.86);
-          await setDoc(doc(db, "configuracion", "estrella"), { imagen: estrellaImagen }, { merge: true });
-        }
-        document.getElementById('estrella-preview').src = estrellaImagen;
-        document.getElementById('estrella-preview-container').style.display = 'block';
-        document.getElementById('estrella-imagen').value = estrellaImagen;
-      }
-    } catch (e) { console.error(e); }
-
     // Fetch Operacion
     try {
       const opSnap = await getDoc(doc(db, "configuracion", "operacion"));
@@ -649,11 +647,14 @@ async function initData() {
 function renderCats() {
   catsTableBody.innerHTML = localCategorias.map(c => `
     <tr>
-      <td style="font-weight:500; font-family:monospace; color:var(--text-muted);">${c.nombre}</td>
-      <td><span class="cat-badge" style="background:${c.color}; color:white; border:none; text-shadow:0 1px 2px rgba(0,0,0,0.2);">${c.label}</span></td>
-      <td>
-        <button class="action-btn edit" onclick="editCat('${c.nombre}')">Editar</button>
-        <button class="action-btn delete" onclick="removeCat('${c.nombre}')">Eliminar</button>
+      <td data-label="ID" style="font-weight:500; font-family:monospace; color:var(--text-muted);">${c.nombre}</td>
+      <td data-label="Etiqueta"><span class="cat-badge" style="background:${c.color}; color:white; border:none; text-shadow:0 1px 2px rgba(0,0,0,0.2);">${c.label}</span></td>
+      <td data-label="Acciones" style="display:flex;">
+        ${expandBtn}
+        <div style="display:flex; gap:8px;">
+          <button class="action-btn edit" onclick="editCat('${c.nombre}')">Editar</button>
+          <button class="action-btn delete" onclick="removeCat('${c.nombre}')">Eliminar</button>
+        </div>
       </td>
     </tr>
   `).join('');
@@ -736,16 +737,19 @@ window.renderProducts = function renderProducts() {
 
     return `
       <tr>
-        <td style="color:var(--text-muted);">#${p.id}</td>
-        <td>${imgHtml}</td>
-        <td style="font-weight:500; color:var(--text-main);">${p.nombre}</td>
-        <td><span class="cat-badge">${cat ? cat.label : p.categoria}</span></td>
-        <td style="font-weight:500;">$${Number(p.precio).toLocaleString('es-CO')}</td>
-        <td>${badgeHtml}</td>
-        <td>
-          <button class="action-btn edit" onclick="editProduct(${p.id})">Editar</button>
-          <button class="action-btn ${toggleClass}" onclick="toggleProductAvailability(${p.id})">${toggleLabel}</button>
-          <button class="action-btn delete" onclick="removeProduct(${p.id})">Eliminar</button>
+        <td data-label="ID" style="color:var(--text-muted);">#${p.id}</td>
+        <td data-label="Imagen">${imgHtml}</td>
+        <td data-label="Nombre" style="font-weight:500; color:var(--text-main);">${p.nombre}</td>
+        <td data-label="Categoría"><span class="cat-badge">${cat ? cat.label : p.categoria}</span></td>
+        <td data-label="Precio" style="font-weight:500;">$${Number(p.precio).toLocaleString('es-CO')}</td>
+        <td data-label="Estado">${badgeHtml}</td>
+        <td data-label="Acciones" style="display:flex;">
+          ${expandBtn}
+          <div style="display:flex; gap:8px;">
+            <button class="action-btn edit" onclick="editProduct(${p.id})">Editar</button>
+            <button class="action-btn ${toggleClass}" onclick="toggleProductAvailability(${p.id})">${toggleLabel}</button>
+            <button class="action-btn delete" onclick="removeProduct(${p.id})">Eliminar</button>
+          </div>
         </td>
       </tr>
     `;
@@ -850,17 +854,43 @@ window.executeConfirm = function () {
   closeConfirmDialog();
 };
 
-function showAdminMessage(msg, type = 'info') {
+window.toggleCardCollapse = function (btnOrHeader) {
+  const card = btnOrHeader.closest('.admin-card');
+  if (!card) return;
+  card.classList.toggle('collapsed');
+};
+
+window.showAdminMessage = function showAdminMessage(msg, type = 'info') {
   const area = document.getElementById('admin-msg');
   if (!area) return;
-  area.textContent = msg;
-  area.className = '';
-  area.classList.add(type);
-  area.style.display = 'block';
-  setTimeout(() => {
-    area.style.display = 'none';
-  }, 4200);
-}
+
+  const icons = {
+    success: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`,
+    error: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>`,
+    info: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>`
+  };
+
+  area.innerHTML = `
+    <div class="popup-toast-content">
+      <span class="popup-toast-icon">${icons[type] || icons.info}</span>
+      <span class="popup-toast-text">${msg}</span>
+      <button class="popup-toast-close" onclick="closeAdminMessage()">&times;</button>
+    </div>
+  `;
+  area.className = `popup-toast ${type} active`;
+
+  if (window.adminMsgTimeout) clearTimeout(window.adminMsgTimeout);
+  window.adminMsgTimeout = setTimeout(() => {
+    closeAdminMessage();
+  }, 3500);
+};
+
+window.closeAdminMessage = function closeAdminMessage() {
+  const area = document.getElementById('admin-msg');
+  if (area) {
+    area.classList.remove('active');
+  }
+};
 
 window.removeProduct = async function (id) {
   const prod = localProductos.find(p => p.id === id);
@@ -1116,40 +1146,6 @@ if (fileInput) {
   });
 }
 
-// Compresor automático Plato Estrella
-const starFileInput = document.getElementById('estrella-file');
-if (starFileInput) {
-  starFileInput.addEventListener('change', function (e) {
-    const file = e.target.files[0];
-    if (!file) return;
-    if (!file.type.match('image.*')) {
-      showAdminMessage('Elige una imagen válida (JPG, PNG, WebP).', 'error');
-      return;
-    }
-    const reader = new FileReader();
-    reader.onload = function (event) {
-      const img = new Image();
-      img.onload = function () {
-        const canvas = document.createElement('canvas');
-        const MAXSize = 800;
-        let w = img.width, h = img.height;
-        if (w > h && w > MAXSize) { h = Math.round(h * MAXSize / w); w = MAXSize; }
-        else if (h > MAXSize) { w = Math.round(w * MAXSize / h); h = MAXSize; }
-        canvas.width = w; canvas.height = h;
-        const ctx = canvas.getContext('2d');
-        ctx.fillStyle = '#FFFFFF'; ctx.fillRect(0, 0, w, h);
-        ctx.drawImage(img, 0, 0, w, h);
-        const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
-        document.getElementById('estrella-imagen').value = dataUrl;
-        document.getElementById('estrella-preview').src = dataUrl;
-        document.getElementById('estrella-preview-container').style.display = 'block';
-      };
-      img.src = event.target.result;
-    };
-    reader.readAsDataURL(file);
-  });
-}
-
 const bannerFileInput = document.getElementById('op-banner-file');
 if (bannerFileInput) {
   bannerFileInput.addEventListener('change', function (e) {
@@ -1192,26 +1188,6 @@ if (bannerFileInput) {
     reader.readAsDataURL(file);
   });
 }
-
-window.guardarEstrella = async function () {
-  let imgStr = document.getElementById('estrella-imagen').value;
-  if (!imgStr) {
-    alert('Sube una imagen primero');
-    return;
-  }
-  showAdminMessage('Guardando imagen...', 'info');
-  try {
-    if (isDataImage(imgStr)) {
-      imgStr = await optimizeDataImage(imgStr, 1000, 0.86);
-      document.getElementById('estrella-imagen').value = imgStr;
-    }
-    await setDoc(doc(db, "configuracion", "estrella"), { imagen: imgStr });
-    showAdminMessage('Imagen actualizada exitosamente', 'success');
-  } catch (e) {
-    showAdminMessage(`Error al guardar: ${e.message || 'revisa la consola'}`, 'error');
-    console.error(e);
-  }
-};
 
 // ESTADO DE LA TIENDA
 let isStoreOpen = false;
@@ -1278,9 +1254,9 @@ function renderMeseros() {
   if (!tbody) return;
   tbody.innerHTML = localMeseros.map(m => `
     <tr>
-      <td style="font-weight:600;display:inline-flex;align-items:center;gap:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> ${m.nombre}</td>
-      <td style="color:var(--text-muted);">${m.correo}</td>
-      <td><button class="action-btn delete" onclick="deleteMesero('${m.id}')">Revocar</button></td>
+      <td data-label="Nombre" style="font-weight:600;display:inline-flex;align-items:center;gap:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> ${m.nombre}</td>
+      <td data-label="Correo" style="color:var(--text-muted);">${m.correo}</td>
+      <td data-label="Acciones"><button class="action-btn delete" onclick="deleteMesero('${m.id}')">Revocar</button></td>
     </tr>
   `).join('');
 }

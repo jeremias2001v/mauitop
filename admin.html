@@ -140,30 +140,39 @@
 
       <!-- ===== TAB FINANZAS ===== -->
       <div id="tab-finanzas" style="display:none;">
-        <section class="admin-card">
-          <div class="card-header" style="margin-bottom: 20px;">
-            <h2>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px;"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-              Resumen Financiero
-            </h2>
-            <p style="color:#666; font-size:14px; margin-top:4px;">(Contabilizando solo pedidos Entregados)</p>
+        <section class="admin-card collapsed">
+          <div class="card-header">
+            <div>
+              <h2>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px;"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                Resumen Financiero
+              </h2>
+              <p style="color:#666; font-size:14px; margin-top:4px;">(Contabilizando solo pedidos Entregados)</p>
+            </div>
+            <div class="card-header-actions">
+              <button type="button" class="collapse-btn" onclick="toggleCardCollapse(this)" title="Desplegar/Plegar">
+                <svg class="chevron-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+            </div>
           </div>
-          <div class="stats-grid">
-            <div class="stat-card">
-              <div class="stat-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div>
-              <div class="stat-info"><h3>Ingresos Hoy</h3><p id="stat-hoy">$0</p></div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
-              <div class="stat-info"><h3>Mes Actual</h3><p id="stat-mes">$0</p></div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
-              <div class="stat-info"><h3>Total Histórico</h3><p id="stat-total">$0</p></div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
-              <div class="stat-info"><h3>Estrella de Ventas</h3><p id="stat-estrella">N/A</p></div>
+          <div class="card-body">
+            <div class="stats-grid">
+              <div class="stat-card">
+                <div class="stat-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div>
+                <div class="stat-info"><h3>Ingresos Hoy</h3><p id="stat-hoy">$0</p></div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+                <div class="stat-info"><h3>Mes Actual</h3><p id="stat-mes">$0</p></div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+                <div class="stat-info"><h3>Total Histórico</h3><p id="stat-total">$0</p></div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+                <div class="stat-info"><h3>Estrella de Ventas</h3><p id="stat-estrella">N/A</p></div>
+              </div>
             </div>
           </div>
         </section>
@@ -171,87 +180,78 @@
 
       <!-- ===== TAB INVENTARIO ===== -->
       <div id="tab-inventario">
-        <section class="admin-card">
-          <div class="card-header">
-            <h2>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px;"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-              Imagen Plato Estrella
-            </h2>
-          </div>
-          <div style="padding: 24px; display:flex; align-items:flex-end; gap:20px; flex-wrap:wrap;">
-            <div style="flex:1; min-width: 250px;">
-              <label style="display:block; font-size:13px; font-weight:800; color:var(--cafe); margin-bottom:8px;">Sube
-                una foto atractiva para la portada</label>
-              <input type="file" id="estrella-file" accept="image/png, image/jpeg, image/webp"
-                style="width:100%; padding: 10px; border: 1px dashed #ccc; background:#fafafa; border-radius:6px; cursor:pointer;" />
-              <input type="hidden" id="estrella-imagen" />
-            </div>
-            <div id="estrella-preview-container"
-              style="display:none; width:64px; height:64px; border-radius:50%; overflow:hidden; border:2px solid var(--amarillo); flex-shrink:0;">
-              <img id="estrella-preview" src="" style="width:100%; height:100%; object-fit:cover;" />
-            </div>
-            <button class="primary-btn" onclick="guardarEstrella()">Guardar Imagen</button>
-          </div>
-        </section>
-
         <!-- Categorías -->
-        <section class="admin-card">
+        <section class="admin-card collapsed">
           <div class="card-header">
             <h2>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px;"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
               Categorías
             </h2>
-            <button onclick="openCatModal()" class="primary-btn">+ Nueva Categoría</button>
+            <div class="card-header-actions">
+              <button onclick="openCatModal()" class="primary-btn">+ Nueva Categoría</button>
+              <button type="button" class="collapse-btn" onclick="toggleCardCollapse(this)" title="Desplegar/Plegar">
+                <svg class="chevron-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+            </div>
           </div>
-          <div class="table-responsive">
-            <table class="admin-table" id="cats-table">
-              <thead>
-                <tr>
-                  <th>Nombre (ID)</th>
-                  <th>Etiqueta Visual</th>
-                  <th>Acciones</th>
-                </tr>
-              </thead>
-              <tbody></tbody>
-            </table>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="admin-table" id="cats-table">
+                <thead>
+                  <tr>
+                    <th>Nombre (ID)</th>
+                    <th>Etiqueta Visual</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
           </div>
         </section>
 
         <!-- Productos -->
-        <section class="admin-card">
+        <section class="admin-card collapsed">
           <div class="card-header">
             <h2>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px;"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
               Productos
             </h2>
-            <button onclick="openProdModal()" class="primary-btn">+ Nuevo Producto</button>
+            <div class="card-header-actions">
+              <button onclick="openProdModal()" class="primary-btn">+ Nuevo Producto</button>
+              <button type="button" class="collapse-btn" onclick="toggleCardCollapse(this)" title="Desplegar/Plegar">
+                <svg class="chevron-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+            </div>
           </div>
-          <div class="product-filters">
-            <label>
-              Categoría
-              <select id="product-category-filter" onchange="renderProducts()">
-                <option value="all">Todas las categorías</option>
-              </select>
-            </label>
-            <button type="button" class="filter-toggle-btn" id="product-availability-toggle" onclick="toggleUnavailableProducts()">
-              Ocultar agotados
-            </button>
-          </div>
-          <div class="table-responsive">
-            <table class="admin-table" id="products-table">
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Imagen</th>
-                  <th>Nombre</th>
-                  <th>Categoría</th>
-                  <th>Precio</th>
-                  <th>Estado</th>
-                  <th>Acciones</th>
-                </tr>
-              </thead>
-              <tbody></tbody>
-            </table>
+          <div class="card-body">
+            <div class="product-filters">
+              <label>
+                Categoría
+                <select id="product-category-filter" onchange="renderProducts()">
+                  <option value="all">Todas las categorías</option>
+                </select>
+              </label>
+              <button type="button" class="filter-toggle-btn" id="product-availability-toggle" onclick="toggleUnavailableProducts()">
+                Ocultar agotados
+              </button>
+            </div>
+            <div class="table-responsive">
+              <table class="admin-table" id="products-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Imagen</th>
+                    <th>Nombre</th>
+                    <th>Categoría</th>
+                    <th>Precio</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
           </div>
         </section>
       </div>
@@ -260,32 +260,38 @@
       <div id="tab-pedidos" style="display:none;">
 
         <!-- 1. En Proceso -->
-        <section class="admin-card">
+        <section class="admin-card collapsed">
           <div class="card-header">
             <div>
-            <h2>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px;"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.51"/></svg>
-              Pedidos en Proceso
-            </h2>
-              <p style="color:var(--text-muted); font-size:13px; margin-top:4px;">Pendiente · En Preparación · Listo —
-                en vivo</p>
+              <h2>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px;"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.51"/></svg>
+                Pedidos en Proceso
+              </h2>
+              <p style="color:var(--text-muted); font-size:13px; margin-top:4px;">Pendiente · En Preparación · Listo — en vivo</p>
             </div>
-            <button onclick="loadPedidos()" class="secondary-btn" title="Refrescar">↻ Refrescar</button>
+            <div class="card-header-actions">
+              <button onclick="loadPedidos()" class="secondary-btn" title="Refrescar">↻ Refrescar</button>
+              <button type="button" class="collapse-btn" onclick="toggleCardCollapse(this)" title="Desplegar/Plegar">
+                <svg class="chevron-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+            </div>
           </div>
-          <div class="table-responsive">
-            <table class="admin-table" id="pedidos-proceso-table">
-              <thead>
-                <tr>
-                  <th>Hora</th>
-                  <th>Origen</th>
-                  <th>Ítems</th>
-                  <th>Total</th>
-                  <th>Estado</th>
-                  <th>Acciones</th>
-                </tr>
-              </thead>
-              <tbody></tbody>
-            </table>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="admin-table" id="pedidos-proceso-table">
+                <thead>
+                  <tr>
+                    <th>Hora</th>
+                    <th>Origen</th>
+                    <th>Ítems</th>
+                    <th>Total</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
           </div>
         </section>
 
@@ -302,54 +308,68 @@
         </div>
 
         <!-- 2. Mesas Cobradas -->
-        <section class="admin-card">
+        <section class="admin-card collapsed">
           <div class="card-header">
             <h2>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px;"><path d="M3 2h19l-3 9H5L3 2z"/><circle cx="9" cy="19" r="2"/><circle cx="17" cy="19" r="2"/></svg>
               Mesas Cobradas
             </h2>
+            <div class="card-header-actions">
+              <button type="button" class="collapse-btn" onclick="toggleCardCollapse(this)" title="Desplegar/Plegar">
+                <svg class="chevron-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+            </div>
           </div>
-          <div class="table-responsive">
-            <table class="admin-table" id="pedidos-mesas-table">
-              <thead>
-                <tr>
-                  <th>Fecha</th>
-                  <th>Mesa</th>
-                  <th>Mesero</th>
-                  <th>Ítems</th>
-                  <th>Total</th>
-                  <th>Pago</th>
-                  <th>Acciones</th>
-                </tr>
-              </thead>
-              <tbody></tbody>
-            </table>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="admin-table" id="pedidos-mesas-table">
+                <thead>
+                  <tr>
+                    <th>Fecha</th>
+                    <th>Mesa</th>
+                    <th>Mesero</th>
+                    <th>Ítems</th>
+                    <th>Total</th>
+                    <th>Pago</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
           </div>
         </section>
 
         <!-- 3. Domicilios Entregados -->
-        <section class="admin-card">
+        <section class="admin-card collapsed">
           <div class="card-header">
             <h2>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px;"><circle cx="12" cy="12" r="10"/><polyline points="12 8 12 12 14 14"/></svg>
               Domicilios Entregados
             </h2>
+            <div class="card-header-actions">
+              <button type="button" class="collapse-btn" onclick="toggleCardCollapse(this)" title="Desplegar/Plegar">
+                <svg class="chevron-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+            </div>
           </div>
-          <div class="table-responsive">
-            <table class="admin-table" id="pedidos-domicilios-table">
-              <thead>
-                <tr>
-                  <th>Fecha</th>
-                  <th>Cliente</th>
-                  <th>Dirección</th>
-                  <th>Ítems</th>
-                  <th>Total</th>
-                  <th>Pago</th>
-                  <th>Acciones</th>
-                </tr>
-              </thead>
-              <tbody></tbody>
-            </table>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="admin-table" id="pedidos-domicilios-table">
+                <thead>
+                  <tr>
+                    <th>Fecha</th>
+                    <th>Cliente</th>
+                    <th>Dirección</th>
+                    <th>Ítems</th>
+                    <th>Total</th>
+                    <th>Pago</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
           </div>
         </section>
 
@@ -359,14 +379,19 @@
       <div id="tab-operacion" style="display:none;">
         <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
           <!-- Configuración -->
-          <section class="admin-card">
+          <section class="admin-card collapsed">
             <div class="card-header">
               <h2>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px;"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
                 Configuración del Restaurante
               </h2>
+              <div class="card-header-actions">
+                <button type="button" class="collapse-btn" onclick="toggleCardCollapse(this)" title="Desplegar/Plegar">
+                  <svg class="chevron-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+              </div>
             </div>
-            <div style="padding: 20px;">
+            <div class="card-body" style="padding-top: 10px;">
               <div style="display:grid; gap:14px;">
                 <label style="display:block; font-size:14px; font-weight:600;">
                   Cantidad de Mesas Activas:
@@ -402,14 +427,19 @@
           </section>
 
           <!-- Meseros -->
-          <section class="admin-card" style="grid-row: span 2;">
+          <section class="admin-card collapsed" style="grid-row: span 2;">
             <div class="card-header">
-            <h2>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-              Personal (Meseros)
-            </h2>
-          </div>
-            <div style="padding: 20px;">
+              <h2>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                Personal (Meseros)
+              </h2>
+              <div class="card-header-actions">
+                <button type="button" class="collapse-btn" onclick="toggleCardCollapse(this)" title="Desplegar/Plegar">
+                  <svg class="chevron-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+              </div>
+            </div>
+            <div class="card-body" style="padding-top: 10px;">
               <form id="waiter-form" onsubmit="handleCreateWaiter(event)"
                 style="display:flex; flex-direction:column; gap:12px; margin-bottom: 24px; padding-bottom:24px; border-bottom:1px solid var(--border-color);">
                 <h3 style="margin-top:0; font-size:15px; color:var(--rojo);">Agregar nuevo acceso</h3>
@@ -445,8 +475,8 @@
 
       <!-- ===== TAB ESTADÍSTICAS ===== -->
       <div id="tab-estadisticas" style="display:none;">
-        <section class="admin-card">
-          <div class="card-header" style="margin-bottom: 20px; flex-wrap: wrap; gap: 16px;">
+        <section class="admin-card collapsed">
+          <div class="card-header" style="flex-wrap: wrap; gap: 16px;">
             <div>
               <h2>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px;"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
@@ -454,46 +484,53 @@
               </h2>
               <p style="color:#666; font-size:14px; margin-top:4px;">(Datos basados en pedidos entregados)</p>
             </div>
-            <select id="stats-date-filter" onchange="renderEstadisticas()"
-              style="padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 8px; font-weight: 500; font-family: inherit; cursor: pointer; background: var(--surface); color: var(--text-main);">
-              <option value="all">Historico (Todo)</option>
-              <option value="today">Hoy</option>
-              <option value="week">Últimos 7 días</option>
-              <option value="month">Este Mes</option>
-            </select>
-          </div>
-          <div class="stats-grid" style="grid-template-columns: repeat(2, 1fr); margin-bottom: 24px;">
-            <div class="stat-card">
-              <div class="stat-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
-              <div class="stat-info">
-                <h3>Ticket Promedio</h3>
-                <p id="stat-ticket-promedio">$0</p>
-              </div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
-              <div class="stat-info">
-                <h3>Pedidos Entregados</h3>
-                <p id="stat-total-pedidos">0</p>
-              </div>
+            <div class="card-header-actions">
+              <select id="stats-date-filter" onchange="renderEstadisticas()"
+                style="padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 8px; font-weight: 500; font-family: inherit; cursor: pointer; background: var(--surface); color: var(--text-main);">
+                <option value="all">Historico (Todo)</option>
+                <option value="today">Hoy</option>
+                <option value="week">Últimos 7 días</option>
+                <option value="month">Este Mes</option>
+              </select>
+              <button type="button" class="collapse-btn" onclick="toggleCardCollapse(this)" title="Desplegar/Plegar">
+                <svg class="chevron-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
             </div>
           </div>
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
-            <div class="admin-card"
-              style="margin-bottom:0; padding:20px; box-shadow:none; border: 1px solid var(--border-color);">
-              <h3 style="margin-top:0; margin-bottom:16px; font-size:16px;">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
-                Top 5 Productos
-              </h3>
-              <div id="top-productos-container" class="simple-bar-container"></div>
+          <div class="card-body">
+            <div class="stats-grid" style="grid-template-columns: repeat(2, 1fr); margin-bottom: 24px; margin-top: 16px;">
+              <div class="stat-card">
+                <div class="stat-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+                <div class="stat-info">
+                  <h3>Ticket Promedio</h3>
+                  <p id="stat-ticket-promedio">$0</p>
+                </div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+                <div class="stat-info">
+                  <h3>Pedidos Entregados</h3>
+                  <p id="stat-total-pedidos">0</p>
+                </div>
+              </div>
             </div>
-            <div class="admin-card"
-              style="margin-bottom:0; padding:20px; box-shadow:none; border: 1px solid var(--border-color);">
-              <h3 style="margin-top:0; margin-bottom:16px; font-size:16px;">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-                Métodos de Pago
-              </h3>
-              <div id="metodos-pago-container" class="simple-bar-container"></div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
+              <div class="admin-card"
+                style="margin-bottom:0; padding:20px; box-shadow:none; border: 1px solid var(--border-color);">
+                <h3 style="margin-top:0; margin-bottom:16px; font-size:16px;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+                  Top 5 Productos
+                </h3>
+                <div id="top-productos-container" class="simple-bar-container"></div>
+              </div>
+              <div class="admin-card"
+                style="margin-bottom:0; padding:20px; box-shadow:none; border: 1px solid var(--border-color);">
+                <h3 style="margin-top:0; margin-bottom:16px; font-size:16px;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                  Métodos de Pago
+                </h3>
+                <div id="metodos-pago-container" class="simple-bar-container"></div>
+              </div>
             </div>
           </div>
         </section>

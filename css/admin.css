@@ -38,6 +38,12 @@ body.admin {
   padding: 24px 20px;
   display: flex;
   flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  box-sizing: border-box;
+  overflow-y: auto;
+  flex-shrink: 0;
 }
 
 .sidebar h2 {
@@ -219,6 +225,8 @@ body.admin.dark-theme .estado-listo      { background: rgba(16,185,129,0.15);  c
   flex: 1;
   padding: 32px 48px;
   overflow-y: auto;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 /* --- Headers & Typography --- */
@@ -266,13 +274,66 @@ body.admin.dark-theme .estado-listo      { background: rgba(16,185,129,0.15);  c
   border: 1px solid var(--border-color);
   padding: 24px;
   margin-bottom: 32px;
+  transition: margin-bottom 0.25s ease, padding 0.25s ease;
+}
+
+.admin-card.collapsed {
+  padding-bottom: 24px;
+  margin-bottom: 16px;
 }
 
 .card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 0;
+}
+
+.admin-card:not(.collapsed) .card-header {
   margin-bottom: 20px;
+}
+
+.card-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.collapse-btn {
+  background: var(--bg-color);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), background 0.2s, color 0.2s, border-color 0.2s;
+  flex-shrink: 0;
+}
+
+.collapse-btn:hover {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+.chevron-icon {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.admin-card.collapsed .chevron-icon {
+  transform: rotate(-90deg);
+}
+
+.card-body {
+  transition: all 0.3s ease;
+}
+
+.admin-card.collapsed .card-body {
+  display: none !important;
 }
 
 .admin-card h2 {
@@ -622,33 +683,91 @@ body.admin.dark-theme .estado-listo      { background: rgba(16,185,129,0.15);  c
   border-top: 1px solid var(--border-color);
 }
 
-/* --- Toast Messages --- */
+/* --- Toast Floating Popup Modal Messages --- */
 #admin-msg {
-  padding: 12px 16px;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 500;
-  margin-bottom: 24px;
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  z-index: 99999;
+  min-width: 280px;
+  max-width: 420px;
+  background: var(--surface);
+  color: var(--text-main);
+  border-radius: 14px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+  border: 1px solid var(--border-color);
+  padding: 14px 18px;
   display: none;
-  animation: modalPopup 0.3s ease;
+  opacity: 0;
+  transform: translateY(20px) scale(0.95);
+  transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  backdrop-filter: blur(12px);
+  animation: none;
+}
+
+#admin-msg.active {
+  display: block;
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.popup-toast-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.popup-toast-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.popup-toast-text {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--text-main);
+}
+
+.popup-toast-close {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 4px;
+  border-radius: 4px;
+  transition: color 0.2s;
+  flex-shrink: 0;
+}
+
+.popup-toast-close:hover {
+  color: var(--text-main);
 }
 
 #admin-msg.success {
-  background: #dcfce7;
-  color: #166534;
-  border: 1px solid #bbf7d0;
+  border-left: 4px solid #10b981;
 }
 
 #admin-msg.error {
-  background: #fee2e2;
-  color: #991b1b;
-  border: 1px solid #fecaca;
+  border-left: 4px solid #ef4444;
 }
 
 #admin-msg.info {
-  background: #e0e7ff;
-  color: #3730a3;
-  border: 1px solid #c7d2fe;
+  border-left: 4px solid #6366f1;
+}
+
+@media (max-width: 600px) {
+  #admin-msg {
+    left: 16px;
+    right: 16px;
+    bottom: calc(80px + env(safe-area-inset-bottom));
+    max-width: none;
+  }
 }
 
 /* Login */
@@ -749,16 +868,38 @@ body.admin.dark-theme .estado-listo      { background: rgba(16,185,129,0.15);  c
   display: none;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
   .dashboard-layout {
     flex-direction: column;
   }
 
-  /* Slim top bar on mobile — just logo + logout */
   .sidebar {
     width: 100%;
+    height: auto;
+    position: sticky;
+    top: 0;
+    z-index: 500;
     border-right: none;
     border-bottom: 1px solid var(--border-color);
+    padding: 16px 24px;
+    box-sizing: border-box;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .main-content {
+    padding: 24px 24px 40px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+}
+
+@media (max-width: 768px) {
+  .sidebar {
     padding: 12px 16px;
     flex-direction: row;
     align-items: center;
@@ -786,7 +927,7 @@ body.admin.dark-theme .estado-listo      { background: rgba(16,185,129,0.15);  c
   }
 
   .main-content {
-    padding: 20px 16px 90px;
+    padding: 20px 16px calc(90px + env(safe-area-inset-bottom));
     /* space for bottom nav */
   }
 
@@ -818,6 +959,157 @@ body.admin.dark-theme .estado-listo      { background: rgba(16,185,129,0.15);  c
     box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
     z-index: 500;
     padding: 6px 0 max(6px, env(safe-area-inset-bottom));
+  }
+}
+
+/* ══════════════════════════════════════════
+   CARD RESPONSIVE SYSTEM FOR ADMIN TABLES
+   Converts admin <table> rows to beautiful cards on tablets & mobiles
+══════════════════════════════════════════ */
+@media (max-width: 900px) {
+  .table-responsive {
+    overflow-x: visible;
+  }
+
+  .admin-table,
+  .admin-table tbody {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    width: 100%;
+  }
+
+  .admin-table thead {
+    display: none;
+  }
+
+  .admin-table tbody tr:not(.category-row):not(.empty-row) {
+    display: flex;
+    flex-direction: column;
+    background: var(--surface);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    padding: 16px;
+    box-shadow: var(--shadow-sm);
+    gap: 6px;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .admin-table tbody tr:not(.category-row):not(.empty-row):hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+
+  .admin-table tbody tr.category-row {
+    background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+    color: white;
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-top: 10px;
+    margin-bottom: -4px;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .admin-table tbody tr.category-row td {
+    padding: 0;
+    background: transparent !important;
+    color: white !important;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    border: none;
+  }
+
+  .admin-table tbody tr.empty-row {
+    background: var(--surface);
+    border: 1px dashed var(--border-color);
+    border-radius: 12px;
+    padding: 24px 16px;
+    text-align: center;
+  }
+
+  .admin-table tbody tr.empty-row td {
+    display: block;
+    border: none;
+    text-align: center;
+    padding: 0;
+  }
+
+  .admin-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px dashed var(--border-color);
+    font-size: 14px;
+  }
+
+  /* Ocultar celdas secundarias por defecto en tarjetas de móvil para ahorrar espacio */
+  .admin-table tbody tr:not(.category-row):not(.empty-row):not(.expanded) td:not([data-label="Nombre"]):not([data-label="Cliente"]):not([data-label="Mesa"]):not([data-label="Imagen"]):not([data-label="Etiqueta"]):not([data-label="Acciones"]) {
+    display: none;
+  }
+
+  /* Al expandir, mostramos todas las celdas */
+  .admin-table tbody tr.expanded td {
+    display: flex;
+  }
+
+  .admin-table td::before {
+    content: attr(data-label);
+    font-weight: 700;
+    font-size: 11px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin-right: 12px;
+    flex-shrink: 0;
+  }
+
+  .admin-table td[data-label="Acciones"]::before,
+  .admin-table td[data-label="Acción"]::before,
+  .admin-table td[data-label="Imagen"]::before {
+    display: none;
+  }
+
+  .admin-table td[data-label="Acciones"],
+  .admin-table td[data-label="Acción"] {
+    border-bottom: none;
+    padding-top: 12px;
+    justify-content: flex-end;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .admin-table td[data-label="Imagen"] {
+    justify-content: flex-start;
+  }
+
+  /* Botón de expandir (ojo) solo visible en móvil */
+  .toggle-eye-btn {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface);
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    border-radius: 6px;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .toggle-eye-btn:hover, .admin-table tbody tr.expanded .toggle-eye-btn {
+    color: var(--primary);
+    border-color: var(--primary);
+    background: rgba(99, 102, 241, 0.1);
+  }
+}
+
+/* Ocultar botón de expandir en PC */
+@media (min-width: 901px) {
+  .toggle-eye-btn {
+    display: none !important;
   }
 }
 

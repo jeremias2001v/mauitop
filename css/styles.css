@@ -625,6 +625,8 @@
     z-index: 900;
     opacity: 0; pointer-events: none;
     transition: opacity .3s;
+    /* Safari iOS 26: evitar que el fondo cubra el área de la barra Liquid Glass */
+    padding-bottom: env(safe-area-inset-bottom);
   }
 
   .cart-overlay.open { opacity: 1; pointer-events: all; }
@@ -931,6 +933,8 @@
     align-items: center;
     justify-content: center;
     padding: 20px;
+    /* Safari iOS 26: evitar que el fondo cubra el área de la barra Liquid Glass */
+    padding-bottom: max(20px, env(safe-area-inset-bottom));
     opacity: 0; pointer-events: none;
     transition: opacity .3s;
   }
@@ -1381,7 +1385,8 @@
 
   .floating-cart-btn {
     position: fixed;
-    bottom: 100px;
+    /* Safari iOS 26: usar safe-area-inset-bottom para no solapar la barra Liquid Glass */
+    bottom: calc(env(safe-area-inset-bottom) + 80px);
     right: 28px;
     background: var(--rojo);
     color: white;
@@ -1489,6 +1494,8 @@
     align-items: center;
     justify-content: center;
     padding: 20px;
+    /* Safari iOS 26: evitar que el fondo cubra el área de la barra Liquid Glass */
+    padding-bottom: env(safe-area-inset-bottom);
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.35s ease;
